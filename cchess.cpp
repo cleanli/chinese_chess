@@ -32,6 +32,11 @@ HWND editHd;
 HWND rb1Hd;
 HWND tmrLocalHd;
 HWND tmrRemoHd;
+HWND startButtonHd;
+HWND Button1Hd;
+HWND Button2Hd;
+HWND Button3Hd;
+HWND Button4Hd;
 
 LRESULT CALLBACK WindowProc(
         HWND hwnd,
@@ -123,14 +128,18 @@ LRESULT CALLBACK WindowProc(
                 //create three button
                 CreateWindow("Button", "Start", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         5, 5, 60, 20, hwnd, (HMENU)IDB_FIVE, hg_app, NULL);
-                CreateWindow("Button", "B1", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                Button1Hd = CreateWindow("Button", "B1", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         60, 610, 60, 20, hwnd, (HMENU)IDB_ONE, hg_app, NULL);
-                CreateWindow("Button", "B2", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                Button2Hd = CreateWindow("Button", "B2", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         135, 610, 60, 20, hwnd, (HMENU)IDB_TWO, hg_app, NULL);
-                CreateWindow("Button", "B3", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                Button3Hd = CreateWindow("Button", "B3", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         215, 610, 60, 20, hwnd, (HMENU)IDB_THREE, hg_app, NULL);
-                CreateWindow("Button", "B4", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                Button4Hd = CreateWindow("Button", "B4", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         290, 610, 60, 20, hwnd, (HMENU)IDB_FOUR, hg_app, NULL);
+                EnableWindow(Button1Hd, false);
+                EnableWindow(Button2Hd, false);
+                EnableWindow(Button3Hd, false);
+                EnableWindow(Button4Hd, false);
                 //CreateWindow(TEXT("edit"),TEXT("myedit"),WS_CHILD|WS_VISIBLE|WS_VSCROLL|WS_BORDER|ES_LEFT|ES_MULTILINE|ES_AUTOVSCROLL,
                 editHd = CreateWindow(TEXT("edit"),TEXT("ip addr"),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT,
                         100, 73, 190, 20, hwnd,(HMENU)ID_DATA, hg_app,NULL);
