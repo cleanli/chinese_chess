@@ -158,7 +158,9 @@ LRESULT CALLBACK WindowProc(
                 CreateWindow("Button","local",
                         WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP,
                         10, 27, 80, 20,
-                        hwnd,(HMENU)IDC_RADBTN2,hg_app,NULL);
+                        hwnd,(HMENU)IDC_RADBTN3,hg_app,NULL);
+                HWND hdtmp = GetDlgItem(hwnd, IDC_RADBTN3);
+                SendMessage(hdtmp, BM_SETCHECK, 1, 0);
                 rb1Hd = CreateWindow("Button","server",
                         WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
                         10, 50, 80, 20,
@@ -277,6 +279,18 @@ LRESULT CALLBACK WindowProc(
                     case IDB_THREE:
                         //MessageBox(hwnd, "you clicked tree", "notice", MB_OK | MB_ICONINFORMATION);
                         SendMessage((HWND)lParam, WM_SETTEXT, (WPARAM)NULL, (LPARAM)"third clicked");
+                        break;
+                    case IDB_FIVE:
+                        {
+                            HWND hdtmp = GetDlgItem(hwnd, IDB_FIVE);
+                            EnableWindow(hdtmp, false);
+#if 0
+                            EnableWindow(Button1Hd, true);
+                            EnableWindow(Button2Hd, true);
+                            EnableWindow(Button3Hd, true);
+                            EnableWindow(Button4Hd, true);
+#endif
+                        }
                         break;
                     default:
                         break;
