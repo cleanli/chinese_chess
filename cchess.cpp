@@ -30,6 +30,8 @@ char strbuf[128];
 HINSTANCE hg_app;
 HWND editHd;
 HWND rb1Hd;
+HWND tmrLocalHd;
+HWND tmrRemoHd;
 
 LRESULT CALLBACK WindowProc(
         HWND hwnd,
@@ -46,6 +48,9 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
     {
         HWND hwnd=(HWND)lpParam;
         //InvalidateRect(hwnd,NULL,TRUE);
+        char tBuf[1000];
+        sprintf(tBuf, "%02d      ", timer_count);
+        SetWindowText(tmrLocalHd, tBuf);
     }
 }
 
@@ -155,6 +160,18 @@ LRESULT CALLBACK WindowProc(
                 CreateWindow("Static","message",
                         SS_SIMPLE | WS_CHILD | WS_VISIBLE,
                         300,0,250,60,
+                        hwnd, NULL,
+                        hg_app,
+                        NULL);
+                tmrLocalHd = CreateWindow("Static","local",
+                        SS_SIMPLE | WS_CHILD | WS_VISIBLE,
+                        3,400,250,60,
+                        hwnd, NULL,
+                        hg_app,
+                        NULL);
+                tmrRemoHd = CreateWindow("Static","remote",
+                        SS_SIMPLE | WS_CHILD | WS_VISIBLE,
+                        3,250,250,60,
                         hwnd, NULL,
                         hg_app,
                         NULL);
