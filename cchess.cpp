@@ -85,7 +85,7 @@ int CALLBACK WinMain(
             38,                 //x cordinate in father windows
             20,                 //y cordinate in father windows
             530,                // width of windos
-            698,                // height of windows
+            705,                // height of windows
             NULL,               //no father windows, is NULL
             hRoot,               //menu
             hInstance,          //handle of current windows
@@ -124,38 +124,41 @@ LRESULT CALLBACK WindowProc(
                 CreateWindow("Button", "Start", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         5, 5, 60, 20, hwnd, (HMENU)IDB_FIVE, hg_app, NULL);
                 CreateWindow("Button", "B1", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        60, 590, 60, 20, hwnd, (HMENU)IDB_ONE, hg_app, NULL);
+                        60, 610, 60, 20, hwnd, (HMENU)IDB_ONE, hg_app, NULL);
                 CreateWindow("Button", "B2", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        135, 590, 60, 20, hwnd, (HMENU)IDB_TWO, hg_app, NULL);
+                        135, 610, 60, 20, hwnd, (HMENU)IDB_TWO, hg_app, NULL);
                 CreateWindow("Button", "B3", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        215, 590, 60, 20, hwnd, (HMENU)IDB_THREE, hg_app, NULL);
+                        215, 610, 60, 20, hwnd, (HMENU)IDB_THREE, hg_app, NULL);
                 CreateWindow("Button", "B4", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        290, 590, 60, 20, hwnd, (HMENU)IDB_FOUR, hg_app, NULL);
+                        290, 610, 60, 20, hwnd, (HMENU)IDB_FOUR, hg_app, NULL);
                 //CreateWindow(TEXT("edit"),TEXT("myedit"),WS_CHILD|WS_VISIBLE|WS_VSCROLL|WS_BORDER|ES_LEFT|ES_MULTILINE|ES_AUTOVSCROLL,
                 editHd = CreateWindow(TEXT("edit"),TEXT("ip addr"),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT,
-                        100, 50, 190, 20, hwnd,(HMENU)ID_DATA, hg_app,NULL);
+                        100, 73, 190, 20, hwnd,(HMENU)ID_DATA, hg_app,NULL);
                 // y cordinate, base
                 int yLoc = 0;
                 // text
                 yLoc += 10;
                 CreateWindow("Static","server ip",
                         SS_SIMPLE | WS_CHILD | WS_VISIBLE,
-                        100,27,160,20,
+                        100,50,160,20,
                         hwnd, NULL,
                         hg_app,
                         NULL);
                 // group 1
                 yLoc += 20;
-                rb1Hd = CreateWindow("Button","server",
+                CreateWindow("Button","local",
                         WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP,
                         10, 27, 80, 20,
+                        hwnd,(HMENU)IDC_RADBTN2,hg_app,NULL);
+                rb1Hd = CreateWindow("Button","server",
+                        WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
+                        10, 50, 80, 20,
                         hwnd,
                         (HMENU)IDC_RADBTN1,
                         hg_app,NULL);
-                yLoc += 20;
                 CreateWindow("Button","client",
                         WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-                        10,yLoc, 80, 20,
+                        10, 73, 80, 20,
                         hwnd,(HMENU)IDC_RADBTN2,hg_app,NULL);
                 CreateWindow("Static","message",
                         SS_SIMPLE | WS_CHILD | WS_VISIBLE,
@@ -165,7 +168,7 @@ LRESULT CALLBACK WindowProc(
                         NULL);
                 tmrLocalHd = CreateWindow("Static","local",
                         SS_SIMPLE | WS_CHILD | WS_VISIBLE,
-                        3,400,250,60,
+                        3,450,250,60,
                         hwnd, NULL,
                         hg_app,
                         NULL);
@@ -280,7 +283,7 @@ LRESULT CALLBACK WindowProc(
 
                 //image of background
                 GetClientRect(hwnd, &rt);
-                BitBlt(hdc, 0, 80, rt.right, rt.bottom, s_hdcMem, 0, 0, SRCCOPY);
+                BitBlt(hdc, 0, 100, rt.right, rt.bottom, s_hdcMem, 0, 0, SRCCOPY);
 #if 0
                 memset(strbuf, 0, 128);
                 sprintf(strbuf, "%02d", timer_count);
