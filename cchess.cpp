@@ -171,9 +171,9 @@ LRESULT CALLBACK WindowProc(
                         WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
                         10, 73, 80, 20,
                         hwnd,(HMENU)IDC_RADBTN2,hg_app,NULL);
-                CreateWindow("Static","message",
-                        SS_SIMPLE | WS_CHILD | WS_VISIBLE,
-                        300,0,250,60,
+                CreateWindow("Static","message\r\nmore message will be shown here. This is only test message",
+                        WS_CHILD | WS_VISIBLE,
+                        300,0,225,100,
                         hwnd, NULL,
                         hg_app,
                         NULL);
