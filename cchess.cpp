@@ -2,6 +2,8 @@
 #include <WindowsX.h>
 #include <stdio.h>
 
+#include "play_control.h"
+
 #define IDR_CONTEXT  200
 #define IDM_OPT1     301
 #define IDM_OPT2     302
@@ -31,7 +33,7 @@ static int mpbuf_index = 0;
 #define MESS_PRINT(fmt,arg...) \
     {   \
         int tmplen; \
-        sprintf(mpbuf[mpbuf_index], fmt, ##arg); \
+        sprintf(mpbuf[mpbuf_index], fmt"\r\n", ##arg); \
         tmplen = strlen(mpbuf[mpbuf_index]); \
         memcpy(mpbuf[mpbuf_index]+tmplen, mpbuf[1-mpbuf_index], MESS_SIZE-tmplen); \
         mpbuf[mpbuf_index][MESS_SIZE-1]=0; \
@@ -45,8 +47,11 @@ HANDLE hTimer = NULL;
 HANDLE hTimerQueue = NULL;
 char strbuf[128];
 HINSTANCE hg_app;
+HWND mainHd;
 HWND editHd;
 HWND rb1Hd;
+HWND rb2Hd;
+HWND rb3Hd;
 HWND tmrLocalHd;
 HWND tmrRemoHd;
 HWND startButtonHd;
@@ -55,6 +60,7 @@ HWND Button2Hd;
 HWND Button3Hd;
 HWND Button4Hd;
 HWND MessageHd;
+RUN_MODE running_mode;
 
 void message_print(const char *fmt, ...);
 LRESULT CALLBACK WindowProc(
@@ -76,7 +82,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
         sprintf(tBuf, "%02d      ", timer_count);
         SetWindowText(tmrLocalHd, tBuf);
         //message_print("%d", timer_count);
-        MESS_PRINT("%d\r\n", timer_count);
+        MESS_PRINT("%d", timer_count);
     }
 }
 
@@ -118,7 +124,7 @@ int CALLBACK WinMain(
             NULL);              //no attached data, NULL
     if(hwnd == NULL) // check if successfully created windows
         return 0;
-
+    mainHd = hwnd;
     ShowWindow(hwnd, SW_SHOW);
 
     UpdateWindow(hwnd);
@@ -132,6 +138,15 @@ int CALLBACK WinMain(
     }
     return 0;
 }
+
+void enable_by_id(int id, int enable)
+{
+    HWND hdtmp = GetDlgItem(mainHd, id);
+    if(hdtmp != NULL){
+        EnableWindow(hdtmp, enable);
+    }
+}
+
 LRESULT CALLBACK WindowProc(
         HWND hwnd,
         UINT uMsg,
@@ -176,7 +191,7 @@ LRESULT CALLBACK WindowProc(
                         NULL);
                 // group 1
                 yLoc += 20;
-                CreateWindow("Button","local",
+                rb3Hd = CreateWindow("Button","local",
                         WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP,
                         10, 27, 80, 20,
                         hwnd,(HMENU)IDC_RADBTN3,hg_app,NULL);
@@ -188,7 +203,7 @@ LRESULT CALLBACK WindowProc(
                         hwnd,
                         (HMENU)IDC_RADBTN1,
                         hg_app,NULL);
-                CreateWindow("Button","client",
+                rb2Hd = CreateWindow("Button","client",
                         WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
                         10, 73, 80, 20,
                         hwnd,(HMENU)IDC_RADBTN2,hg_app,NULL);
@@ -288,9 +303,6 @@ LRESULT CALLBACK WindowProc(
                         //MessageBox(hwnd, "you clicked first", "Notice", MB_OK | MB_ICONINFORMATION);
                         char szBuf[1000];
                         GetWindowText(editHd, szBuf, 1000);
-                        if(Button_GetCheck(rb1Hd)){
-                            sprintf(szBuf, "Male choosed");
-                        }
                         MessageBox(hwnd, szBuf, "Notice", MB_OK | MB_ICONINFORMATION);
                         //SendMessage((HWND)lParam, WM_SETTEXT, (WPARAM)NULL, (LPARAM)"first clicked");
                         break;
@@ -306,6 +318,24 @@ LRESULT CALLBACK WindowProc(
                         {
                             HWND hdtmp = GetDlgItem(hwnd, IDB_FIVE);
                             EnableWindow(hdtmp, false);
+
+                            if(Button_GetCheck(rb3Hd)){
+                                running_mode = LOCAL_MODE;
+                                MESS_PRINT("Running as local");
+                            }
+                            if(Button_GetCheck(rb2Hd)){
+                                running_mode = CLIENT_MODE;
+                                MESS_PRINT("Running as client");
+                            }
+                            if(Button_GetCheck(rb1Hd)){
+                                running_mode = SERVER_MODE;
+                                MESS_PRINT("Running as server");
+                            }
+
+                            enable_by_id(IDC_RADBTN1, 0);
+                            enable_by_id(IDC_RADBTN2, 0);
+                            enable_by_id(IDC_RADBTN3, 0);
+                            enable_by_id(ID_DATA, 0);
                             EnableWindow(Button1Hd, true);
                             EnableWindow(Button2Hd, true);
                             EnableWindow(Button3Hd, true);
