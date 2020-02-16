@@ -2,7 +2,8 @@
 #define _PLAY_CONTROL
 enum RUN_MODE
 {
-    LOCAL_MODE = 0,
+    TBD = 0,
+    LOCAL_MODE,
     SERVER_MODE,
     CLIENT_MODE
 };

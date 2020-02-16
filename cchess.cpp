@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "play_control.h"
+#include "ch_chess.h"
 
 #define IDR_CONTEXT  200
 #define IDM_OPT1     301
@@ -60,7 +61,7 @@ HWND Button2Hd;
 HWND Button3Hd;
 HWND Button4Hd;
 HWND MessageHd;
-RUN_MODE running_mode;
+RUN_MODE running_mode = TBD;
 
 void message_print(const char *fmt, ...);
 LRESULT CALLBACK WindowProc(
@@ -164,13 +165,13 @@ LRESULT CALLBACK WindowProc(
                 //create three button
                 CreateWindow("Button", "Start", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         5, 5, 60, 20, hwnd, (HMENU)IDB_FIVE, hg_app, NULL);
-                Button1Hd = CreateWindow("Button", "B1", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                Button1Hd = CreateWindow("Button", "Switch", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         60, 610, 60, 20, hwnd, (HMENU)IDB_ONE, hg_app, NULL);
-                Button2Hd = CreateWindow("Button", "B2", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                Button2Hd = CreateWindow("Button", "Start", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         135, 610, 60, 20, hwnd, (HMENU)IDB_TWO, hg_app, NULL);
-                Button3Hd = CreateWindow("Button", "B3", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                Button3Hd = CreateWindow("Button", "Retract", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         215, 610, 60, 20, hwnd, (HMENU)IDB_THREE, hg_app, NULL);
-                Button4Hd = CreateWindow("Button", "B4", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                Button4Hd = CreateWindow("Button", "Give", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         290, 610, 60, 20, hwnd, (HMENU)IDB_FOUR, hg_app, NULL);
                 EnableWindow(Button1Hd, false);
                 EnableWindow(Button2Hd, false);

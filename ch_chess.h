@@ -1,0 +1,11 @@
+#ifndef _CH_CHESS
+#define _CH_CHESS
+enum PLAYING_RESULT
+{
+    RESULT_UNKNOWN = 0,
+    RESULT_DRAWN,
+    RESULT_RED_WIN,
+    RESULT_BLACK_WIN,
+};
+
+#endif
