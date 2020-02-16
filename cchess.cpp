@@ -21,6 +21,10 @@
 #define IDC_RADBTNRED		51002
 #define IDC_RADBTNGREEN		51003
 
+#define IDS_MESSAGE 51004
+
+static char mpbuf[200];
+#define MESS_PRINT(fmt,arg...) {sprintf(mpbuf, fmt, ##arg);SetWindowText(MessageHd, mpbuf);}
 HMENU hRoot;
 void CreateMyMenu();//create menu
 int timer_count=0;
@@ -37,7 +41,9 @@ HWND Button1Hd;
 HWND Button2Hd;
 HWND Button3Hd;
 HWND Button4Hd;
+HWND MessageHd;
 
+void message_print(const char *fmt, ...);
 LRESULT CALLBACK WindowProc(
         HWND hwnd,
         UINT uMsg,
@@ -56,6 +62,8 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
         char tBuf[1000];
         sprintf(tBuf, "%02d      ", timer_count);
         SetWindowText(tmrLocalHd, tBuf);
+        //message_print("%d", timer_count);
+        MESS_PRINT("%d", timer_count);
     }
 }
 
@@ -171,10 +179,10 @@ LRESULT CALLBACK WindowProc(
                         WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
                         10, 73, 80, 20,
                         hwnd,(HMENU)IDC_RADBTN2,hg_app,NULL);
-                CreateWindow("Static","message\r\nmore message will be shown here. This is only test message",
+                MessageHd = CreateWindow("Static","message\r\nmore message will be shown here. This is only test message",
                         WS_CHILD | WS_VISIBLE,
                         300,0,225,100,
-                        hwnd, NULL,
+                        hwnd, (HMENU)IDS_MESSAGE,
                         hg_app,
                         NULL);
                 tmrLocalHd = CreateWindow("Static","local",
@@ -189,6 +197,7 @@ LRESULT CALLBACK WindowProc(
                         hwnd, NULL,
                         hg_app,
                         NULL);
+                message_print("wm create done");
             }
 
             memset(strbuf, 0, 128);
@@ -367,4 +376,14 @@ void CreateMyMenu()
     mif.wID = IDM_OPT2;
 
     InsertMenuItem(pop1,IDM_OPT2,FALSE,&mif);
+}
+
+void message_print(const char *fmt, ...)
+{
+    va_list args;
+
+    va_start(args, fmt);
+    sprintf(mpbuf, fmt, args);
+    va_end(args);
+    SetWindowText(MessageHd, mpbuf);
 }
