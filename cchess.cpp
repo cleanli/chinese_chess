@@ -89,6 +89,8 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
         movingy++;
         RECT rctA = {(LONG)(movingx-1),(LONG)(movingy-1),(LONG)(movingx+CELL_SIZE),(LONG)(movingy+CELL_SIZE)};
         InvalidateRect(hwnd,&rctA,TRUE);
+        rctA = {(LONG)(500-movingx+1),(LONG)(movingy-1),(LONG)(500-movingx+CELL_SIZE+9),(LONG)(movingy+CELL_SIZE)};
+        InvalidateRect(hwnd,&rctA,TRUE);
     }
 }
 
@@ -389,6 +391,7 @@ LRESULT CALLBACK WindowProc(
                 GetClientRect(hwnd, &rt);
                 BitBlt(hdc, 0, 100, rt.right, rt.bottom, s_hdcMem, 0, 0, SRCCOPY);
                 BitBlt(hdc, movingx, movingy, rt.right, rt.bottom, s_hdcMemBin, 0, 0, SRCCOPY);
+                BitBlt(hdc, 500-movingx, movingy, rt.right, rt.bottom, s_hdcMemBin, 0, 0, SRCCOPY);
 #if 0
                 memset(strbuf, 0, 128);
                 sprintf(strbuf, "%02d", timer_count);
