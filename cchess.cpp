@@ -71,6 +71,8 @@ LRESULT CALLBACK WindowProc(
         LPARAM lParam
         );
 
+int movingx = 100;
+int movingy = 100;
 VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
 {
     HWND hwnd;
@@ -78,12 +80,14 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
     if (lpParam != NULL)
     {
         HWND hwnd=(HWND)lpParam;
-        //InvalidateRect(hwnd,NULL,TRUE);
         char tBuf[1000];
         sprintf(tBuf, "%02d      ", timer_count);
         SetWindowText(tmrLocalHd, tBuf);
         //message_print("%d", timer_count);
         MESS_PRINT("%d", timer_count);
+        movingx++;
+        movingy++;
+        InvalidateRect(hwnd,NULL,TRUE);
     }
 }
 
@@ -156,7 +160,9 @@ LRESULT CALLBACK WindowProc(
         )
 {
     HBITMAP hBitmap;
+    HBITMAP hBitmapbin;
     static HDC s_hdcMem;
+    static HDC s_hdcMemBin;
 
     switch(uMsg)
     {
@@ -234,6 +240,7 @@ LRESULT CALLBACK WindowProc(
             // set dlg size changable
             //SetWindowLong(hwnd, GWL_STYLE, GetWindowLong(hwnd, GWL_STYLE) | WS_SIZEBOX);
             // load image
+#if 1
             hBitmap = (HBITMAP)LoadImage(NULL, "qipan.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
             if (hBitmap == NULL)
             {
@@ -246,6 +253,21 @@ LRESULT CALLBACK WindowProc(
                 hdc = GetDC(hwnd);
                 s_hdcMem = CreateCompatibleDC(hdc);
                 SelectObject(s_hdcMem, hBitmap);
+                ReleaseDC(hwnd, hdc);
+            }
+#endif
+            hBitmapbin = (HBITMAP)LoadImage(NULL, "bin.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+            if (hBitmapbin == NULL)
+            {
+                MessageBox(hwnd, "LoadImage failed", "Error", MB_ICONERROR);
+            }
+            else
+            {
+                // put image to HDC - s_hdcMem
+                HDC hdc;
+                hdc = GetDC(hwnd);
+                s_hdcMemBin = CreateCompatibleDC(hdc);
+                SelectObject(s_hdcMemBin, hBitmapbin);
                 ReleaseDC(hwnd, hdc);
             }
             //timer init
@@ -365,6 +387,7 @@ LRESULT CALLBACK WindowProc(
                 //image of background
                 GetClientRect(hwnd, &rt);
                 BitBlt(hdc, 0, 100, rt.right, rt.bottom, s_hdcMem, 0, 0, SRCCOPY);
+                BitBlt(hdc, movingx, movingy, rt.right, rt.bottom, s_hdcMemBin, 0, 0, SRCCOPY);
 #if 0
                 memset(strbuf, 0, 128);
                 sprintf(strbuf, "%02d", timer_count);
