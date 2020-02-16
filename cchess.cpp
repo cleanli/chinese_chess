@@ -23,8 +23,21 @@
 
 #define IDS_MESSAGE 51004
 
-static char mpbuf[200];
-#define MESS_PRINT(fmt,arg...) {sprintf(mpbuf, fmt, ##arg);SetWindowText(MessageHd, mpbuf);}
+#define MESS_SIZE 100
+static char mpbuf0[256];
+static char mpbuf1[256];
+static char* mpbuf[2]={mpbuf0, mpbuf1};
+static int mpbuf_index = 0;
+#define MESS_PRINT(fmt,arg...) \
+    {   \
+        int tmplen; \
+        sprintf(mpbuf[mpbuf_index], fmt, ##arg); \
+        tmplen = strlen(mpbuf[mpbuf_index]); \
+        memcpy(mpbuf[mpbuf_index]+tmplen, mpbuf[1-mpbuf_index], MESS_SIZE-tmplen); \
+        mpbuf[mpbuf_index][MESS_SIZE-1]=0; \
+        SetWindowText(MessageHd, mpbuf[mpbuf_index]);\
+        mpbuf_index = 1 - mpbuf_index; \
+    }
 HMENU hRoot;
 void CreateMyMenu();//create menu
 int timer_count=0;
@@ -63,7 +76,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
         sprintf(tBuf, "%02d      ", timer_count);
         SetWindowText(tmrLocalHd, tBuf);
         //message_print("%d", timer_count);
-        MESS_PRINT("%d", timer_count);
+        MESS_PRINT("%d\r\n", timer_count);
     }
 }
 
@@ -197,7 +210,7 @@ LRESULT CALLBACK WindowProc(
                         hwnd, NULL,
                         hg_app,
                         NULL);
-                message_print("wm create done");
+                MESS_PRINT("wm create done");
             }
 
             memset(strbuf, 0, 128);
@@ -377,7 +390,7 @@ void CreateMyMenu()
 
     InsertMenuItem(pop1,IDM_OPT2,FALSE,&mif);
 }
-
+#if 0
 void message_print(const char *fmt, ...)
 {
     va_list args;
@@ -387,3 +400,4 @@ void message_print(const char *fmt, ...)
     va_end(args);
     SetWindowText(MessageHd, mpbuf);
 }
+#endif
