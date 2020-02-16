@@ -348,6 +348,13 @@ LRESULT CALLBACK WindowProc(
                 }
             }
             break;
+        case WM_LBUTTONDOWN:
+            {
+                int x = GET_X_LPARAM(lParam);
+                int y = GET_Y_LPARAM(lParam);
+                MESS_PRINT("left mouse %d %d", x, y);
+            }
+            break;
         case WM_PAINT:
             {
                 HDC hdc;
