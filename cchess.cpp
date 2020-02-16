@@ -26,7 +26,7 @@
 
 #define IDS_MESSAGE 51004
 
-#define MESS_SIZE 100
+#define MESS_SIZE 120
 static char mpbuf0[256];
 static char mpbuf1[256];
 static char* mpbuf[2]={mpbuf0, mpbuf1};
@@ -84,10 +84,11 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
         sprintf(tBuf, "%02d      ", timer_count);
         SetWindowText(tmrLocalHd, tBuf);
         //message_print("%d", timer_count);
-        MESS_PRINT("%d", timer_count);
+        //MESS_PRINT("%d", timer_count);
         movingx++;
         movingy++;
-        InvalidateRect(hwnd,NULL,TRUE);
+        RECT rctA = {(LONG)(movingx-1),(LONG)(movingy-1),(LONG)(movingx+CELL_SIZE),(LONG)(movingy+CELL_SIZE)};
+        InvalidateRect(hwnd,&rctA,TRUE);
     }
 }
 

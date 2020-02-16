@@ -15,4 +15,5 @@ enum RUN_STATE
     END_STATE
 };
 
+#define CELL_SIZE (364.0f/8)
 #endif
