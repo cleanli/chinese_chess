@@ -12,7 +12,7 @@
 #define IDB_THREE   3303
 #define IDB_FOUR   3304
 #define IDB_FIVE   3305
-#define ID_DATA     3305
+#define ID_DATA     3306
 
 #define IDC_RADBTN1		50001
 #define IDC_RADBTN2		50002
@@ -284,12 +284,10 @@ LRESULT CALLBACK WindowProc(
                         {
                             HWND hdtmp = GetDlgItem(hwnd, IDB_FIVE);
                             EnableWindow(hdtmp, false);
-#if 0
                             EnableWindow(Button1Hd, true);
                             EnableWindow(Button2Hd, true);
                             EnableWindow(Button3Hd, true);
                             EnableWindow(Button4Hd, true);
-#endif
                         }
                         break;
                     default:
