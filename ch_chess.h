@@ -78,23 +78,46 @@ struct chess_point{
 class chess_game;
 class chess_piece{
     public:
-        chess_point* get_point();
+        chess_piece(chess_game*,int,int);
+        int get_p_x();
+        int get_p_y();
         bool is_alive();
-        virtual bool can_goto_point(chess_point*)=0;
+        virtual bool can_goto_point(int x,int y)=0;
     private:
         chess_point cp;
         bool isalive;
         chess_game *chg;
 };
 
+#define SUB_CP_DEF(cp_type) \
+    class chess_piece_##cp_type : public chess_piece \
+    { \
+        bool can_goto_point(int, int); \
+    }
+
+SUB_CP_DEF(king);
+SUB_CP_DEF(guard);
+SUB_CP_DEF(minister);
+SUB_CP_DEF(knight);
+SUB_CP_DEF(rook);
+SUB_CP_DEF(cannon);
+SUB_CP_DEF(pawn);
+
 class chess_game{
     public:
+        chess_game(int timeout_in_second);
         void init();
         bool choose_point(chess_point*);
         bool moveto_point(chess_point*);
+        chess_piece* get_cp(int, int);
+        PLAYING_SIDE get_current_playing_side();
+        void timer_click();
     private:
         chess_piece* cpes[CP_NUM_MAX];
         chess_piece* cpes_board[MAX_CHS_BOARD_Y][MAX_CHS_BOARD_X];
+        PLAYING_SIDE current_playing_side;
+        int red_timeout;
+        int black_timeout;
 };
 
 #endif

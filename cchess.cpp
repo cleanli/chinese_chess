@@ -63,6 +63,8 @@ HWND Button4Hd;
 HWND MessageHd;
 RUN_MODE running_mode = TBD;
 
+chess_game g_chess_game(100);
+
 void message_print(const char *fmt, ...);
 LRESULT CALLBACK WindowProc(
         HWND hwnd,
@@ -171,6 +173,8 @@ LRESULT CALLBACK WindowProc(
     {
         case WM_CREATE:
             {
+                g_chess_game.init();
+
                 //create three button
                 CreateWindow("Button", "Start", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         5, 5, 60, 20, hwnd, (HMENU)IDB_FIVE, hg_app, NULL);
