@@ -180,7 +180,29 @@ bool chess_game::choose_point(int x, int y)
 
 bool chess_game::moveto_point(int x, int y)
 {
-    return true;
+    if(current_playing_side == cpes_board[y][x]->get_cp_side()){
+        choosen_cp = cpes_board[y][x];
+        return true;
+    }
+#if 0
+    else if(choosen_cp->can_goto_point(x,y)){
+        cpes_board[choosen_cp->get_p_y()][choosen_cp->get_p_x()] = NULL;
+        choosen_cp->moveto(x,y);
+        cpes_board[y][x] = choosen_cp;
+        switch_turn();
+        choosen_cp = NULL;
+        return true;
+    }
+    else{
+        return false;
+    }
+#endif
+        return false;
+}
+
+void chess_game::switch_turn()
+{
+    current_playing_side = (current_playing_side == SIDE_RED)?SIDE_BLACK:SIDE_RED;
 }
 
 chess_piece* chess_game::get_choosen_cp()
