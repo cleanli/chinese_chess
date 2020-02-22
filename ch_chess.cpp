@@ -171,7 +171,7 @@ void chess_game::reset()
 
 bool chess_game::choose_point(int x, int y)
 {
-    if(current_playing_side == cpes_board[y][x]->get_cp_side()){
+    if(cpes_board[y][x] != NULL && current_playing_side == cpes_board[y][x]->get_cp_side()){
         choosen_cp = cpes_board[y][x];
         return true;
     }
