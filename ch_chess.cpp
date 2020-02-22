@@ -137,6 +137,13 @@ bool chess_game::moveto_point(int x, int y)
     return true;
 }
 
+chess_piece* chess_game::get_cp(CHESS_PIECES_INDEX cp_ind)
+{
+    if(cp_ind>=CP_NUM_MAX)
+        return NULL;
+    return cpes[cp_ind];
+}
+
 chess_piece* chess_game::get_cp(int p_x, int p_y)
 {
     return cpes_board[p_y][p_x];

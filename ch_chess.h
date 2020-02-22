@@ -122,6 +122,7 @@ class chess_game{
         bool choose_point(int x, int y);
         bool moveto_point(int x, int y);
         chess_piece* get_cp(int, int);
+        chess_piece* get_cp(CHESS_PIECES_INDEX);
         PLAYING_SIDE get_current_playing_side();
         void timer_click();
         chess_piece* create_cp(const cp_create_info*);

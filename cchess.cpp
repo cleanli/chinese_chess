@@ -87,12 +87,14 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
         SetWindowText(tmrLocalHd, tBuf);
         //message_print("%d", timer_count);
         //MESS_PRINT("%d", timer_count);
+#if 0
         movingx++;
         movingy++;
         RECT rctA = {(LONG)(movingx-1),(LONG)(movingy-1),(LONG)(movingx+CELL_SIZE),(LONG)(movingy+CELL_SIZE)};
         InvalidateRect(hwnd,&rctA,TRUE);
         rctA = {(LONG)(500-movingx+1),(LONG)(movingy-1),(LONG)(500-movingx+CELL_SIZE+9),(LONG)(movingy+CELL_SIZE)};
         InvalidateRect(hwnd,&rctA,TRUE);
+#endif
     }
 }
 
@@ -165,9 +167,9 @@ LRESULT CALLBACK WindowProc(
         )
 {
     HBITMAP hBitmap;
-    HBITMAP hBitmapbin;
+    HBITMAP hBitmapCP[DCP_NUM_MAX];
     static HDC s_hdcMem;
-    static HDC s_hdcMemBin;
+    static HDC s_hdcMemCP[DCP_NUM_MAX];
 
     switch(uMsg)
     {
@@ -263,19 +265,21 @@ LRESULT CALLBACK WindowProc(
                 ReleaseDC(hwnd, hdc);
             }
 #endif
-            hBitmapbin = (HBITMAP)LoadImage(NULL, "bin.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
-            if (hBitmapbin == NULL)
-            {
-                MessageBox(hwnd, "LoadImage failed", "Error", MB_ICONERROR);
-            }
-            else
-            {
-                // put image to HDC - s_hdcMem
-                HDC hdc;
-                hdc = GetDC(hwnd);
-                s_hdcMemBin = CreateCompatibleDC(hdc);
-                SelectObject(s_hdcMemBin, hBitmapbin);
-                ReleaseDC(hwnd, hdc);
+            for(int i=0;i<DCP_NUM_MAX;i++){
+                hBitmapCP[i] = (HBITMAP)LoadImage(NULL, chess_pieces_bmp_path[i], IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+                if (hBitmapCP[i] == NULL)
+                {
+                    MessageBox(hwnd, "LoadImage failed", "Error", MB_ICONERROR);
+                }
+                else
+                {
+                    // put image to HDC - s_hdcMem
+                    HDC hdc;
+                    hdc = GetDC(hwnd);
+                    s_hdcMemCP[i] = CreateCompatibleDC(hdc);
+                    SelectObject(s_hdcMemCP[i], hBitmapCP[i]);
+                    ReleaseDC(hwnd, hdc);
+                }
             }
             //timer init
             // Create the timer queue.
@@ -370,6 +374,7 @@ LRESULT CALLBACK WindowProc(
                             EnableWindow(Button2Hd, true);
                             EnableWindow(Button3Hd, true);
                             EnableWindow(Button4Hd, true);
+                            InvalidateRect(hwnd,NULL,TRUE);
                         }
                         break;
                     default:
@@ -394,9 +399,17 @@ LRESULT CALLBACK WindowProc(
                 //image of background
                 GetClientRect(hwnd, &rt);
                 BitBlt(hdc, 0, 100, rt.right, rt.bottom, s_hdcMem, 0, 0, SRCCOPY);
+                if(running_mode != TBD){
+                    for(int i = 0;i < CP_NUM_MAX;i++){
+                        chess_piece * cptmp = g_chess_game.get_cp((CHESS_PIECES_INDEX)i);
+                        if(!cptmp && cptmp->is_alive())
+                            MESS_PRINT("bitblt %d %d",  cptmp->get_p_x(), cptmp->get_p_y());
+                            BitBlt(hdc, chess_to_display_x(cptmp->get_p_x())-CELL_SIZE/2, chess_to_display_y(cptmp->get_p_y())-CELL_SIZE/2, rt.right, rt.bottom, s_hdcMemCP[cp_display_map[i]], 0, 0, SRCCOPY);
+                    }
+                }
+#if 0
                 BitBlt(hdc, movingx, movingy, rt.right, rt.bottom, s_hdcMemBin, 0, 0, SRCCOPY);
                 BitBlt(hdc, 500-movingx, movingy, rt.right, rt.bottom, s_hdcMemBin, 0, 0, SRCCOPY);
-#if 0
                 memset(strbuf, 0, 128);
                 sprintf(strbuf, "%02d", timer_count);
                 SetTextColor(ps.hdc, RGB(10, 0, 255));
