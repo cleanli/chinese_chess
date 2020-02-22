@@ -173,7 +173,7 @@ LRESULT CALLBACK WindowProc(
     {
         case WM_CREATE:
             {
-                g_chess_game.init();
+                g_chess_game.reset();
 
                 //create three button
                 CreateWindow("Button", "Start", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,

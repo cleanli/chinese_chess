@@ -80,20 +80,19 @@ struct cp_create_info{
     int cp_y;
 };
 
-struct chess_point{
-    int x;
-    int y;
-};
 class chess_game;
 class chess_piece{
     public:
         chess_piece(chess_game*,int,int,PLAYING_SIDE);
         int get_p_x();
         int get_p_y();
+        bool moveto(int x, int y);
         bool is_alive();
+        void set_alive(bool);
         virtual bool can_goto_point(int x,int y)=0;
     private:
-        chess_point cp;
+        int current_x;
+        int current_y;
         bool isalive;
         chess_game *chg;
         PLAYING_SIDE pside;
@@ -119,9 +118,9 @@ SUB_CP_DEF(pawn);
 class chess_game{
     public:
         chess_game(int timeout_in_second);
-        void init();
-        bool choose_point(chess_point*);
-        bool moveto_point(chess_point*);
+        void reset();
+        bool choose_point(int x, int y);
+        bool moveto_point(int x, int y);
         chess_piece* get_cp(int, int);
         PLAYING_SIDE get_current_playing_side();
         void timer_click();
@@ -151,17 +150,17 @@ class chess_game{
             {CP_TYPE_PAWN,     SIDE_RED,  6, 3},
             {CP_TYPE_PAWN,     SIDE_RED,  8, 3},
 
-            {CP_TYPE_ROOK,     SIDE_BLACK, 8, 0},
-            {CP_TYPE_KNIGHT,   SIDE_BLACK, 7, 0},
-            {CP_TYPE_MINISTER, SIDE_BLACK, 6, 0},
-            {CP_TYPE_GUARD,    SIDE_BLACK, 5, 0},
-            {CP_TYPE_KING,     SIDE_BLACK, 4, 0},
-            {CP_TYPE_GUARD,    SIDE_BLACK, 3, 0},
-            {CP_TYPE_MINISTER, SIDE_BLACK, 2, 0},
-            {CP_TYPE_KNIGHT,   SIDE_BLACK, 1, 0},
-            {CP_TYPE_ROOK,     SIDE_BLACK, 0, 0},
-            {CP_TYPE_CANNON,   SIDE_BLACK, 7, 0},
-            {CP_TYPE_CANNON,   SIDE_BLACK, 1, 0},
+            {CP_TYPE_ROOK,     SIDE_BLACK, 8, 9},
+            {CP_TYPE_KNIGHT,   SIDE_BLACK, 7, 9},
+            {CP_TYPE_MINISTER, SIDE_BLACK, 6, 9},
+            {CP_TYPE_GUARD,    SIDE_BLACK, 5, 9},
+            {CP_TYPE_KING,     SIDE_BLACK, 4, 9},
+            {CP_TYPE_GUARD,    SIDE_BLACK, 3, 9},
+            {CP_TYPE_MINISTER, SIDE_BLACK, 2, 9},
+            {CP_TYPE_KNIGHT,   SIDE_BLACK, 1, 9},
+            {CP_TYPE_ROOK,     SIDE_BLACK, 0, 9},
+            {CP_TYPE_CANNON,   SIDE_BLACK, 7, 7},
+            {CP_TYPE_CANNON,   SIDE_BLACK, 1, 7},
             {CP_TYPE_PAWN,     SIDE_BLACK, 8, 6},
             {CP_TYPE_PAWN,     SIDE_BLACK, 6, 6},
             {CP_TYPE_PAWN,     SIDE_BLACK, 4, 6},
