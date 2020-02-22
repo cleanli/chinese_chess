@@ -65,7 +65,7 @@ RUN_MODE running_mode = TBD;
 RUN_STATE running_state = INIT_STATE;
 HANDLE_TYPE chess_playing_handle[SIDE_MAX];
 
-chess_game g_chess_game(19);
+chess_game g_chess_game(3);
 
 void message_print(const char *fmt, ...);
 LRESULT CALLBACK WindowProc(
@@ -79,6 +79,7 @@ int movingx = 100;
 int movingy = 100;
 VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
 {
+    static RUN_STATE last_game_state = INIT_STATE;
     HWND hwnd;
     timer_count++;
     g_chess_game.timer_click();
@@ -94,6 +95,11 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
         MESS_PRINT("%d", timer_count);
         MESS_PRINT("%d", g_chess_game.get_timeout(SIDE_BLACK));
         SetWindowText(tmrRemoHd, tBuf);
+        RUN_STATE rs_tmp = g_chess_game.get_running_state();
+        if(rs_tmp != last_game_state){
+            InvalidateRect(hwnd,NULL,TRUE);
+        }
+        last_game_state = rs_tmp;
         //message_print("%d", timer_count);
         //MESS_PRINT("%d", timer_count);
 #if 0
@@ -432,6 +438,28 @@ LRESULT CALLBACK WindowProc(
                         }
                     }
 #endif
+                    if(g_chess_game.get_running_state() == END_STATE){
+                        int x, y;
+                        switch(g_chess_game.get_game_result()){
+                            case RESULT_RED_WIN:
+                                x = 4;
+                                y = 1;
+                                break;
+                            case RESULT_BLACK_WIN:
+                                x = 4;
+                                y = 8;
+                                break;
+                            case RESULT_DRAWN:
+                                x = 4;
+                                y = 4;
+                                break;
+                        }
+                        HBRUSH hb = CreateSolidBrush(RGB(255,255,0));
+                        HBRUSH orgBrs = (HBRUSH)SelectObject(ps.hdc, hb);
+                        Ellipse(ps.hdc,chess_to_display_x(x-1),chess_to_display_y(y-1),chess_to_display_x(x+1),chess_to_display_y(y+1));
+                        SelectObject(ps.hdc, orgBrs);
+                        DeleteObject(hb);
+                    }
                 }
 #if 0
                 BitBlt(hdc, movingx, movingy, rt.right, rt.bottom, s_hdcMemBin, 0, 0, SRCCOPY);

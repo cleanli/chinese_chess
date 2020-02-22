@@ -137,6 +137,11 @@ void chess_game::start()
     running_state = PLAYING_STATE;
 }
 
+PLAYING_RESULT chess_game::get_game_result()
+{
+    return playresult;
+}
+
 RUN_STATE chess_game::get_running_state()
 {
     return running_state;

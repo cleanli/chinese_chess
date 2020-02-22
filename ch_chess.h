@@ -136,6 +136,7 @@ class chess_game{
         chess_piece* get_cp(CHESS_PIECES_INDEX);
         PLAYING_SIDE get_current_playing_side();
         RUN_STATE get_running_state();
+        PLAYING_RESULT get_game_result();
         int get_timeout(PLAYING_SIDE);
         void timer_click();
         chess_piece* create_cp(const cp_create_info*);
