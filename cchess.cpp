@@ -62,8 +62,10 @@ HWND Button3Hd;
 HWND Button4Hd;
 HWND MessageHd;
 RUN_MODE running_mode = TBD;
+RUN_STATE running_state = INIT_STATE;
+HANDLE_TYPE chess_playing_handle[SIDE_MAX];
 
-chess_game g_chess_game(100);
+chess_game g_chess_game(19);
 
 void message_print(const char *fmt, ...);
 LRESULT CALLBACK WindowProc(
@@ -79,12 +81,19 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
 {
     HWND hwnd;
     timer_count++;
+    g_chess_game.timer_click();
     if (lpParam != NULL)
     {
         HWND hwnd=(HWND)lpParam;
         char tBuf[1000];
-        sprintf(tBuf, "%02d      ", timer_count);
+        memset(tBuf, 0, 1000);
+        sprintf(tBuf, "%04d  ", g_chess_game.get_timeout(SIDE_BLACK));
         SetWindowText(tmrLocalHd, tBuf);
+        memset(tBuf, 0, 1000);
+        sprintf(tBuf, "%04d  ", g_chess_game.get_timeout(SIDE_RED));
+        MESS_PRINT("%d", timer_count);
+        MESS_PRINT("%d", g_chess_game.get_timeout(SIDE_BLACK));
+        SetWindowText(tmrRemoHd, tBuf);
         //message_print("%d", timer_count);
         //MESS_PRINT("%d", timer_count);
 #if 0
@@ -342,7 +351,8 @@ LRESULT CALLBACK WindowProc(
                         break;
                     case IDB_TWO:
                         //MessageBox(hwnd, "your clicked two", "Notice", MB_OK | MB_ICONINFORMATION);
-                        SendMessage((HWND)lParam, WM_SETTEXT, (WPARAM)NULL, (LPARAM)"second clicked");
+                        //SendMessage((HWND)lParam, WM_SETTEXT, (WPARAM)NULL, (LPARAM)"second clicked");
+                        g_chess_game.start();
                         break;
                     case IDB_THREE:
                         //MessageBox(hwnd, "you clicked tree", "notice", MB_OK | MB_ICONINFORMATION);
@@ -355,6 +365,8 @@ LRESULT CALLBACK WindowProc(
 
                             if(Button_GetCheck(rb3Hd)){
                                 running_mode = LOCAL_MODE;
+                                chess_playing_handle[SIDE_RED] = SCREEN_CLICK_TYPE;
+                                chess_playing_handle[SIDE_BLACK] = SCREEN_CLICK_TYPE;
                                 MESS_PRINT("Running as local");
                             }
                             if(Button_GetCheck(rb2Hd)){
@@ -400,12 +412,26 @@ LRESULT CALLBACK WindowProc(
                 GetClientRect(hwnd, &rt);
                 BitBlt(hdc, 0, 100, rt.right, rt.bottom, s_hdcMem, 0, 0, SRCCOPY);
                 if(running_mode != TBD){
+#if 1
                     for(int i = 0;i < CP_NUM_MAX;i++){
                         chess_piece * cptmp = g_chess_game.get_cp((CHESS_PIECES_INDEX)i);
-                        if(!cptmp && cptmp->is_alive())
-                            MESS_PRINT("bitblt %d %d",  cptmp->get_p_x(), cptmp->get_p_y());
+                        if(cptmp && cptmp->is_alive()){
+                            //MESS_PRINT("bitblt %d %d",  cptmp->get_p_x(), cptmp->get_p_y());
                             BitBlt(hdc, chess_to_display_x(cptmp->get_p_x())-CELL_SIZE/2, chess_to_display_y(cptmp->get_p_y())-CELL_SIZE/2, rt.right, rt.bottom, s_hdcMemCP[cp_display_map[i]], 0, 0, SRCCOPY);
+                        }
                     }
+#else
+                    for(int i = 0; i<MAX_CHS_BOARD_Y;i++){
+                        for(int j = 0; j<MAX_CHS_BOARD_X;j++){
+                            //cpes_board[i][j] = NULL;
+                            chess_piece * cptmp = g_chess_game.get_cp(j,i);
+                            if(cptmp && cptmp->is_alive()){
+                                //MESS_PRINT("bitblt %d %d",  cptmp->get_p_x(), cptmp->get_p_y());
+                                BitBlt(hdc, chess_to_display_x(cptmp->get_p_x())-CELL_SIZE/2, chess_to_display_y(cptmp->get_p_y())-CELL_SIZE/2, rt.right, rt.bottom, s_hdcMemCP[cp_display_map[cptmp->get_cpid()]], 0, 0, SRCCOPY);
+                            }
+                        }
+                    }
+#endif
                 }
 #if 0
                 BitBlt(hdc, movingx, movingy, rt.right, rt.bottom, s_hdcMemBin, 0, 0, SRCCOPY);
