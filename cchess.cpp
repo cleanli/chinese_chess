@@ -65,7 +65,7 @@ RUN_MODE running_mode = TBD;
 RUN_STATE running_state = INIT_STATE;
 HANDLE_TYPE chess_playing_handle[SIDE_MAX];
 
-chess_game g_chess_game(3);
+chess_game g_chess_game(300);
 
 void message_print(const char *fmt, ...);
 LRESULT CALLBACK WindowProc(
@@ -405,6 +405,23 @@ LRESULT CALLBACK WindowProc(
                 int x = GET_X_LPARAM(lParam);
                 int y = GET_Y_LPARAM(lParam);
                 MESS_PRINT("left mouse %d %d", x, y);
+                if(PLAYING_STATE == g_chess_game.get_running_state() &&
+                        (SCREEN_CLICK_TYPE == chess_playing_handle[g_chess_game.get_current_playing_side()]) &&
+                        is_in_chessboard(x,y))
+                {
+                    bool ret;
+                    int chess_x = screen_to_chess_x(x);
+                    int chess_y = screen_to_chess_y(y);
+                    if(g_chess_game.get_choosen_cp() == NULL){
+                        ret = g_chess_game.choose_point(chess_x, chess_y);
+                    }
+                    else{
+                        ret = g_chess_game.moveto_point(chess_x, chess_y);
+                    }
+                    if(ret){
+                        InvalidateRect(hwnd,NULL,TRUE);
+                    }
+                }
             }
             break;
         case WM_PAINT:
@@ -438,6 +455,24 @@ LRESULT CALLBACK WindowProc(
                         }
                     }
 #endif
+                    if(g_chess_game.get_choosen_cp() != NULL){
+                        int x, y;
+                        x = g_chess_game.get_choosen_cp()->get_p_x();
+                        y = g_chess_game.get_choosen_cp()->get_p_y();
+                        //HBRUSH hb = CreateSolidBrush(RGB(255,255,0));
+                        //HBRUSH hb = (HBRUSH)GetStockObject(NULL_BRUSH);
+                        HPEN hPen = CreatePen(PS_SOLID,2,RGB(255,0,255));;
+                        HPEN orgPen = (HPEN)SelectObject(ps.hdc, hPen);
+                        //Ellipse(ps.hdc,chess_to_display_x(x-0.6),chess_to_display_y(y-0.6),chess_to_display_x(x+0.6),chess_to_display_y(y+0.6));
+                        #define RTIA 0.5
+                        MoveToEx(ps.hdc, chess_to_display_x(x-RTIA),chess_to_display_y(y-RTIA), NULL);
+                        LineTo(ps.hdc, chess_to_display_x(x-RTIA),chess_to_display_y(y+RTIA));
+                        LineTo(ps.hdc, chess_to_display_x(x+RTIA),chess_to_display_y(y+RTIA));
+                        LineTo(ps.hdc, chess_to_display_x(x+RTIA),chess_to_display_y(y-RTIA));
+                        LineTo(ps.hdc, chess_to_display_x(x-RTIA),chess_to_display_y(y-RTIA));
+                        SelectObject(ps.hdc, orgPen);
+                        DeleteObject(hPen);
+                    }
                     if(g_chess_game.get_running_state() == END_STATE){
                         int x, y;
                         switch(g_chess_game.get_game_result()){

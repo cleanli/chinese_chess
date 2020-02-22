@@ -99,6 +99,7 @@ class chess_piece{
         bool is_alive();
         void set_alive(bool);
         virtual bool can_goto_point(int x,int y)=0;
+        PLAYING_SIDE get_cp_side();
     private:
         int current_x;
         int current_y;
@@ -132,6 +133,7 @@ class chess_game{
         void start();
         bool choose_point(int x, int y);
         bool moveto_point(int x, int y);
+        chess_piece* get_choosen_cp();
         chess_piece* get_cp(int, int);
         chess_piece* get_cp(CHESS_PIECES_INDEX);
         PLAYING_SIDE get_current_playing_side();
@@ -142,6 +144,7 @@ class chess_game{
         chess_piece* create_cp(const cp_create_info*);
         ~chess_game();
     private:
+        chess_piece* choosen_cp;
         chess_piece* cpes[CP_NUM_MAX];
         chess_piece* cpes_board[MAX_CHS_BOARD_Y][MAX_CHS_BOARD_X];
         PLAYING_SIDE current_playing_side;

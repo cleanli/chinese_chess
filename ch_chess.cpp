@@ -24,6 +24,11 @@ int chess_piece::get_p_y()
     return current_y;
 }
 
+PLAYING_SIDE chess_piece::get_cp_side()
+{
+    return pside;
+}
+
 CHESS_PIECES_INDEX chess_piece::get_cpid()
 {
     return cpid;
@@ -113,6 +118,7 @@ chess_game::chess_game(int timeout)
   : red_timeout(timeout),
     black_timeout(timeout),
     running_state(INIT_STATE),
+    choosen_cp(NULL),
     current_playing_side(SIDE_RED)
 {
     for(int i = 0; i<CP_NUM_MAX;i++){
@@ -164,12 +170,22 @@ void chess_game::reset()
 
 bool chess_game::choose_point(int x, int y)
 {
-    return true;
+    if(current_playing_side == cpes_board[y][x]->get_cp_side()){
+        choosen_cp = cpes_board[y][x];
+        return true;
+    }
+    else
+        return false;
 }
 
 bool chess_game::moveto_point(int x, int y)
 {
     return true;
+}
+
+chess_piece* chess_game::get_choosen_cp()
+{
+    return choosen_cp;
 }
 
 chess_piece* chess_game::get_cp(CHESS_PIECES_INDEX cp_ind)
