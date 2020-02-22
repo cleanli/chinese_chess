@@ -88,12 +88,12 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
         HWND hwnd=(HWND)lpParam;
         char tBuf[1000];
         memset(tBuf, 0, 1000);
-        sprintf(tBuf, "%04d  ", g_chess_game.get_timeout(SIDE_BLACK));
+        sprintf(tBuf, "%04d    ", g_chess_game.get_timeout(SIDE_BLACK));
         SetWindowText(tmrLocalHd, tBuf);
         memset(tBuf, 0, 1000);
-        sprintf(tBuf, "%04d  ", g_chess_game.get_timeout(SIDE_RED));
-        MESS_PRINT("%d", timer_count);
-        MESS_PRINT("%d", g_chess_game.get_timeout(SIDE_BLACK));
+        sprintf(tBuf, "%04d    ", g_chess_game.get_timeout(SIDE_RED));
+        //MESS_PRINT("%d", timer_count);
+        //MESS_PRINT("%d", g_chess_game.get_timeout(SIDE_BLACK));
         SetWindowText(tmrRemoHd, tBuf);
         RUN_STATE rs_tmp = g_chess_game.get_running_state();
         if(rs_tmp != last_game_state){
@@ -309,7 +309,7 @@ LRESULT CALLBACK WindowProc(
             }
             // Set a timer to call the timer routine in 10 seconds.
             if (!CreateTimerQueueTimer( &hTimer, hTimerQueue,
-                        (WAITORTIMERCALLBACK)TimerRoutine, hwnd , 2000, 1000, 0))
+                        (WAITORTIMERCALLBACK)TimerRoutine, hwnd , 1000, 1000, 0))
             {
                 MessageBox(hwnd, "CreateTimerQueueTimer failed", "Error", MB_ICONERROR);
                 break;
