@@ -52,7 +52,9 @@ enum CHESS_PIECES_INDEX
     CP_RED_LM_PAWN,
     CP_RED_L_PAWN,
 
-    CP_BLACK_R_ROOK,//16
+    CP_RB_LINE,
+
+    CP_BLACK_R_ROOK = CP_RB_LINE,//16
     CP_BLACK_R_KNIGHT,
     CP_BLACK_R_MINISTER,
     CP_BLACK_R_GUARD,
@@ -71,6 +73,13 @@ enum CHESS_PIECES_INDEX
     CP_NUM_MAX//32
 };
 
+struct cp_create_info{
+    CHESS_PIECE_TYPE cp_tp;
+    PLAYING_SIDE cp_sd;
+    int cp_x;
+    int cp_y;
+};
+
 struct chess_point{
     int x;
     int y;
@@ -78,7 +87,7 @@ struct chess_point{
 class chess_game;
 class chess_piece{
     public:
-        chess_piece(chess_game*,int,int);
+        chess_piece(chess_game*,int,int,PLAYING_SIDE);
         int get_p_x();
         int get_p_y();
         bool is_alive();
@@ -87,11 +96,15 @@ class chess_piece{
         chess_point cp;
         bool isalive;
         chess_game *chg;
+        PLAYING_SIDE pside;
 };
 
 #define SUB_CP_DEF(cp_type) \
     class chess_piece_##cp_type : public chess_piece \
     { \
+        public: \
+        chess_piece_##cp_type(chess_game*cg,int x,int y,PLAYING_SIDE s) \
+            :chess_piece(cg, x, y, s){} \
         bool can_goto_point(int, int); \
     }
 
@@ -112,12 +125,49 @@ class chess_game{
         chess_piece* get_cp(int, int);
         PLAYING_SIDE get_current_playing_side();
         void timer_click();
+        chess_piece* create_cp(const cp_create_info*);
+        ~chess_game();
     private:
         chess_piece* cpes[CP_NUM_MAX];
         chess_piece* cpes_board[MAX_CHS_BOARD_Y][MAX_CHS_BOARD_X];
         PLAYING_SIDE current_playing_side;
         int red_timeout;
         int black_timeout;
+        const cp_create_info cp_create_map[CP_NUM_MAX]={
+            {CP_TYPE_ROOK,     SIDE_RED,  0, 0},
+            {CP_TYPE_KNIGHT,   SIDE_RED,  1, 0},
+            {CP_TYPE_MINISTER, SIDE_RED,  2, 0},
+            {CP_TYPE_GUARD,    SIDE_RED,  3, 0},
+            {CP_TYPE_KING,     SIDE_RED,  4, 0},
+            {CP_TYPE_GUARD,    SIDE_RED,  5, 0},
+            {CP_TYPE_MINISTER, SIDE_RED,  6, 0},
+            {CP_TYPE_KNIGHT,   SIDE_RED,  7, 0},
+            {CP_TYPE_ROOK,     SIDE_RED,  8, 0},
+            {CP_TYPE_CANNON,   SIDE_RED,  1, 2},
+            {CP_TYPE_CANNON,   SIDE_RED,  7, 2},
+            {CP_TYPE_PAWN,     SIDE_RED,  0, 3},
+            {CP_TYPE_PAWN,     SIDE_RED,  2, 3},
+            {CP_TYPE_PAWN,     SIDE_RED,  4, 3},
+            {CP_TYPE_PAWN,     SIDE_RED,  6, 3},
+            {CP_TYPE_PAWN,     SIDE_RED,  8, 3},
+
+            {CP_TYPE_ROOK,     SIDE_BLACK, 8, 0},
+            {CP_TYPE_KNIGHT,   SIDE_BLACK, 7, 0},
+            {CP_TYPE_MINISTER, SIDE_BLACK, 6, 0},
+            {CP_TYPE_GUARD,    SIDE_BLACK, 5, 0},
+            {CP_TYPE_KING,     SIDE_BLACK, 4, 0},
+            {CP_TYPE_GUARD,    SIDE_BLACK, 3, 0},
+            {CP_TYPE_MINISTER, SIDE_BLACK, 2, 0},
+            {CP_TYPE_KNIGHT,   SIDE_BLACK, 1, 0},
+            {CP_TYPE_ROOK,     SIDE_BLACK, 0, 0},
+            {CP_TYPE_CANNON,   SIDE_BLACK, 7, 0},
+            {CP_TYPE_CANNON,   SIDE_BLACK, 1, 0},
+            {CP_TYPE_PAWN,     SIDE_BLACK, 8, 6},
+            {CP_TYPE_PAWN,     SIDE_BLACK, 6, 6},
+            {CP_TYPE_PAWN,     SIDE_BLACK, 4, 6},
+            {CP_TYPE_PAWN,     SIDE_BLACK, 2, 6},
+            {CP_TYPE_PAWN,     SIDE_BLACK, 0, 6},
+        };
 };
 
 #endif
