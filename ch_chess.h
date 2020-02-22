@@ -131,6 +131,7 @@ class chess_game{
         chess_game(int timeout_in_second);
         void reset();
         void start();
+        void set_win(PLAYING_SIDE);
         void switch_turn();
         bool choose_point(int x, int y);
         bool moveto_point(int x, int y);

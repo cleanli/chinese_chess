@@ -166,6 +166,7 @@ void chess_game::reset()
         cpes_board[cp_create_map[i].cp_y][cp_create_map[i].cp_x] = cpes[i];
     }
     running_state = INIT_STATE;
+    current_playing_side=SIDE_RED;
 }
 
 bool chess_game::choose_point(int x, int y)
@@ -188,6 +189,12 @@ bool chess_game::moveto_point(int x, int y)
     else if(choosen_cp->can_goto_point(x,y)){
         if(cpes_board[y][x] != NULL){
             cpes_board[y][x]->set_alive(false);
+            if(cpes_board[y][x]->get_cpid() == CP_RED_KING){
+                set_win(SIDE_BLACK);
+            }
+            if(cpes_board[y][x]->get_cpid() == CP_BLACK_KING){
+                set_win(SIDE_RED);
+            }
         }
         cpes_board[choosen_cp->get_p_y()][choosen_cp->get_p_x()] = NULL;
         choosen_cp->moveto(x,y);
@@ -229,15 +236,18 @@ PLAYING_SIDE chess_game::get_current_playing_side()
     return current_playing_side;
 }
 
+void chess_game::set_win(PLAYING_SIDE sd)
+{
+    running_state = END_STATE;
+    (sd == SIDE_RED)?playresult=RESULT_RED_WIN:playresult=RESULT_BLACK_WIN;
+}
+
 void chess_game::timer_click()
 {
     if(running_state == PLAYING_STATE){
         (current_playing_side== SIDE_RED)?red_timeout--:black_timeout--;
     }
-    if(!red_timeout || !black_timeout){
-        running_state = END_STATE;
-        if(!red_timeout)playresult=RESULT_BLACK_WIN;
-        if(!black_timeout)playresult=RESULT_RED_WIN;
-    }
+    if(!red_timeout)set_win(SIDE_BLACK);
+    if(!black_timeout)set_win(SIDE_RED);
 }
 

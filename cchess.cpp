@@ -97,6 +97,9 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
         SetWindowText(tmrRemoHd, tBuf);
         RUN_STATE rs_tmp = g_chess_game.get_running_state();
         if(rs_tmp != last_game_state){
+            if(rs_tmp == END_STATE){
+                EnableWindow(Button2Hd, true);
+            }
             InvalidateRect(hwnd,NULL,TRUE);
         }
         last_game_state = rs_tmp;
@@ -358,7 +361,10 @@ LRESULT CALLBACK WindowProc(
                     case IDB_TWO:
                         //MessageBox(hwnd, "your clicked two", "Notice", MB_OK | MB_ICONINFORMATION);
                         //SendMessage((HWND)lParam, WM_SETTEXT, (WPARAM)NULL, (LPARAM)"second clicked");
+                        g_chess_game.reset();
                         g_chess_game.start();
+                        EnableWindow(Button2Hd, false);
+                        InvalidateRect(hwnd,NULL,TRUE);
                         break;
                     case IDB_THREE:
                         //MessageBox(hwnd, "you clicked tree", "notice", MB_OK | MB_ICONINFORMATION);
