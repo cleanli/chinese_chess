@@ -128,7 +128,7 @@ SUB_CP_DEF(pawn);
 
 class chess_game{
     public:
-        chess_game(int timeout_in_second);
+        chess_game(int timeout_in_01second);
         void reset();
         void start();
         void set_win(PLAYING_SIDE);
