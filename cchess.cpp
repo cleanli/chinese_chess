@@ -491,21 +491,30 @@ LRESULT CALLBACK WindowProc(
                         }
                     }
 #endif
-                    if(g_chess_game.get_choosen_cp() != NULL){
-                        int x, y;
-                        x = g_chess_game.get_choosen_cp()->get_p_x();
-                        y = g_chess_game.get_choosen_cp()->get_p_y();
+                    {
                         //HBRUSH hb = CreateSolidBrush(RGB(255,255,0));
                         //HBRUSH hb = (HBRUSH)GetStockObject(NULL_BRUSH);
-                        HPEN hPen = CreatePen(PS_SOLID,2,RGB(255,0,255));;
+                        HPEN hPen = CreatePen(PS_SOLID,4,RGB(255,0,255));;
                         HPEN orgPen = (HPEN)SelectObject(ps.hdc, hPen);
-                        //Ellipse(ps.hdc,g_cdtts.chess_to_screen_x(x-0.6),g_cdtts.chess_to_screen_y(y-0.6),g_cdtts.chess_to_screen_x(x+0.6),g_cdtts.chess_to_screen_y(y+0.6));
-                        #define RTIA 0.5
-                        MoveToEx(ps.hdc, g_cdtts.chess_to_screen_x(x-RTIA),g_cdtts.chess_to_screen_y(y-RTIA), NULL);
-                        LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x-RTIA),g_cdtts.chess_to_screen_y(y+RTIA));
-                        LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x+RTIA),g_cdtts.chess_to_screen_y(y+RTIA));
-                        LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x+RTIA),g_cdtts.chess_to_screen_y(y-RTIA));
-                        LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x-RTIA),g_cdtts.chess_to_screen_y(y-RTIA));
+                        if(g_chess_game.get_choosen_cp() != NULL){
+                            int x, y;
+                            x = g_chess_game.get_choosen_cp()->get_p_x();
+                            y = g_chess_game.get_choosen_cp()->get_p_y();
+                            //Ellipse(ps.hdc,g_cdtts.chess_to_screen_x(x-0.6),g_cdtts.chess_to_screen_y(y-0.6),g_cdtts.chess_to_screen_x(x+0.6),g_cdtts.chess_to_screen_y(y+0.6));
+#define RTIA 0.5
+                            MoveToEx(ps.hdc, g_cdtts.chess_to_screen_x(x-RTIA),g_cdtts.chess_to_screen_y(y-RTIA), NULL);
+                            LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x-RTIA),g_cdtts.chess_to_screen_y(y+RTIA));
+                            LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x+RTIA),g_cdtts.chess_to_screen_y(y+RTIA));
+                            LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x+RTIA),g_cdtts.chess_to_screen_y(y-RTIA));
+                            LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x-RTIA),g_cdtts.chess_to_screen_y(y-RTIA));
+                        }
+                        else if(g_chess_game.get_lastmove() != NULL){
+                            move_step*mstmp=g_chess_game.get_lastmove();
+#define RTIA2 0.1
+                            Ellipse(ps.hdc,g_cdtts.chess_to_screen_x(mstmp->x1-RTIA2),g_cdtts.chess_to_screen_y(mstmp->y1-RTIA2),g_cdtts.chess_to_screen_x(mstmp->x1+RTIA2),g_cdtts.chess_to_screen_y(mstmp->y1+RTIA2));
+                            MoveToEx(ps.hdc, g_cdtts.chess_to_screen_x(mstmp->x1),g_cdtts.chess_to_screen_y(mstmp->y1), NULL);
+                            LineTo(ps.hdc, g_cdtts.chess_to_screen_x(mstmp->x2),g_cdtts.chess_to_screen_y(mstmp->y2));
+                        }
                         SelectObject(ps.hdc, orgPen);
                         DeleteObject(hPen);
                     }

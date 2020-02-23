@@ -88,6 +88,13 @@ struct cp_create_info{
     CHESS_PIECES_INDEX cp_id;
 };
 
+struct move_step{
+    int x1;
+    int y1;
+    int x2;
+    int y2;
+};
+
 class chess_game;
 class chess_piece{
     public:
@@ -136,6 +143,7 @@ class chess_game{
         void switch_turn();
         bool choose_point(int x, int y);
         bool moveto_point(int x, int y);
+        move_step *get_lastmove();
         chess_piece* get_choosen_cp();
         chess_piece* get_cp(int, int);
         chess_piece* get_cp(CHESS_PIECES_INDEX);
@@ -151,11 +159,13 @@ class chess_game{
         chess_piece* cpes[CP_NUM_MAX];
         chess_piece* cpes_board[MAX_CHS_BOARD_Y][MAX_CHS_BOARD_X];
         PLAYING_SIDE current_playing_side;
+        int running_step;
         int saved_timeout;
         int red_timeout;
         int black_timeout;
         RUN_STATE running_state;
         PLAYING_RESULT playresult;
+        move_step lastmove;
         const cp_create_info cp_create_map[CP_NUM_MAX]={
             {CP_TYPE_ROOK,     SIDE_RED,  0, 0,  CP_RED_R_ROOK},
             {CP_TYPE_KNIGHT,   SIDE_RED,  1, 0,  CP_RED_R_KNIGHT},

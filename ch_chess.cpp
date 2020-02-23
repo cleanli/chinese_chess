@@ -125,6 +125,12 @@ chess_game::chess_game(int timeout)
     }
 }
 
+move_step*chess_game::get_lastmove()
+{
+    if(running_step == 0)return NULL;
+    return &lastmove;
+}
+
 int chess_game::get_timeout(PLAYING_SIDE sd)
 {
     switch(sd){
@@ -168,6 +174,7 @@ void chess_game::reset()
     current_playing_side=SIDE_RED;
     red_timeout = saved_timeout*10;
     black_timeout = saved_timeout*10;
+    running_step = 0;
 }
 
 bool chess_game::choose_point(int x, int y)
@@ -198,10 +205,15 @@ bool chess_game::moveto_point(int x, int y)
             }
         }
         cpes_board[choosen_cp->get_p_y()][choosen_cp->get_p_x()] = NULL;
+        lastmove.x1=choosen_cp->get_p_x();
+        lastmove.y1=choosen_cp->get_p_y();
+        lastmove.x2=x;
+        lastmove.y2=y;
         choosen_cp->moveto(x,y);
         cpes_board[y][x] = choosen_cp;
         switch_turn();
         choosen_cp = NULL;
+        running_step++;
         return true;
     }
     else{
