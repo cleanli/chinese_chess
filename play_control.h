@@ -1,5 +1,7 @@
 #ifndef _PLAY_CONTROL
 #define _PLAY_CONTROL
+
+#define VERSION "0.1"
 enum RUN_MODE
 {
     TBD = 0,

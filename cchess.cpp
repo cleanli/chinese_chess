@@ -276,7 +276,7 @@ LRESULT CALLBACK WindowProc(
             }
 
             memset(strbuf, 0, 128);
-            SetWindowText(hwnd, "changed");
+            SetWindowText(hwnd, "Chinese Chess");
             // set dlg size changable
             //SetWindowLong(hwnd, GWL_STYLE, GetWindowLong(hwnd, GWL_STYLE) | WS_SIZEBOX);
             // load image
@@ -532,6 +532,8 @@ LRESULT CALLBACK WindowProc(
                         DeleteObject(hb);
                     }
                 }
+                sprintf(strbuf, "Built @ %s %s, V%s", __DATE__, __TIME__, VERSION);
+                TextOut(ps.hdc,0, 640, strbuf,strlen(strbuf));
 #if 0
                 BitBlt(hdc, movingx, movingy, rt.right, rt.bottom, s_hdcMemBin, 0, 0, SRCCOPY);
                 BitBlt(hdc, 500-movingx, movingy, rt.right, rt.bottom, s_hdcMemBin, 0, 0, SRCCOPY);
