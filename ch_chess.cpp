@@ -237,8 +237,16 @@ PLAYING_SIDE chess_game::get_current_playing_side()
     return current_playing_side;
 }
 
+void chess_game::set_draw(PLAYING_SIDE sd)
+{
+    if(running_state != PLAYING_STATE)return;
+    running_state = END_STATE;
+    playresult=RESULT_DRAWN;
+}
+
 void chess_game::set_win(PLAYING_SIDE sd)
 {
+    if(running_state != PLAYING_STATE)return;
     running_state = END_STATE;
     (sd == SIDE_RED)?playresult=RESULT_RED_WIN:playresult=RESULT_BLACK_WIN;
 }

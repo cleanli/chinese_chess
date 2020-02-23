@@ -215,7 +215,7 @@ LRESULT CALLBACK WindowProc(
                         60, 610, 60, 20, hwnd, (HMENU)IDB_ONE, hg_app, NULL);
                 Button2Hd = CreateWindow("Button", "Start", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         135, 610, 60, 20, hwnd, (HMENU)IDB_TWO, hg_app, NULL);
-                Button3Hd = CreateWindow("Button", "Retract", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                Button3Hd = CreateWindow("Button", "Drawn", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         215, 610, 60, 20, hwnd, (HMENU)IDB_THREE, hg_app, NULL);
                 Button4Hd = CreateWindow("Button", "Give", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         290, 610, 60, 20, hwnd, (HMENU)IDB_FOUR, hg_app, NULL);
@@ -393,8 +393,12 @@ LRESULT CALLBACK WindowProc(
                         }
                         break;
                     case IDB_THREE:
-                        //MessageBox(hwnd, "you clicked tree", "notice", MB_OK | MB_ICONINFORMATION);
-                        SendMessage((HWND)lParam, WM_SETTEXT, (WPARAM)NULL, (LPARAM)"third clicked");
+                        g_chess_game.set_draw(g_chess_game.get_current_playing_side());
+                        InvalidateRect(hwnd,NULL,TRUE);
+                        break;
+                    case IDB_FOUR:
+                        g_chess_game.set_win((g_chess_game.get_current_playing_side()==SIDE_RED)?SIDE_BLACK:SIDE_RED);
+                        InvalidateRect(hwnd,NULL,TRUE);
                         break;
                     case IDB_FIVE:
                         {
@@ -506,7 +510,7 @@ LRESULT CALLBACK WindowProc(
                         DeleteObject(hPen);
                     }
                     if(g_chess_game.get_running_state() == END_STATE){
-                        int x, y;
+                        float x, y;
                         switch(g_chess_game.get_game_result()){
                             case RESULT_RED_WIN:
                                 x = 4;
@@ -518,7 +522,7 @@ LRESULT CALLBACK WindowProc(
                                 break;
                             case RESULT_DRAWN:
                                 x = 4;
-                                y = 4;
+                                y = 4.5;
                                 break;
                         }
                         HBRUSH hb = CreateSolidBrush(RGB(255,255,0));
