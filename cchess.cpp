@@ -4,6 +4,7 @@
 
 #include "play_control.h"
 #include "ch_chess.h"
+#include "coordinate_trans.h"
 
 #define IDR_CONTEXT  200
 #define IDM_OPT1     301
@@ -66,6 +67,8 @@ RUN_STATE running_state = INIT_STATE;
 HANDLE_TYPE chess_playing_handle[SIDE_MAX];
 
 chess_game g_chess_game(300);
+c_coordinate_trans g_cdtts(false);
+PLAYING_SIDE local_player = SIDE_BLACK;
 
 void message_print(const char *fmt, ...);
 LRESULT CALLBACK WindowProc(
@@ -89,12 +92,22 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
         char tBuf[1000];
         memset(tBuf, 0, 1000);
         sprintf(tBuf, "%04d    ", g_chess_game.get_timeout(SIDE_BLACK));
-        SetWindowText(tmrLocalHd, tBuf);
+        if(local_player == SIDE_BLACK){
+            SetWindowText(tmrLocalHd, tBuf);
+        }
+        else{
+            SetWindowText(tmrRemoHd, tBuf);
+        }
         memset(tBuf, 0, 1000);
         sprintf(tBuf, "%04d    ", g_chess_game.get_timeout(SIDE_RED));
         //MESS_PRINT("%d", timer_count);
         //MESS_PRINT("%d", g_chess_game.get_timeout(SIDE_BLACK));
-        SetWindowText(tmrRemoHd, tBuf);
+        if(local_player == SIDE_BLACK){
+            SetWindowText(tmrRemoHd, tBuf);
+        }
+        else{
+            SetWindowText(tmrLocalHd, tBuf);
+        }
         RUN_STATE rs_tmp = g_chess_game.get_running_state();
         if(rs_tmp != last_game_state){
             if(rs_tmp == END_STATE){
@@ -353,18 +366,31 @@ LRESULT CALLBACK WindowProc(
                         break;
                     case IDB_ONE:
                         //MessageBox(hwnd, "you clicked first", "Notice", MB_OK | MB_ICONINFORMATION);
-                        char szBuf[1000];
-                        GetWindowText(editHd, szBuf, 1000);
-                        MessageBox(hwnd, szBuf, "Notice", MB_OK | MB_ICONINFORMATION);
+                        //char szBuf[1000];
+                        //GetWindowText(editHd, szBuf, 1000);
+                        //MessageBox(hwnd, szBuf, "Notice", MB_OK | MB_ICONINFORMATION);
                         //SendMessage((HWND)lParam, WM_SETTEXT, (WPARAM)NULL, (LPARAM)"first clicked");
+                        local_player = (local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED;
+                        g_cdtts.set_revert(local_player == SIDE_RED);
+                        InvalidateRect(hwnd,NULL,TRUE);
+                        MESS_PRINT("invalidaterect from bt 1");
                         break;
                     case IDB_TWO:
                         //MessageBox(hwnd, "your clicked two", "Notice", MB_OK | MB_ICONINFORMATION);
                         //SendMessage((HWND)lParam, WM_SETTEXT, (WPARAM)NULL, (LPARAM)"second clicked");
-                        g_chess_game.reset();
-                        g_chess_game.start();
-                        EnableWindow(Button2Hd, false);
-                        InvalidateRect(hwnd,NULL,TRUE);
+                        {
+                            RUN_STATE rstmp = g_chess_game.get_running_state();
+                            if(END_STATE == rstmp){
+                                g_chess_game.reset();
+                                EnableWindow(Button1Hd, true);
+                            }
+                            else if(INIT_STATE == rstmp){
+                                g_chess_game.start();
+                                EnableWindow(Button2Hd, false);
+                                EnableWindow(Button1Hd, false);
+                            }
+                            InvalidateRect(hwnd,NULL,TRUE);
+                        }
                         break;
                     case IDB_THREE:
                         //MessageBox(hwnd, "you clicked tree", "notice", MB_OK | MB_ICONINFORMATION);
@@ -413,11 +439,11 @@ LRESULT CALLBACK WindowProc(
                 MESS_PRINT("left mouse %d %d", x, y);
                 if(PLAYING_STATE == g_chess_game.get_running_state() &&
                         (SCREEN_CLICK_TYPE == chess_playing_handle[g_chess_game.get_current_playing_side()]) &&
-                        is_in_chessboard(x,y))
+                        g_cdtts.is_in_chessboard(x,y))
                 {
                     bool ret;
-                    int chess_x = screen_to_chess_x(x);
-                    int chess_y = screen_to_chess_y(y);
+                    int chess_x = g_cdtts.screen_to_chess_x(x);
+                    int chess_y = g_cdtts.screen_to_chess_y(y);
                     if(g_chess_game.get_choosen_cp() == NULL){
                         ret = g_chess_game.choose_point(chess_x, chess_y);
                     }
@@ -446,7 +472,7 @@ LRESULT CALLBACK WindowProc(
                         chess_piece * cptmp = g_chess_game.get_cp((CHESS_PIECES_INDEX)i);
                         if(cptmp && cptmp->is_alive()){
                             //MESS_PRINT("bitblt %d %d",  cptmp->get_p_x(), cptmp->get_p_y());
-                            BitBlt(hdc, chess_to_display_x(cptmp->get_p_x())-CELL_SIZE/2, chess_to_display_y(cptmp->get_p_y())-CELL_SIZE/2, rt.right, rt.bottom, s_hdcMemCP[cp_display_map[i]], 0, 0, SRCCOPY);
+                            BitBlt(hdc, g_cdtts.chess_to_screen_x(cptmp->get_p_x())-CELL_SIZE/2, g_cdtts.chess_to_screen_y(cptmp->get_p_y())-CELL_SIZE/2, rt.right, rt.bottom, s_hdcMemCP[cp_display_map[i]], 0, 0, SRCCOPY);
                         }
                     }
 #else
@@ -456,7 +482,7 @@ LRESULT CALLBACK WindowProc(
                             chess_piece * cptmp = g_chess_game.get_cp(j,i);
                             if(cptmp && cptmp->is_alive()){
                                 //MESS_PRINT("bitblt %d %d",  cptmp->get_p_x(), cptmp->get_p_y());
-                                BitBlt(hdc, chess_to_display_x(cptmp->get_p_x())-CELL_SIZE/2, chess_to_display_y(cptmp->get_p_y())-CELL_SIZE/2, rt.right, rt.bottom, s_hdcMemCP[cp_display_map[cptmp->get_cpid()]], 0, 0, SRCCOPY);
+                                BitBlt(hdc, g_cdtts.chess_to_screen_x(cptmp->get_p_x())-CELL_SIZE/2, g_cdtts.chess_to_screen_y(cptmp->get_p_y())-CELL_SIZE/2, rt.right, rt.bottom, s_hdcMemCP[cp_display_map[cptmp->get_cpid()]], 0, 0, SRCCOPY);
                             }
                         }
                     }
@@ -469,13 +495,13 @@ LRESULT CALLBACK WindowProc(
                         //HBRUSH hb = (HBRUSH)GetStockObject(NULL_BRUSH);
                         HPEN hPen = CreatePen(PS_SOLID,2,RGB(255,0,255));;
                         HPEN orgPen = (HPEN)SelectObject(ps.hdc, hPen);
-                        //Ellipse(ps.hdc,chess_to_display_x(x-0.6),chess_to_display_y(y-0.6),chess_to_display_x(x+0.6),chess_to_display_y(y+0.6));
+                        //Ellipse(ps.hdc,g_cdtts.chess_to_screen_x(x-0.6),g_cdtts.chess_to_screen_y(y-0.6),g_cdtts.chess_to_screen_x(x+0.6),g_cdtts.chess_to_screen_y(y+0.6));
                         #define RTIA 0.5
-                        MoveToEx(ps.hdc, chess_to_display_x(x-RTIA),chess_to_display_y(y-RTIA), NULL);
-                        LineTo(ps.hdc, chess_to_display_x(x-RTIA),chess_to_display_y(y+RTIA));
-                        LineTo(ps.hdc, chess_to_display_x(x+RTIA),chess_to_display_y(y+RTIA));
-                        LineTo(ps.hdc, chess_to_display_x(x+RTIA),chess_to_display_y(y-RTIA));
-                        LineTo(ps.hdc, chess_to_display_x(x-RTIA),chess_to_display_y(y-RTIA));
+                        MoveToEx(ps.hdc, g_cdtts.chess_to_screen_x(x-RTIA),g_cdtts.chess_to_screen_y(y-RTIA), NULL);
+                        LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x-RTIA),g_cdtts.chess_to_screen_y(y+RTIA));
+                        LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x+RTIA),g_cdtts.chess_to_screen_y(y+RTIA));
+                        LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x+RTIA),g_cdtts.chess_to_screen_y(y-RTIA));
+                        LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x-RTIA),g_cdtts.chess_to_screen_y(y-RTIA));
                         SelectObject(ps.hdc, orgPen);
                         DeleteObject(hPen);
                     }
@@ -497,7 +523,7 @@ LRESULT CALLBACK WindowProc(
                         }
                         HBRUSH hb = CreateSolidBrush(RGB(255,255,0));
                         HBRUSH orgBrs = (HBRUSH)SelectObject(ps.hdc, hb);
-                        Ellipse(ps.hdc,chess_to_display_x(x-1),chess_to_display_y(y-1),chess_to_display_x(x+1),chess_to_display_y(y+1));
+                        Ellipse(ps.hdc,g_cdtts.chess_to_screen_x(x-1),g_cdtts.chess_to_screen_y(y-1),g_cdtts.chess_to_screen_x(x+1),g_cdtts.chess_to_screen_y(y+1));
                         SelectObject(ps.hdc, orgBrs);
                         DeleteObject(hb);
                     }

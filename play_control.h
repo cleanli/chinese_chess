@@ -87,34 +87,4 @@ const char* chess_pieces_bmp_path[]=
     "chesspieces/black_cannon.bmp",
     "chesspieces/black_pawn.bmp",
 };
-#define CELL_SIZE (364.0f/8)
-#define CHESS_BOARD_X_START 104.0f
-#define CHESS_BOARD_Y_START 154.0f
-#define CHESS_BOARD_X_END 468.0f
-#define CHESS_BOARD_Y_END 556.0f
-
-float chess_to_display_x(float cx)
-{
-    return CHESS_BOARD_X_START + CELL_SIZE * cx;
-}
-
-float chess_to_display_y(float cy)
-{
-    return CHESS_BOARD_Y_START + CELL_SIZE * cy;
-}
-
-int screen_to_chess_x(float x)
-{
-    return (int)((x + CELL_SIZE/2 - CHESS_BOARD_X_START)/CELL_SIZE);
-}
-
-int screen_to_chess_y(float y)
-{
-    return (int)((y + CELL_SIZE/2 - CHESS_BOARD_Y_START)/CELL_SIZE);
-}
-
-bool is_in_chessboard(int x, int y)
-{
-    return (x > 88)&&(x < 495)&&(y > 136)&&(y < 579);
-}
 #endif
