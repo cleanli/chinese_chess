@@ -115,8 +115,7 @@ chess_game::~chess_game()
 }
 
 chess_game::chess_game(int timeout)
-  : red_timeout(timeout),
-    black_timeout(timeout),
+  : saved_timeout(timeout),
     running_state(INIT_STATE),
     choosen_cp(NULL),
     current_playing_side(SIDE_RED)
@@ -167,6 +166,8 @@ void chess_game::reset()
     }
     running_state = INIT_STATE;
     current_playing_side=SIDE_RED;
+    red_timeout = saved_timeout;
+    black_timeout = saved_timeout;
 }
 
 bool chess_game::choose_point(int x, int y)

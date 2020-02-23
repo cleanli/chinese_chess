@@ -150,6 +150,7 @@ class chess_game{
         chess_piece* cpes[CP_NUM_MAX];
         chess_piece* cpes_board[MAX_CHS_BOARD_Y][MAX_CHS_BOARD_X];
         PLAYING_SIDE current_playing_side;
+        int saved_timeout;
         int red_timeout;
         int black_timeout;
         RUN_STATE running_state;
