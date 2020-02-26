@@ -5,6 +5,7 @@
 #include "play_control.h"
 #include "ch_chess.h"
 #include "coordinate_trans.h"
+#include "remote_player.h"
 
 #define IDR_CONTEXT  200
 #define IDM_OPT1     301
@@ -69,6 +70,7 @@ HANDLE_TYPE chess_playing_handle[SIDE_MAX];
 chess_game g_chess_game(300);
 c_coordinate_trans g_cdtts(false);
 PLAYING_SIDE local_player = SIDE_BLACK;
+remote_player remote_side;
 
 void message_print(const char *fmt, ...);
 LRESULT CALLBACK WindowProc(
@@ -88,6 +90,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
     g_chess_game.timer_click();
     if (lpParam != NULL)
     {
+        trans_package* tptmp = NULL;
         HWND hwnd=(HWND)lpParam;
         char tBuf[1000];
         memset(tBuf, 0, 1000);
@@ -116,6 +119,36 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
             InvalidateRect(hwnd,NULL,TRUE);
         }
         last_game_state = rs_tmp;
+        if(PLAYING_STATE == g_chess_game.get_running_state() &&
+                (NET_TYPE == chess_playing_handle[g_chess_game.get_current_playing_side()])){
+            tptmp = remote_side.get_recved_ok();
+        }
+        if(tptmp != NULL){
+            switch(tptmp->p_type){
+                case CHESS_STEP:
+                    {
+                        bool ret;
+                        if(PLAYING_STATE == g_chess_game.get_running_state() &&
+                                (NET_TYPE == chess_playing_handle[g_chess_game.get_current_playing_side()])){
+                            if(g_chess_game.get_choosen_cp() == NULL){
+                                ret = g_chess_game.choose_point(tptmp->pd.ch_move_step.x1,
+                                        tptmp->pd.ch_move_step.y1);
+                            }
+                            if(ret){
+                                ret = g_chess_game.moveto_point(tptmp->pd.ch_move_step.x2,
+                                        tptmp->pd.ch_move_step.y2);
+                            }
+                            if(ret){
+                                InvalidateRect(hwnd,NULL,TRUE);
+                            }
+                        }
+                    }
+                    break;
+                case REQUEST_DRAWN:
+                default:
+                    break;
+            }
+        }
         //message_print("%d", timer_count);
         //MESS_PRINT("%d", timer_count);
 #if 0
@@ -322,7 +355,7 @@ LRESULT CALLBACK WindowProc(
             }
             // Set a timer to call the timer routine in 10 seconds.
             if (!CreateTimerQueueTimer( &hTimer, hTimerQueue,
-                        (WAITORTIMERCALLBACK)TimerRoutine, hwnd , 100, 100, 0))
+                        (WAITORTIMERCALLBACK)TimerRoutine, hwnd , 500, 100, 0))
             {
                 MessageBox(hwnd, "CreateTimerQueueTimer failed", "Error", MB_ICONERROR);
                 break;
@@ -372,6 +405,8 @@ LRESULT CALLBACK WindowProc(
                         //SendMessage((HWND)lParam, WM_SETTEXT, (WPARAM)NULL, (LPARAM)"first clicked");
                         local_player = (local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED;
                         g_cdtts.set_revert(local_player == SIDE_RED);
+                        chess_playing_handle[local_player] = SCREEN_CLICK_TYPE;
+                        chess_playing_handle[(local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED] = NET_TYPE;
                         InvalidateRect(hwnd,NULL,TRUE);
                         MESS_PRINT("invalidaterect from bt 1");
                         break;
@@ -379,6 +414,10 @@ LRESULT CALLBACK WindowProc(
                         //MessageBox(hwnd, "your clicked two", "Notice", MB_OK | MB_ICONINFORMATION);
                         //SendMessage((HWND)lParam, WM_SETTEXT, (WPARAM)NULL, (LPARAM)"second clicked");
                         {
+                            if(!remote_side.is_ready()){
+                                MessageBox(hwnd, "Connection is not ready", "Notice", MB_OK | MB_ICONINFORMATION);
+                                break;
+                            }
                             RUN_STATE rstmp = g_chess_game.get_running_state();
                             if(END_STATE == rstmp){
                                 g_chess_game.reset();
@@ -414,9 +453,17 @@ LRESULT CALLBACK WindowProc(
                             if(Button_GetCheck(rb2Hd)){
                                 running_mode = CLIENT_MODE;
                                 MESS_PRINT("Running as client");
+                                chess_playing_handle[local_player] = SCREEN_CLICK_TYPE;
+                                chess_playing_handle[(local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED] = NET_TYPE;
+                                memset(strbuf, 0, 128);
+                                GetWindowText(editHd, strbuf, 128);
+                                remote_side.init(strbuf,(u_short)PORT_NUM);
                             }
                             if(Button_GetCheck(rb1Hd)){
                                 running_mode = SERVER_MODE;
+                                chess_playing_handle[local_player] = SCREEN_CLICK_TYPE;
+                                chess_playing_handle[(local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED] = NET_TYPE;
+                                remote_side.init(NULL,(u_short)PORT_NUM);
                                 MESS_PRINT("Running as server");
                             }
 
@@ -453,6 +500,16 @@ LRESULT CALLBACK WindowProc(
                     }
                     else{
                         ret = g_chess_game.moveto_point(chess_x, chess_y);
+                        if(ret){
+                            move_step*mstmp=g_chess_game.get_lastmove();
+                            trans_package* tp_tmp = remote_side.get_trans_pack_buf();
+                            tp_tmp->p_type = CHESS_STEP;
+                            tp_tmp->pd.ch_move_step.x1 = mstmp->x1;
+                            tp_tmp->pd.ch_move_step.y1 = mstmp->y1;
+                            tp_tmp->pd.ch_move_step.x2 = mstmp->x2;
+                            tp_tmp->pd.ch_move_step.y2 = mstmp->y2;
+                            remote_side.send_package(tp_tmp);
+                        }
                     }
                     if(ret){
                         InvalidateRect(hwnd,NULL,TRUE);

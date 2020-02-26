@@ -2,6 +2,7 @@
 #define _PLAY_CONTROL
 
 #define VERSION "0.1"
+#define PORT_NUM 34567
 enum RUN_MODE
 {
     TBD = 0,
