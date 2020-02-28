@@ -414,7 +414,8 @@ LRESULT CALLBACK WindowProc(
                         //MessageBox(hwnd, "your clicked two", "Notice", MB_OK | MB_ICONINFORMATION);
                         //SendMessage((HWND)lParam, WM_SETTEXT, (WPARAM)NULL, (LPARAM)"second clicked");
                         {
-                            if(!remote_side.is_ready()){
+                            if((running_mode == SERVER_MODE || running_mode == CLIENT_MODE)
+                                    && !remote_side.is_ready()){
                                 MessageBox(hwnd, "Connection is not ready", "Notice", MB_OK | MB_ICONINFORMATION);
                                 break;
                             }
