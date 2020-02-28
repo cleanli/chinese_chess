@@ -33,10 +33,11 @@ trans_package* remote_player::get_recved_ok()
         return NULL;
     }
     ct = 0;
-    if(tpg.pd.ch_move_step.x1==0 &&
+    if((tpg.pd.ch_move_step.x1==0 &&
             tpg.pd.ch_move_step.y1==0 &&
             tpg.pd.ch_move_step.x2==0 &&
-            tpg.pd.ch_move_step.y2==0){
+            tpg.pd.ch_move_step.y2==0)
+        || tpg.p_type== SET_REMOTE_PLAYER){
         tpg.p_type=CHESS_STEP;
         tpg.pd.ch_move_step.x1=7;
         tpg.pd.ch_move_step.y1=9;
@@ -48,6 +49,9 @@ trans_package* remote_player::get_recved_ok()
         tpg.pd.ch_move_step.y1=MAX_CHS_BOARD_Y -1 -tpg.pd.ch_move_step.y1;
         tpg.pd.ch_move_step.x2=MAX_CHS_BOARD_X -1 -tpg.pd.ch_move_step.x2;
         tpg.pd.ch_move_step.y2=MAX_CHS_BOARD_Y -1 -tpg.pd.ch_move_step.y2;
+    }
+    if(tpg.pd.ch_move_step.x1==tpg.pd.ch_move_step.y1){
+        tpg.p_type=REQUEST_GIVE;
     }
     return &tpg;
 }

@@ -8,6 +8,8 @@ enum package_type{
     CHESS_STEP,
     REQUEST_DRAWN,
     REQUEST_SWITCH,
+    REQUEST_GIVE,
+    SET_REMOTE_PLAYER,
     STRING
 };
 
@@ -17,6 +19,7 @@ struct trans_package{
         move_step ch_move_step;
         package_type request;
         char str_message[MAX_STR_LEN];
+        PLAYING_SIDE remote_side;
     } pd;
 };
 class remote_player

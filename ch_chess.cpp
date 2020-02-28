@@ -118,6 +118,8 @@ chess_game::chess_game(int timeout)
   : saved_timeout(timeout),
     running_state(INIT_STATE),
     choosen_cp(NULL),
+    red_request_drawn(false),
+    black_request_drawn(false),
     current_playing_side(SIDE_RED)
 {
     for(int i = 0; i<CP_NUM_MAX;i++){
@@ -141,6 +143,18 @@ int chess_game::get_timeout(PLAYING_SIDE sd)
         default:
             return black_timeout;
     }
+}
+
+bool chess_game::request_drawn_side(PLAYING_SIDE ps)
+{
+    if(running_state != PLAYING_STATE)return false;
+    ps == SIDE_RED?red_request_drawn = true:black_request_drawn = true;
+    if(red_request_drawn && black_request_drawn){
+        running_state = END_STATE;
+        playresult=RESULT_DRAWN;
+        return true;
+    }
+    return false;
 }
 
 void chess_game::start()
@@ -176,6 +190,8 @@ void chess_game::reset()
     black_timeout = saved_timeout*10;
     running_step = 0;
     choosen_cp = NULL;
+    red_request_drawn = false;
+    black_request_drawn = false;
 }
 
 bool chess_game::choose_point(int x, int y)
@@ -248,13 +264,6 @@ chess_piece* chess_game::get_cp(int p_x, int p_y)
 PLAYING_SIDE chess_game::get_current_playing_side()
 {
     return current_playing_side;
-}
-
-void chess_game::set_draw(PLAYING_SIDE sd)
-{
-    if(running_state != PLAYING_STATE)return;
-    running_state = END_STATE;
-    playresult=RESULT_DRAWN;
 }
 
 void chess_game::set_win(PLAYING_SIDE sd)

@@ -28,6 +28,8 @@ enum PLAYING_SIDE
     SIDE_MAX
 };
 
+#define OTHER_SIDE(x) ((x == SIDE_RED)?SIDE_BLACK:SIDE_RED)
+
 enum CHESS_PIECE_TYPE
 {
     CP_TYPE_KING,
@@ -139,8 +141,8 @@ class chess_game{
         void reset();
         void start();
         void set_win(PLAYING_SIDE);
-        void set_draw(PLAYING_SIDE);
         void switch_turn();
+        bool request_drawn_side(PLAYING_SIDE);
         bool choose_point(int x, int y);
         bool moveto_point(int x, int y);
         move_step *get_lastmove();
@@ -163,6 +165,8 @@ class chess_game{
         int saved_timeout;
         int red_timeout;
         int black_timeout;
+        bool red_request_drawn;
+        bool black_request_drawn;
         RUN_STATE running_state;
         PLAYING_RESULT playresult;
         move_step lastmove;
