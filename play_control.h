@@ -1,7 +1,11 @@
 #ifndef _PLAY_CONTROL
 #define _PLAY_CONTROL
 
-#define VERSION "0.1"
+/*
+ * 0.1 local mode works
+ * 0.2 net mode works
+ * */
+#define VERSION "0.2 net mode works"
 #define PORT_NUM 34567
 enum RUN_MODE
 {
