@@ -22,6 +22,7 @@ enum net_trans_status{
 class net_trans
 {
     public:
+        static char *get_local_ip();
         net_trans();
         bool init(u_short port);
         bool init(const char* ip, u_short port);
@@ -31,6 +32,7 @@ class net_trans
         bool buf_return(char*);
         bool recv_lost();
         bool deinit();
+        static char local_ip[];
         
     private:
         WSADATA Data;

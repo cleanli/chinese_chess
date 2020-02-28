@@ -55,6 +55,7 @@ HWND editHd;
 HWND rb1Hd;
 HWND rb2Hd;
 HWND rb3Hd;
+HWND seripHd;
 HWND tmrLocalHd;
 HWND tmrRemoHd;
 HWND startButtonHd;
@@ -306,7 +307,7 @@ LRESULT CALLBACK WindowProc(
                 int yLoc = 0;
                 // text
                 yLoc += 10;
-                CreateWindow("Static","server ip",
+                seripHd = CreateWindow("Static","server ip",
                         SS_SIMPLE | WS_CHILD | WS_VISIBLE,
                         100,50,160,20,
                         hwnd, NULL,
@@ -538,6 +539,7 @@ LRESULT CALLBACK WindowProc(
                                 remote_side->init(strbuf,(u_short)PORT_NUM);
                             }
                             if(Button_GetCheck(rb1Hd)){
+                                SetWindowText(seripHd, net_trans::get_local_ip());
                                 running_mode = SERVER_MODE;
                                 chess_playing_handle[local_player] = SCREEN_CLICK_TYPE;
                                 chess_playing_handle[(local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED] = NET_TYPE;

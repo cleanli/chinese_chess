@@ -1,5 +1,6 @@
 #include "net_trans.h"
 
+char net_trans::local_ip[128]={0};
 net_trans::net_trans()
   : connect_status(NOT_INITED),
     bufout_ready(true),
@@ -7,6 +8,35 @@ net_trans::net_trans()
 {
     memset(buffer_out, 0, MAXBUFLEN);
     memset(buffer_recv, 0, MAXBUFLEN);
+}
+
+
+char* net_trans::get_local_ip()
+{
+    //1.init wsa
+    WSADATA wsaData;
+    int ret = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (ret != 0)
+    {
+        return NULL;
+    }
+    //2.get hostname
+    char hostname[256];
+    ret = gethostname(hostname, sizeof(hostname));
+    if (ret == SOCKET_ERROR)
+    {
+        return NULL;
+    }
+    //3.get ip
+    HOSTENT* host = gethostbyname(hostname);
+    if (host == NULL)
+    {
+        return NULL;
+    }
+    //4.return
+    memset(local_ip, 0, 128);
+    strcpy(local_ip, inet_ntoa(*(in_addr*)*host->h_addr_list));
+    return local_ip;
 }
 
 bool net_trans::init(const char*ip, u_short pt)
