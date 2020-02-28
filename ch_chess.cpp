@@ -175,6 +175,7 @@ void chess_game::reset()
     red_timeout = saved_timeout*10;
     black_timeout = saved_timeout*10;
     running_step = 0;
+    choosen_cp = NULL;
 }
 
 bool chess_game::choose_point(int x, int y)
