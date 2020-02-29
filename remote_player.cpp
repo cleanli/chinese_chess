@@ -1,18 +1,18 @@
-#include"remote_player.h"
+#include "remote_player.h"
 
-remote_player::remote_player()
-  : connec_is_rdy(false)
+dummy_remote_player::dummy_remote_player()
 {
 };
 
-bool remote_player::init(const char*ip, u_short port)
+bool dummy_remote_player::init(const char*ip, u_short port)
 {
     //connec_is_rdy = true;
+    connec_is_rdy=false;
     memset(&tpg, 0, sizeof(trans_package));
     return true;
 }
 
-bool remote_player::is_ready()
+bool dummy_remote_player::is_ready()
 {
     if(!connec_is_rdy){
         connec_is_rdy = true;
@@ -21,12 +21,12 @@ bool remote_player::is_ready()
     return connec_is_rdy;
 }
 
-trans_package* remote_player::get_trans_pack_buf()
+trans_package* dummy_remote_player::get_trans_pack_buf()
 {
     return &tpg;
 }
 
-trans_package* remote_player::get_recved_ok()
+trans_package* dummy_remote_player::get_recved_ok()
 {
     static int ct = 0;
     if(ct++ < 50){
@@ -56,7 +56,78 @@ trans_package* remote_player::get_recved_ok()
     return &tpg;
 }
 
-bool remote_player::send_package(trans_package*tp)
+bool dummy_remote_player::send_package(trans_package*tp)
 {
+    return true;
+}
+
+
+
+net_remote_player::net_remote_player()
+{
+}
+
+net_remote_player::~net_remote_player()
+{
+    mynt.deinit();
+}
+
+bool net_remote_player::init(const char*ip, u_short port)
+{
+    //connec_is_rdy = true;
+    memset(&tpg, 0, sizeof(trans_package));
+    if(!ip){
+        if(mynt.init(port)){
+            connec_is_rdy=true;
+        }
+        else{
+            connec_is_rdy=false;
+        }
+    }
+    else{
+        if(mynt.init(ip,port)){
+            connec_is_rdy=true;
+        }
+        else{
+            connec_is_rdy=false;
+        }
+    }
+    return true;
+}
+
+bool net_remote_player::is_ready()
+{
+    return connec_is_rdy;
+}
+
+trans_package* net_remote_player::get_trans_pack_buf()
+{
+    return &tpg;
+}
+
+trans_package* net_remote_player::get_recved_ok()
+{
+    int len;
+    void *tmpbuf;
+    if(NULL==(tmpbuf=mynt.net_recv(&len))){
+        return NULL;
+    }
+    else{
+        memcpy(&tpg, tmpbuf, len);
+        mynt.buf_return((char*)tmpbuf);
+        return &tpg;
+    }
+}
+
+bool net_remote_player::send_package(trans_package*tp)
+{
+    mynt.net_send((const char*)tp, sizeof(trans_package));
+    return true;
+}
+
+bool net_remote_player::send_cmd(package_type pt)
+{
+    tpg.p_type = pt;
+    mynt.net_send((const char*)&tpg, sizeof(trans_package));
     return true;
 }

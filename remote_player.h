@@ -2,6 +2,7 @@
 #define REMOTE_PLAYER_H
 #include <Windows.h>
 #include "ch_chess.h"
+#include "net_trans.h"
 
 #define MAX_STR_LEN 128
 enum package_type{
@@ -10,6 +11,7 @@ enum package_type{
     REQUEST_SWITCH,
     REQUEST_GIVE,
     SET_REMOTE_PLAYER,
+    NETCMD_START_BUTTON,
     STRING
 };
 
@@ -25,16 +27,41 @@ struct trans_package{
 class remote_player
 {
     public:
-        remote_player();
+        virtual bool init(const char*ip, u_short port)=0;
+        virtual trans_package* get_trans_pack_buf()=0;
+        virtual bool is_ready()=0;
+        virtual trans_package* get_recved_ok()=0;
+        virtual bool send_package(trans_package*)=0;
+        virtual bool send_cmd(package_type)=0;
+
+    protected:
+        bool connec_is_rdy;
+        trans_package tpg;
+};
+class dummy_remote_player:public remote_player
+{
+    public:
+        dummy_remote_player();
         bool init(const char*ip, u_short port);
         trans_package* get_trans_pack_buf();
         bool is_ready();
         trans_package* get_recved_ok();
         bool send_package(trans_package*);
-
+};
+class net_remote_player:public remote_player
+{
+    public:
+        net_remote_player();
+        bool init(const char*ip, u_short port);
+        trans_package* get_trans_pack_buf();
+        bool is_ready();
+        trans_package* get_recved_ok();
+        bool send_package(trans_package*);
+        bool send_cmd(package_type);
+        ~net_remote_player();
     private:
-        bool connec_is_rdy;
-        trans_package tpg;
+        net_trans mynt;
+
 };
 
 #endif

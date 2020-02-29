@@ -70,7 +70,8 @@ HANDLE_TYPE chess_playing_handle[SIDE_MAX];
 chess_game g_chess_game(300);
 c_coordinate_trans g_cdtts(false);
 PLAYING_SIDE local_player = SIDE_BLACK;
-remote_player remote_side;
+//remote_player* remote_side = new dummy_remote_player();
+remote_player* remote_side = new net_remote_player();
 
 void message_print(const char *fmt, ...);
 LRESULT CALLBACK WindowProc(
@@ -119,15 +120,19 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
             InvalidateRect(hwnd,NULL,TRUE);
         }
         last_game_state = rs_tmp;
-        if(PLAYING_STATE == g_chess_game.get_running_state() &&
-                (NET_TYPE == chess_playing_handle[g_chess_game.get_current_playing_side()])){
-            tptmp = remote_side.get_recved_ok();
-        }
+        tptmp = remote_side->get_recved_ok();
         if(tptmp != NULL){
+            MESS_PRINT("recv remote message");
             switch(tptmp->p_type){
                 case CHESS_STEP:
                     {
                         bool ret;
+                        MESS_PRINT("recvstep %d-%d-%d-%d",
+                                tptmp->pd.ch_move_step.x1,
+                                tptmp->pd.ch_move_step.y1,
+                                tptmp->pd.ch_move_step.x2,
+                                tptmp->pd.ch_move_step.y2
+                                );
                         if(PLAYING_STATE == g_chess_game.get_running_state() &&
                                 (NET_TYPE == chess_playing_handle[g_chess_game.get_current_playing_side()])){
                             if(g_chess_game.get_choosen_cp() == NULL){
@@ -159,11 +164,30 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                     InvalidateRect(hwnd,NULL,TRUE);
                     break;
                 case SET_REMOTE_PLAYER:
+                    MESS_PRINT("got setremote cmd");
                     local_player = tptmp->pd.remote_side;
                     g_cdtts.set_revert(local_player == SIDE_RED);
                     chess_playing_handle[local_player] = SCREEN_CLICK_TYPE;
                     chess_playing_handle[(local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED] = NET_TYPE;
                     InvalidateRect(hwnd,NULL,TRUE);
+                    break;
+                case NETCMD_START_BUTTON:
+                    {
+                        RUN_STATE rstmp = g_chess_game.get_running_state();
+                        if(END_STATE == rstmp){
+                            g_chess_game.reset();
+                            EnableWindow(Button1Hd, true);
+                        }
+                        else if(INIT_STATE == rstmp){
+                            g_chess_game.start();
+                            EnableWindow(Button2Hd, false);
+                            EnableWindow(Button1Hd, false);
+                        }
+                        InvalidateRect(hwnd,NULL,TRUE);
+                        break;
+                    }
+                case STRING:
+                    MESS_PRINT("remote str:%s", tptmp->pd.str_message);
                 default:
                     break;
             }
@@ -276,7 +300,7 @@ LRESULT CALLBACK WindowProc(
                 EnableWindow(Button3Hd, false);
                 EnableWindow(Button4Hd, false);
                 //CreateWindow(TEXT("edit"),TEXT("myedit"),WS_CHILD|WS_VISIBLE|WS_VSCROLL|WS_BORDER|ES_LEFT|ES_MULTILINE|ES_AUTOVSCROLL,
-                editHd = CreateWindow(TEXT("edit"),TEXT("ip addr"),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT,
+                editHd = CreateWindow(TEXT("edit"),TEXT("127.0.0.1"),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT,
                         100, 73, 190, 20, hwnd,(HMENU)ID_DATA, hg_app,NULL);
                 // y cordinate, base
                 int yLoc = 0;
@@ -416,43 +440,58 @@ LRESULT CALLBACK WindowProc(
                     case IDM_OPT2:
                         MessageBox(hwnd,"mt gun coming","notice",MB_OK);
                         break;
-                    case IDB_ONE:
+                    case IDB_ONE://switch
                         if(running_mode == SERVER_MODE || running_mode == LOCAL_MODE){
                             local_player = (local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED;
                             g_cdtts.set_revert(local_player == SIDE_RED);
                             chess_playing_handle[local_player] = SCREEN_CLICK_TYPE;
                             chess_playing_handle[(local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED] = NET_TYPE;
+                            {
+                                trans_package* tp_tmp = remote_side->get_trans_pack_buf();
+                                tp_tmp->p_type = SET_REMOTE_PLAYER;
+                                tp_tmp->pd.remote_side = OTHER_SIDE(local_player);
+                                MESS_PRINT("send_package:set remote player");
+                                remote_side->send_package(tp_tmp);
+                            }
                             InvalidateRect(hwnd,NULL,TRUE);
                         }
                         else{
-                            trans_package* tp_tmp = remote_side.get_trans_pack_buf();
+                            trans_package* tp_tmp = remote_side->get_trans_pack_buf();
                             tp_tmp->p_type = REQUEST_SWITCH;
-                            remote_side.send_package(tp_tmp);
+                            remote_side->send_package(tp_tmp);
+                            MESS_PRINT("send_package:request switch");
                         }
                         break;
-                    case IDB_TWO:
+                    case IDB_TWO://start
                         //MessageBox(hwnd, "your clicked two", "Notice", MB_OK | MB_ICONINFORMATION);
                         //SendMessage((HWND)lParam, WM_SETTEXT, (WPARAM)NULL, (LPARAM)"second clicked");
                         {
                             if((running_mode == SERVER_MODE || running_mode == CLIENT_MODE)
-                                    && !remote_side.is_ready()){
+                                    && !remote_side->is_ready()){
                                 MessageBox(hwnd, "Connection is not ready", "Notice", MB_OK | MB_ICONINFORMATION);
                                 break;
                             }
-                            RUN_STATE rstmp = g_chess_game.get_running_state();
-                            if(END_STATE == rstmp){
-                                g_chess_game.reset();
-                                EnableWindow(Button1Hd, true);
+                            if(running_mode == CLIENT_MODE){
+                                MessageBox(hwnd, "Will wait Server start", "Notice", MB_OK | MB_ICONINFORMATION);
                             }
-                            else if(INIT_STATE == rstmp){
-                                g_chess_game.start();
-                                EnableWindow(Button2Hd, false);
-                                EnableWindow(Button1Hd, false);
+                            else{
+                                RUN_STATE rstmp = g_chess_game.get_running_state();
+                                MESS_PRINT("send_package:send start");
+                                remote_side->send_cmd(NETCMD_START_BUTTON);
+                                if(END_STATE == rstmp){
+                                    g_chess_game.reset();
+                                    EnableWindow(Button1Hd, true);
+                                }
+                                else if(INIT_STATE == rstmp){
+                                    g_chess_game.start();
+                                    EnableWindow(Button2Hd, false);
+                                    EnableWindow(Button1Hd, false);
+                                }
+                                InvalidateRect(hwnd,NULL,TRUE);
                             }
-                            InvalidateRect(hwnd,NULL,TRUE);
                         }
                         break;
-                    case IDB_THREE:
+                    case IDB_THREE://drawn
                         switch(running_mode){
                             case SERVER_MODE:
                             case CLIENT_MODE:
@@ -468,16 +507,17 @@ LRESULT CALLBACK WindowProc(
                                 break;
                         }
                         break;
-                    case IDB_FOUR:
+                    case IDB_FOUR://give
                         {
-                            trans_package* tp_tmp = remote_side.get_trans_pack_buf();
+                            trans_package* tp_tmp = remote_side->get_trans_pack_buf();
                             tp_tmp->p_type = REQUEST_GIVE;
-                            remote_side.send_package(tp_tmp);
+                            remote_side->send_package(tp_tmp);
+                            MESS_PRINT("send_package:request give");
                             g_chess_game.set_win((g_chess_game.get_current_playing_side()==SIDE_RED)?SIDE_BLACK:SIDE_RED);
                             InvalidateRect(hwnd,NULL,TRUE);
                         }
                         break;
-                    case IDB_FIVE:
+                    case IDB_FIVE://choose mode
                         {
                             HWND hdtmp = GetDlgItem(hwnd, IDB_FIVE);
                             EnableWindow(hdtmp, false);
@@ -495,17 +535,18 @@ LRESULT CALLBACK WindowProc(
                                 chess_playing_handle[(local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED] = NET_TYPE;
                                 memset(strbuf, 0, 128);
                                 GetWindowText(editHd, strbuf, 128);
-                                remote_side.init(strbuf,(u_short)PORT_NUM);
+                                remote_side->init(strbuf,(u_short)PORT_NUM);
                             }
                             if(Button_GetCheck(rb1Hd)){
                                 running_mode = SERVER_MODE;
                                 chess_playing_handle[local_player] = SCREEN_CLICK_TYPE;
                                 chess_playing_handle[(local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED] = NET_TYPE;
-                                remote_side.init(NULL,(u_short)PORT_NUM);
-                                trans_package* tp_tmp = remote_side.get_trans_pack_buf();
+                                remote_side->init(NULL,(u_short)PORT_NUM);
+                                trans_package* tp_tmp = remote_side->get_trans_pack_buf();
                                 tp_tmp->p_type = SET_REMOTE_PLAYER;
                                 tp_tmp->pd.remote_side = OTHER_SIDE(local_player);
-                                remote_side.send_package(tp_tmp);
+                                MESS_PRINT("send_package:set remote player");
+                                remote_side->send_package(tp_tmp);
                                 MESS_PRINT("Running as server");
                             }
 
@@ -530,6 +571,13 @@ LRESULT CALLBACK WindowProc(
                 int x = GET_X_LPARAM(lParam);
                 int y = GET_Y_LPARAM(lParam);
                 MESS_PRINT("left mouse %d %d", x, y);
+                if(0){
+                    trans_package* tp_tmp = remote_side->get_trans_pack_buf();
+                    tp_tmp->p_type = STRING;
+                    sprintf(tp_tmp->pd.str_message, "%s", "mouse click send");
+                    remote_side->send_package(tp_tmp);
+                    MESS_PRINT("send_package:mouse move");
+                }
                 if(PLAYING_STATE == g_chess_game.get_running_state() &&
                         (SCREEN_CLICK_TYPE == chess_playing_handle[g_chess_game.get_current_playing_side()]) &&
                         g_cdtts.is_in_chessboard(x,y))
@@ -544,13 +592,20 @@ LRESULT CALLBACK WindowProc(
                         ret = g_chess_game.moveto_point(chess_x, chess_y);
                         if(ret){
                             move_step*mstmp=g_chess_game.get_lastmove();
-                            trans_package* tp_tmp = remote_side.get_trans_pack_buf();
+                            trans_package* tp_tmp = remote_side->get_trans_pack_buf();
                             tp_tmp->p_type = CHESS_STEP;
                             tp_tmp->pd.ch_move_step.x1 = mstmp->x1;
                             tp_tmp->pd.ch_move_step.y1 = mstmp->y1;
                             tp_tmp->pd.ch_move_step.x2 = mstmp->x2;
                             tp_tmp->pd.ch_move_step.y2 = mstmp->y2;
-                            remote_side.send_package(tp_tmp);
+                            remote_side->send_package(tp_tmp);
+                            MESS_PRINT("send_package:step move");
+                            MESS_PRINT("%d-%d-%d-%d",
+                                    tp_tmp->pd.ch_move_step.x1,
+                                    tp_tmp->pd.ch_move_step.y1,
+                                    tp_tmp->pd.ch_move_step.x2,
+                                    tp_tmp->pd.ch_move_step.y2
+                                    );
                         }
                     }
                     if(ret){
