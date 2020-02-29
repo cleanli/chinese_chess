@@ -117,6 +117,7 @@ class chess_piece{
         PLAYING_SIDE pside;
         CHESS_PIECES_INDEX cpid;
         int dist_sq(int dx, int dy);
+        int num_between(int, int);
 };
 
 #define SUB_CP_DEF(cp_type) \

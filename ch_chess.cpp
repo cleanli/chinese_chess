@@ -62,6 +62,35 @@ bool chess_piece::can_goto_point(int p_x, int p_y)
     return true;
 }
 
+int chess_piece::num_between(int x, int y)
+{
+    int cmin, cmax;
+    int ret = 0;
+    if(((current_x!=x)&&(current_y!=y))||
+            ((current_x==x)&&(current_y==y))){
+        return -1;
+    }
+    if(x == current_x){
+        cmin = (y > current_y)?current_y:y;
+        cmax = (y > current_y)?y:current_y;
+        for(int c = cmin+1; c < cmax; c++){
+            if(chg->get_cp(x, c)!=NULL){
+                ret++;
+            }
+        }
+    }
+    if(y == current_y){
+        cmin = (x > current_x)?current_x:x;
+        cmax = (x > current_x)?x:current_x;
+        for(int c = cmin+1; c < cmax; c++){
+            if(chg->get_cp(c, y)!=NULL){
+                ret++;
+            }
+        }
+    }
+    return ret;
+}
+
 int chess_piece::dist_sq(int dx, int dy)
 {
     return dx*dx+dy*dy;
@@ -137,11 +166,23 @@ bool chess_piece_knight::can_goto_point(int p_x, int p_y)
 
 bool chess_piece_rook::can_goto_point(int p_x, int p_y)
 {
-    return true;
+    if(num_between(p_x, p_y) == 0){
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 
 bool chess_piece_cannon::can_goto_point(int p_x, int p_y)
 {
+    int ib = num_between(p_x, p_y);
+    if(ib == 0 || ib == 1){
+        return true;
+    }
+    else{
+        return false;
+    }
     return true;
 }
 
