@@ -103,6 +103,7 @@ bool chess_piece_guard::can_goto_point(int p_x, int p_y)
 
 bool chess_piece_minister::can_goto_point(int p_x, int p_y)
 {
+    int xz, yz;
     if(!chess_piece::can_goto_point(p_x, p_y)){
         return false;
     }
@@ -110,6 +111,11 @@ bool chess_piece_minister::can_goto_point(int p_x, int p_y)
         return false;
     }
     if(dist_sq((p_x-current_x),(p_y-current_y)) != 8){
+        return false;
+    }
+    xz = current_x + (p_x - current_x)/2;
+    yz = current_y + (p_y - current_y)/2;
+    if(chg->get_cp(xz, yz) != NULL){
         return false;
     }
     return true;
