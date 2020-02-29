@@ -12,6 +12,7 @@ enum package_type{
     REQUEST_GIVE,
     SET_REMOTE_PLAYER,
     NETCMD_START_BUTTON,
+    SET_TIMEOUT,
     STRING
 };
 
@@ -22,6 +23,7 @@ struct trans_package{
         package_type request;
         char str_message[MAX_STR_LEN];
         PLAYING_SIDE remote_side;
+        int timeout;
     } pd;
 };
 class remote_player

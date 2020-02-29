@@ -193,6 +193,12 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         InvalidateRect(hwnd,NULL,TRUE);
                         break;
                     }
+                case SET_TIMEOUT:
+                    {
+                        int net_timeout = tptmp->pd.timeout;
+                        g_chess_game.set_timeout(OTHER_SIDE(local_player), net_timeout);
+                    }
+                    break;
                 case STRING:
                     MESS_PRINT("remote str:%s", tptmp->pd.str_message);
                 default:
@@ -306,6 +312,8 @@ LRESULT CALLBACK WindowProc(
                 EnableWindow(Button2Hd, false);
                 EnableWindow(Button3Hd, false);
                 EnableWindow(Button4Hd, false);
+                enable_by_id(IDM_OPT1, 0);
+                enable_by_id(IDM_OPT2, 0);
                 //CreateWindow(TEXT("edit"),TEXT("myedit"),WS_CHILD|WS_VISIBLE|WS_VSCROLL|WS_BORDER|ES_LEFT|ES_MULTILINE|ES_AUTOVSCROLL,
                 editHd = CreateWindow(TEXT("edit"),TEXT("127.0.0.1"),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT,
                         100, 73, 190, 20, hwnd,(HMENU)ID_DATA, hg_app,NULL);
@@ -444,13 +452,25 @@ LRESULT CALLBACK WindowProc(
                     case IDM_OPT1:
                         g_chess_game.set_timeout(local_player,
                                 g_chess_game.get_timeout(local_player)/10-50);
-                        MessageBox(hwnd,"timeout=timeout-50","Notice",MB_OK);
+                        {
+                            trans_package* tp_tmp = remote_side->get_trans_pack_buf();
+                            tp_tmp->p_type = SET_TIMEOUT;
+                            tp_tmp->pd.timeout = g_chess_game.get_timeout(local_player)/10;
+                            remote_side->send_package(tp_tmp);
+                        }
+                        //MessageBox(hwnd,"timeout=timeout-50","Notice",MB_OK);
                         InvalidateRect(hwnd,NULL,TRUE);
                         break;
                     case IDM_OPT2:
                         g_chess_game.set_timeout(local_player,
                                 g_chess_game.get_timeout(local_player)/10+50);
-                        MessageBox(hwnd,"timeout=timeout+50","notice",MB_OK);
+                        {
+                            trans_package* tp_tmp = remote_side->get_trans_pack_buf();
+                            tp_tmp->p_type = SET_TIMEOUT;
+                            tp_tmp->pd.timeout = g_chess_game.get_timeout(local_player)/10;
+                            remote_side->send_package(tp_tmp);
+                        }
+                        //MessageBox(hwnd,"timeout=timeout+50","notice",MB_OK);
                         InvalidateRect(hwnd,NULL,TRUE);
                         break;
                     case IDB_ONE://switch
