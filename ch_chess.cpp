@@ -51,8 +51,23 @@ bool chess_piece::is_alive()
     return isalive;
 }
 
+bool chess_piece::can_goto_point(int p_x, int p_y)
+{
+    if(chg->get_cp(p_x, p_y)!=NULL &&
+            pside == chg->get_cp(p_x, p_y)->get_cp_side()){
+        return false;
+    }
+    return true;
+}
+
 bool chess_piece_king::can_goto_point(int p_x, int p_y)
 {
+    if(!chess_piece::can_goto_point(p_x, p_y)){
+        return false;
+    }
+    if(p_x<3 || p_x>5){
+        return false;
+    }
     return true;
 }
 

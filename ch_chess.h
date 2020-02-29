@@ -109,7 +109,7 @@ class chess_piece{
         void set_alive(bool);
         virtual bool can_goto_point(int x,int y)=0;
         PLAYING_SIDE get_cp_side();
-    private:
+    protected:
         int current_x;
         int current_y;
         bool isalive;
