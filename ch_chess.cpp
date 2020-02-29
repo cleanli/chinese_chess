@@ -234,9 +234,24 @@ chess_game::~chess_game()
         delete cpes[i];
     }
 }
+void chess_game::set_timeout(PLAYING_SIDE sd, int t)
+{
+    if(running_state == INIT_STATE)
+    {
+        if(sd == SIDE_RED){
+            red_saved_timeout = t;
+            red_timeout = t*10;
+        }
+        else{
+            black_saved_timeout = t;
+            black_timeout = t*10;
+        }
+    }
+}
 
 chess_game::chess_game(int timeout)
-  : saved_timeout(timeout),
+  : red_saved_timeout(timeout),
+    black_saved_timeout(timeout),
     running_state(INIT_STATE),
     choosen_cp(NULL),
     red_request_drawn(false),
@@ -307,8 +322,8 @@ void chess_game::reset()
     }
     running_state = INIT_STATE;
     current_playing_side=SIDE_RED;
-    red_timeout = saved_timeout*10;
-    black_timeout = saved_timeout*10;
+    red_timeout = red_saved_timeout*10;
+    black_timeout = black_saved_timeout*10;
     running_step = 0;
     choosen_cp = NULL;
     red_request_drawn = false;

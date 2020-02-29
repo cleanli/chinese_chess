@@ -166,9 +166,9 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                     MessageBox(hwnd, "Remote request switch side", "Notice", MB_ICONQUESTION);
                     break;
                 case REQUEST_GIVE:
-                    MessageBox(hwnd, "Remote request GIVE", "Notice", MB_ICONQUESTION);
                     g_chess_game.set_win(local_player);
                     InvalidateRect(hwnd,NULL,TRUE);
+                    MessageBox(hwnd, "Remote request GIVE", "Notice", MB_ICONQUESTION);
                     break;
                 case SET_REMOTE_PLAYER:
                     MESS_PRINT("got setremote cmd");
@@ -442,10 +442,16 @@ LRESULT CALLBACK WindowProc(
                 switch(LOWORD(wParam))
                 {
                     case IDM_OPT1:
-                        MessageBox(hwnd,"plane coming","Notice",MB_OK);
+                        g_chess_game.set_timeout(local_player,
+                                g_chess_game.get_timeout(local_player)/10-50);
+                        MessageBox(hwnd,"timeout=timeout-50","Notice",MB_OK);
+                        InvalidateRect(hwnd,NULL,TRUE);
                         break;
                     case IDM_OPT2:
-                        MessageBox(hwnd,"mt gun coming","notice",MB_OK);
+                        g_chess_game.set_timeout(local_player,
+                                g_chess_game.get_timeout(local_player)/10+50);
+                        MessageBox(hwnd,"timeout=timeout+50","notice",MB_OK);
+                        InvalidateRect(hwnd,NULL,TRUE);
                         break;
                     case IDB_ONE://switch
                         if(running_mode == SERVER_MODE || running_mode == LOCAL_MODE){
@@ -757,19 +763,19 @@ void CreateMyMenu()
     AppendMenu(hRoot,
             MF_POPUP,
             (UINT_PTR)pop1,
-            "Opera");
+            "Timeout");
     //one way is using AppendMenu
     AppendMenu(pop1,
             MF_STRING,
             IDM_OPT1,
-            "Plane");
+            "timeout-50");
 
     //another way is using InsertMenuItem
     MENUITEMINFO mif;
     mif.cbSize = sizeof(MENUITEMINFO);
     mif.cch = 100;
     mif.dwItemData  = NULL;
-    mif.dwTypeData = "MT_GUN";
+    mif.dwTypeData = "timeout+50";
     mif.fMask = MIIM_ID | MIIM_STRING | MIIM_STATE;
     mif.fState = MFS_ENABLED;
     mif.fType = MIIM_STRING;

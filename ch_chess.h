@@ -143,6 +143,7 @@ class chess_game{
         void reset();
         void start();
         void set_win(PLAYING_SIDE);
+        void set_timeout(PLAYING_SIDE, int t);
         void switch_turn();
         bool request_drawn_side(PLAYING_SIDE);
         bool choose_point(int x, int y);
@@ -164,7 +165,8 @@ class chess_game{
         chess_piece* cpes_board[MAX_CHS_BOARD_Y][MAX_CHS_BOARD_X];
         PLAYING_SIDE current_playing_side;
         int running_step;
-        int saved_timeout;
+        int black_saved_timeout;
+        int red_saved_timeout;
         int red_timeout;
         int black_timeout;
         bool red_request_drawn;
