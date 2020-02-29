@@ -1,4 +1,6 @@
 #include "ch_chess.h"
+#include<iostream>
+#include <stdio.h>
 
 #ifndef NULL 
 #define NULL 0
@@ -66,6 +68,12 @@ bool chess_piece_king::can_goto_point(int p_x, int p_y)
         return false;
     }
     if(p_x<3 || p_x>5){
+        return false;
+    }
+    if((pside==SIDE_RED && p_y>2) || (pside==SIDE_BLACK && p_y<7)){
+        return false;
+    }
+    if(((p_x-current_x)*(p_x-current_x)+(p_y-current_y)*(p_y-current_y)) > 1){
         return false;
     }
     return true;
