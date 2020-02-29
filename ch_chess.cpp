@@ -78,7 +78,7 @@ bool chess_piece_king::can_goto_point(int p_x, int p_y)
     if((pside==SIDE_RED && p_y>2) || (pside==SIDE_BLACK && p_y<7)){
         return false;
     }
-    if(chess_piece::dist_sq((p_x-current_x),(p_y-current_y)) != 1){
+    if(dist_sq((p_x-current_x),(p_y-current_y)) != 1){
         return false;
     }
     return true;
@@ -103,6 +103,15 @@ bool chess_piece_guard::can_goto_point(int p_x, int p_y)
 
 bool chess_piece_minister::can_goto_point(int p_x, int p_y)
 {
+    if(!chess_piece::can_goto_point(p_x, p_y)){
+        return false;
+    }
+    if((pside==SIDE_RED && p_y>4) || (pside==SIDE_BLACK && p_y<5)){
+        return false;
+    }
+    if(dist_sq((p_x-current_x),(p_y-current_y)) != 8){
+        return false;
+    }
     return true;
 }
 
