@@ -33,6 +33,12 @@ static char mpbuf0[256];
 static char mpbuf1[256];
 static char* mpbuf[2]={mpbuf0, mpbuf1};
 static int mpbuf_index = 0;
+#define df(fmt,arg...) \
+    { \
+        printf(fmt, ##arg); \
+        fflush(stdout); \
+    }
+
 #define MESS_PRINT(fmt,arg...) \
     {   \
         int tmplen; \
@@ -597,7 +603,8 @@ LRESULT CALLBACK WindowProc(
                     }
                     else{
                         ret = g_chess_game.moveto_point(chess_x, chess_y);
-                        if(ret){
+                        df("line %d\r\n", __LINE__);
+                        if(g_chess_game.get_choosen_cp() == NULL){
                             move_step*mstmp=g_chess_game.get_lastmove();
                             trans_package* tp_tmp = remote_side->get_trans_pack_buf();
                             tp_tmp->p_type = CHESS_STEP;
@@ -614,6 +621,7 @@ LRESULT CALLBACK WindowProc(
                                     tp_tmp->pd.ch_move_step.y2
                                     );
                         }
+                        df("line %d\r\n", __LINE__);
                     }
                     if(ret){
                         InvalidateRect(hwnd,NULL,TRUE);
