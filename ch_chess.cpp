@@ -188,6 +188,22 @@ bool chess_piece_cannon::can_goto_point(int p_x, int p_y)
 
 bool chess_piece_pawn::can_goto_point(int p_x, int p_y)
 {
+    if(!chess_piece::can_goto_point(p_x, p_y)){
+        return false;
+    }
+    if(p_x == 1 || p_x == 3 || p_x == 5 || p_x == 7){
+        if((pside == SIDE_RED && p_y < 5) ||
+                (pside == SIDE_BLACK && p_y > 4)){
+            return false;
+        }
+    }
+    if((pside==SIDE_RED&&p_y<current_y) ||
+            (pside==SIDE_BLACK&&p_y>current_y)){
+        return false;
+    }
+    if(dist_sq((p_x-current_x),(p_y-current_y)) != 1){
+        return false;
+    }
     return true;
 }
 
