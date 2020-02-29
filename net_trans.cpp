@@ -144,6 +144,25 @@ bool net_trans::init(u_short pt)
         return false;
     }
 
+    fd_set sock_set;
+    FD_ZERO(&sock_set);
+    timeval timeout{10, 0};	//wait time(sec,u_sec)
+
+    FD_SET(serverSocket, &sock_set);
+    select(0, &sock_set, nullptr, nullptr, &timeout);
+    if((FD_ISSET(serverSocket, &sock_set) == 0))
+    {
+        int sts;
+        cout<<"No client connecting...quit"<<endl;
+        sts=closesocket(serverSocket);
+        if (sts == SOCKET_ERROR)
+            cout<<"close error "<<sts<<endl;
+        sts=WSACleanup();
+        if (sts == SOCKET_ERROR)
+            cout<<"cleanup error "<<sts<<endl;
+        return false;
+    }
+
     /* accept the connection request when one is received */
     usingSocket=accept(serverSocket, (LPSOCKADDR)&usingSockAddr, &addrLen);
 

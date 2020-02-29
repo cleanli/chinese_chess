@@ -520,9 +520,6 @@ LRESULT CALLBACK WindowProc(
                         break;
                     case IDB_FIVE://choose mode
                         {
-                            HWND hdtmp = GetDlgItem(hwnd, IDB_FIVE);
-                            EnableWindow(hdtmp, false);
-
                             if(Button_GetCheck(rb3Hd)){
                                 running_mode = LOCAL_MODE;
                                 chess_playing_handle[SIDE_RED] = SCREEN_CLICK_TYPE;
@@ -536,14 +533,20 @@ LRESULT CALLBACK WindowProc(
                                 chess_playing_handle[(local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED] = NET_TYPE;
                                 memset(strbuf, 0, 128);
                                 GetWindowText(editHd, strbuf, 128);
-                                remote_side->init(strbuf,(u_short)PORT_NUM);
+                                if(!remote_side->init(strbuf,(u_short)PORT_NUM)){
+                                    MessageBox(hwnd, "connect to server fail", "Notice", MB_OK | MB_ICONINFORMATION);
+                                    break;
+                                }
                             }
                             if(Button_GetCheck(rb1Hd)){
                                 SetWindowText(seripHd, net_trans::get_local_ip());
                                 running_mode = SERVER_MODE;
                                 chess_playing_handle[local_player] = SCREEN_CLICK_TYPE;
                                 chess_playing_handle[(local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED] = NET_TYPE;
-                                remote_side->init(NULL,(u_short)PORT_NUM);
+                                if(!remote_side->init(NULL,(u_short)PORT_NUM)){
+                                    MessageBox(hwnd, "wait client connect fail", "Notice", MB_OK | MB_ICONINFORMATION);
+                                    break;
+                                }
                                 trans_package* tp_tmp = remote_side->get_trans_pack_buf();
                                 tp_tmp->p_type = SET_REMOTE_PLAYER;
                                 tp_tmp->pd.remote_side = OTHER_SIDE(local_player);
@@ -560,6 +563,8 @@ LRESULT CALLBACK WindowProc(
                             EnableWindow(Button2Hd, true);
                             EnableWindow(Button3Hd, true);
                             EnableWindow(Button4Hd, true);
+                            HWND hdtmp = GetDlgItem(hwnd, IDB_FIVE);
+                            EnableWindow(hdtmp, false);
                             InvalidateRect(hwnd,NULL,TRUE);
                         }
                         break;

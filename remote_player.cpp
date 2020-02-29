@@ -92,7 +92,7 @@ bool net_remote_player::init(const char*ip, u_short port)
             connec_is_rdy=false;
         }
     }
-    return true;
+    return connec_is_rdy;
 }
 
 bool net_remote_player::is_ready()
