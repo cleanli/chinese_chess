@@ -234,6 +234,20 @@ chess_game::~chess_game()
         delete cpes[i];
     }
 }
+
+void chess_game::set_idleside_timeout(int t)
+{
+    if(running_state == PLAYING_STATE)
+    {
+        if(current_playing_side == SIDE_RED){
+            black_timeout = t;
+        }
+        else{
+            red_timeout = t;
+        }
+    }
+}
+
 void chess_game::set_timeout(PLAYING_SIDE sd, int t)
 {
     if(running_state == INIT_STATE)

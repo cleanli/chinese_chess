@@ -65,13 +65,13 @@ bool dummy_remote_player::send_package(trans_package*tp)
 
 net_remote_player::net_remote_player()
 {
-    printf("net remote start\n\r");
+    df("net remote start\n\r");
     fflush(stdout);
 }
 
 net_remote_player::~net_remote_player()
 {
-    printf("net remote ~\r\n");
+    df("net remote ~\r\n");
     fflush(stdout);
     mynt.deinit();
 }
@@ -119,12 +119,14 @@ trans_package* net_remote_player::get_recved_ok()
     else{
         memcpy(&tpg, tmpbuf, len);
         mynt.buf_return((char*)tmpbuf);
+        df("%s %d", __func__, tpg.p_type);
         return &tpg;
     }
 }
 
 bool net_remote_player::send_package(trans_package*tp)
 {
+    df("%s %d", __func__, tp->p_type);
     mynt.net_send((const char*)tp, sizeof(trans_package));
     return true;
 }
@@ -132,6 +134,14 @@ bool net_remote_player::send_package(trans_package*tp)
 bool net_remote_player::send_cmd(package_type pt)
 {
     tpg.p_type = pt;
-    mynt.net_send((const char*)&tpg, sizeof(trans_package));
+    send_package(&tpg);
+    return true;
+}
+
+bool net_remote_player::send_cur_timeout(int to)
+{
+    tpg.p_type = SEND_CURRENT_TIMEOUT;
+    tpg.pd.timeout = to;
+    send_package(&tpg);
     return true;
 }

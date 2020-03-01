@@ -13,6 +13,7 @@ enum package_type{
     SET_REMOTE_PLAYER,
     NETCMD_START_BUTTON,
     SET_TIMEOUT,
+    SEND_CURRENT_TIMEOUT,
     APP_QUIT,
     STRING
 };
@@ -36,6 +37,7 @@ class remote_player
         virtual trans_package* get_recved_ok()=0;
         virtual bool send_package(trans_package*)=0;
         virtual bool send_cmd(package_type)=0;
+        virtual bool send_cur_timeout(int timeout)=0;
 
     protected:
         bool connec_is_rdy;
@@ -61,6 +63,7 @@ class net_remote_player:public remote_player
         trans_package* get_recved_ok();
         bool send_package(trans_package*);
         bool send_cmd(package_type);
+        bool send_cur_timeout(int timeout);
         ~net_remote_player();
     private:
         net_trans mynt;

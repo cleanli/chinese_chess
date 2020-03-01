@@ -1,6 +1,8 @@
 #ifndef _CH_CHESS
 #define _CH_CHESS
 
+#include"debug.h"
+
 #define MAX_CHS_BOARD_X 9
 #define MAX_CHS_BOARD_Y 10
 #define RED_PAWN_LINE_Y 4
@@ -144,6 +146,7 @@ class chess_game{
         void start();
         void set_win(PLAYING_SIDE);
         void set_timeout(PLAYING_SIDE, int t);
+        void set_idleside_timeout(int t);
         void switch_turn();
         bool request_drawn_side(PLAYING_SIDE);
         bool choose_point(int x, int y);

@@ -1,4 +1,5 @@
 #include "net_trans.h"
+#include "debug.h"
 
 char net_trans::local_ip[128]={0};
 net_trans::net_trans()
@@ -209,6 +210,7 @@ bool net_trans::buf_return(char*buf)
 bool net_trans::net_send(const char*buf, int len)
 {
    int numsnt=send(usingSocket, buf, len, NO_FLAGS_SET);  
+    df("%s %p %d ret %d", __func__, buf, len, numsnt);
    if(numsnt == len)
        return true;
    else
@@ -222,6 +224,7 @@ char* net_trans::net_recv(int*len)
        return NULL;
    }
    else{
+       df("net_recv:%d", numrcv);
        if(bufout_ready){
            memcpy(buffer_out, buffer_recv, numrcv);
            bufout_ready = false;
@@ -229,6 +232,7 @@ char* net_trans::net_recv(int*len)
            return buffer_out;
        }
        else{
+           df("net_recv:data lost");
            received_data_lost = true;
            return NULL;
        }

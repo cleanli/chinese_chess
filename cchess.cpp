@@ -33,11 +33,6 @@ static char mpbuf0[256];
 static char mpbuf1[256];
 static char* mpbuf[2]={mpbuf0, mpbuf1};
 static int mpbuf_index = 0;
-#define df(fmt,arg...) \
-    { \
-        printf(fmt, ##arg); \
-        fflush(stdout); \
-    }
 
 #define MESS_PRINT(fmt,arg...) \
     {   \
@@ -202,8 +197,13 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                 case APP_QUIT:
                     MessageBox(hwnd, "Remote side have left", "Notice", MB_ICONQUESTION);
                     break;
+                case SEND_CURRENT_TIMEOUT:
+                    MESS_PRINT("get remote timeout %d", tptmp->pd.timeout);
+                    g_chess_game.set_idleside_timeout(tptmp->pd.timeout);
+                    break;
                 case STRING:
                     MESS_PRINT("remote str:%s", tptmp->pd.str_message);
+                    break;
                 default:
                     break;
             }
@@ -649,6 +649,9 @@ LRESULT CALLBACK WindowProc(
                                     tp_tmp->pd.ch_move_step.x2,
                                     tp_tmp->pd.ch_move_step.y2
                                     );
+                            remote_side->send_cur_timeout(g_chess_game.get_timeout(local_player));
+                            MESS_PRINT("send_package:curtimeout %d",
+                                    g_chess_game.get_timeout(local_player));
                         }
                         df("line %d\r\n", __LINE__);
                     }
@@ -767,10 +770,11 @@ LRESULT CALLBACK WindowProc(
             break;
         case WM_DESTROY:
             cout<<"quit"<<endl;
-            remote_side->send_cmd(APP_QUIT);
             // Delete all timers in the timer queue.
             if (!DeleteTimerQueue(hTimerQueue))
                 printf("DeleteTimerQueue failed (%d)\n", GetLastError());
+            remote_side->send_cmd(APP_QUIT);
+            Sleep(300);
             {
                 PostQuitMessage(0);
                 return 0;
