@@ -13,6 +13,7 @@ enum package_type{
     SET_REMOTE_PLAYER,
     NETCMD_START_BUTTON,
     SET_TIMEOUT,
+    APP_QUIT,
     STRING
 };
 

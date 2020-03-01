@@ -199,6 +199,9 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         g_chess_game.set_timeout(OTHER_SIDE(local_player), net_timeout);
                     }
                     break;
+                case APP_QUIT:
+                    MessageBox(hwnd, "Remote side have left", "Notice", MB_ICONQUESTION);
+                    break;
                 case STRING:
                     MESS_PRINT("remote str:%s", tptmp->pd.str_message);
                 default:
@@ -763,6 +766,8 @@ LRESULT CALLBACK WindowProc(
             }
             break;
         case WM_DESTROY:
+            cout<<"quit"<<endl;
+            remote_side->send_cmd(APP_QUIT);
             // Delete all timers in the timer queue.
             if (!DeleteTimerQueue(hTimerQueue))
                 printf("DeleteTimerQueue failed (%d)\n", GetLastError());

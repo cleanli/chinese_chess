@@ -65,10 +65,14 @@ bool dummy_remote_player::send_package(trans_package*tp)
 
 net_remote_player::net_remote_player()
 {
+    printf("net remote start\n\r");
+    fflush(stdout);
 }
 
 net_remote_player::~net_remote_player()
 {
+    printf("net remote ~\r\n");
+    fflush(stdout);
     mynt.deinit();
 }
 
