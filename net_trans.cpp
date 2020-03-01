@@ -196,8 +196,11 @@ bool net_trans::recv_lost()
     return received_data_lost;
 }
 
-bool net_trans::buf_return(char*buf)
+bool net_trans::buf_return()
 {
+    bufout_ready = true;
+    return true;
+#if 0
     if(buf == buffer_out){
         bufout_ready = true;
         return true;
@@ -205,6 +208,7 @@ bool net_trans::buf_return(char*buf)
     else{
         return false;
     }
+#endif
 }
 
 bool net_trans::net_send(const char*buf, int len)

@@ -122,9 +122,8 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
             InvalidateRect(hwnd,NULL,TRUE);
         }
         last_game_state = rs_tmp;
-        tptmp = remote_side->get_recved_ok();
-        if(tptmp != NULL){
-            MESS_PRINT("recv remote message");
+        while((tptmp = remote_side->get_recved_ok())!=NULL){
+            df("timer:recv remote message");
             switch(tptmp->p_type){
                 case CHESS_STEP:
                     {
@@ -166,7 +165,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                     MessageBox(hwnd, "Remote request GIVE", "Notice", MB_ICONQUESTION);
                     break;
                 case SET_REMOTE_PLAYER:
-                    MESS_PRINT("got setremote cmd");
+                    df("got setremote cmd");
                     local_player = tptmp->pd.remote_side;
                     g_cdtts.set_revert(local_player == SIDE_RED);
                     chess_playing_handle[local_player] = SCREEN_CLICK_TYPE;
@@ -198,7 +197,8 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                     MessageBox(hwnd, "Remote side have left", "Notice", MB_ICONQUESTION);
                     break;
                 case SEND_CURRENT_TIMEOUT:
-                    MESS_PRINT("get remote timeout %d", tptmp->pd.timeout);
+                    MESS_PRINT("remote timeout %d local %d",
+                            tptmp->pd.timeout, g_chess_game.get_timeout(OTHER_SIDE(local_player)));
                     g_chess_game.set_idleside_timeout(tptmp->pd.timeout);
                     break;
                 case STRING:

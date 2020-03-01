@@ -64,6 +64,7 @@ bool dummy_remote_player::send_package(trans_package*tp)
 
 
 net_remote_player::net_remote_player()
+  : data_left_len(0)
 {
     df("net remote start\n\r");
     fflush(stdout);
@@ -113,13 +114,31 @@ trans_package* net_remote_player::get_recved_ok()
 {
     int len;
     void *tmpbuf;
-    if(NULL==(tmpbuf=mynt.net_recv(&len))){
-        return NULL;
+    if(data_left_len == 0){
+        if(NULL==(tmpbuf=mynt.net_recv(&len))){
+            return NULL;
+        }
+        else{
+            memcpy(&tpg, tmpbuf, sizeof(trans_package));
+            if(len > sizeof(trans_package)){
+                data_left_len=len-sizeof(trans_package);
+                data_left_buf = (char*)tmpbuf+sizeof(trans_package);
+            }
+            else{
+                mynt.buf_return();
+            }
+            df("%s p_type %d", __func__, tpg.p_type);
+            return &tpg;
+        }
     }
     else{
-        memcpy(&tpg, tmpbuf, len);
-        mynt.buf_return((char*)tmpbuf);
-        df("%s %d", __func__, tpg.p_type);
+        memcpy(&tpg, data_left_buf, sizeof(trans_package));
+        data_left_len -= sizeof(trans_package);
+        data_left_buf += sizeof(trans_package);
+        if(data_left_len==0){
+            mynt.buf_return();
+        }
+        df("%s p_type:%d", __func__, tpg.p_type);
         return &tpg;
     }
 }

@@ -67,6 +67,8 @@ class net_remote_player:public remote_player
         ~net_remote_player();
     private:
         net_trans mynt;
+        int data_left_len;
+        char* data_left_buf;
 
 };
 

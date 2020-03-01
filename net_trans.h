@@ -29,7 +29,7 @@ class net_trans
         bool get_status();
         bool net_send(const char* buf, int len);
         char* net_recv(int*len);
-        bool buf_return(char*);
+        bool buf_return();
         bool recv_lost();
         bool deinit();
         static char local_ip[];
