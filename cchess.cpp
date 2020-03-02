@@ -149,6 +149,9 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                                 InvalidateRect(hwnd,NULL,TRUE);
                             }
                         }
+                        MESS_PRINT("remote timeout %d local %d",
+                                tptmp->pd.timeout, g_chess_game.get_timeout(OTHER_SIDE(local_player)));
+                        g_chess_game.set_idleside_timeout(tptmp->pd.timeout);
                     }
                     break;
                 case REQUEST_DRAWN:
@@ -197,10 +200,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                 case APP_QUIT:
                     MessageBox(hwnd, "Remote side have left", "Notice", MB_ICONQUESTION);
                     break;
-                case SEND_CURRENT_TIMEOUT:
-                    MESS_PRINT("remote timeout %d local %d",
-                            tptmp->pd.timeout, g_chess_game.get_timeout(OTHER_SIDE(local_player)));
-                    g_chess_game.set_idleside_timeout(tptmp->pd.timeout);
+                case ACK:
                     break;
                 case STRING:
                     MESS_PRINT("remote str:%s", tptmp->pd.str_message);
@@ -633,7 +633,6 @@ LRESULT CALLBACK WindowProc(
                     }
                     else{
                         ret = g_chess_game.moveto_point(chess_x, chess_y);
-                        df("line %d\r\n", __LINE__);
                         if(g_chess_game.get_choosen_cp() == NULL){
                             move_step*mstmp=g_chess_game.get_lastmove();
                             trans_package* tp_tmp = remote_side->get_trans_pack_buf();
@@ -642,19 +641,20 @@ LRESULT CALLBACK WindowProc(
                             tp_tmp->pd.ch_move_step.y1 = mstmp->y1;
                             tp_tmp->pd.ch_move_step.x2 = mstmp->x2;
                             tp_tmp->pd.ch_move_step.y2 = mstmp->y2;
-                            remote_side->send_package(tp_tmp);
+                            tp_tmp->pd.timeout = g_chess_game.get_timeout(local_player);
+                            if(remote_side->is_ready()){
+                                remote_side->send_package(tp_tmp);
+                            }
                             MESS_PRINT("send_package:step move");
-                            MESS_PRINT("%d-%d-%d-%d",
+                            df("move %d-%d-%d-%d",
                                     tp_tmp->pd.ch_move_step.x1,
                                     tp_tmp->pd.ch_move_step.y1,
                                     tp_tmp->pd.ch_move_step.x2,
                                     tp_tmp->pd.ch_move_step.y2
                                     );
-                            remote_side->send_cur_timeout(g_chess_game.get_timeout(local_player));
                             MESS_PRINT("send_package:curtimeout %d",
                                     g_chess_game.get_timeout(local_player));
                         }
-                        df("line %d\r\n", __LINE__);
                     }
                     if(ret){
                         InvalidateRect(hwnd,NULL,TRUE);

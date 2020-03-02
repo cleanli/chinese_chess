@@ -157,6 +157,7 @@ bool net_remote_player::send_cmd(package_type pt)
     return true;
 }
 
+#if 0
 bool net_remote_player::send_cur_timeout(int to)
 {
     tpg.p_type = SEND_CURRENT_TIMEOUT;
@@ -164,3 +165,4 @@ bool net_remote_player::send_cur_timeout(int to)
     send_package(&tpg);
     return true;
 }
+#endif
