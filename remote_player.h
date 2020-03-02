@@ -20,6 +20,7 @@ enum package_type{
 
 struct trans_package{
     package_type p_type;
+    int pk_id;
     struct pck_data{
         move_step ch_move_step;
         package_type request;
@@ -31,16 +32,19 @@ struct trans_package{
 class remote_player
 {
     public:
+        remote_player();
         virtual bool init(const char*ip, u_short port)=0;
         virtual trans_package* get_trans_pack_buf()=0;
         virtual bool is_ready()=0;
         virtual trans_package* get_recved_ok()=0;
         virtual bool send_package(trans_package*)=0;
         virtual bool send_cmd(package_type)=0;
+        virtual bool send_ack(int id)=0;
 
     protected:
         bool connec_is_rdy;
         trans_package tpg;
+        trans_package ack_tpg;
 };
 class dummy_remote_player:public remote_player
 {
@@ -62,11 +66,14 @@ class net_remote_player:public remote_player
         trans_package* get_recved_ok();
         bool send_package(trans_package*);
         bool send_cmd(package_type);
+        bool send_ack(int id);
         ~net_remote_player();
     private:
         net_trans mynt;
         int data_left_len;
         char* data_left_buf;
+        int current_pk_id;
+        int acked_pk_id;
 
 };
 

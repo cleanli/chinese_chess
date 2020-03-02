@@ -1,5 +1,19 @@
 #include "remote_player.h"
 
+const char* pk_type_str[]={
+    "CHESS_STEP",
+    "REQUEST_DRAWN",
+    "REQUEST_SWITCH",
+    "REQUEST_GIVE",
+    "SET_REMOTE_PLAYER",
+    "NETCMD_START_BUTTON",
+    "SET_TIMEOUT",
+    "ACK",
+    "APP_QUIT",
+    "STRING"
+};
+
+
 dummy_remote_player::dummy_remote_player()
 {
 };
@@ -61,10 +75,14 @@ bool dummy_remote_player::send_package(trans_package*tp)
     return true;
 }
 
-
+remote_player::remote_player()
+  : connec_is_rdy(false)
+{
+}
 
 net_remote_player::net_remote_player()
-  : data_left_len(0)
+  : data_left_len(0),
+    current_pk_id(1)
 {
     df("net remote start\n\r");
     fflush(stdout);
@@ -80,6 +98,7 @@ net_remote_player::~net_remote_player()
 bool net_remote_player::init(const char*ip, u_short port)
 {
     //connec_is_rdy = true;
+    df("net_remote_player::init");
     memset(&tpg, 0, sizeof(trans_package));
     if(!ip){
         if(mynt.init(port)){
@@ -127,8 +146,6 @@ trans_package* net_remote_player::get_recved_ok()
             else{
                 mynt.buf_return();
             }
-            df("%s p_type %d", __func__, tpg.p_type);
-            return &tpg;
         }
     }
     else{
@@ -138,16 +155,40 @@ trans_package* net_remote_player::get_recved_ok()
         if(data_left_len==0){
             mynt.buf_return();
         }
-        df("%s p_type:%d", __func__, tpg.p_type);
-        return &tpg;
     }
+    df("%s p_type:%d %s", __func__, tpg.p_type, pk_type_str[tpg.p_type]);
+    if(tpg.p_type == ACK){
+        df("acked package:id %d received", tpg.pk_id);
+        acked_pk_id = tpg.pk_id;
+        return NULL;
+    }
+    return &tpg;
 }
 
 bool net_remote_player::send_package(trans_package*tp)
 {
-    df("%s %d", __func__, tp->p_type);
-    mynt.net_send((const char*)tp, sizeof(trans_package));
-    return true;
+    bool ret;
+    if(current_pk_id != 1 && acked_pk_id != current_pk_id-1){
+        df("Error! last package didn't get ack! acked %d last %d",
+                acked_pk_id, current_pk_id-1);
+        if(tpg.pk_id == current_pk_id-1){
+            ret = mynt.net_send((const char*)&tpg, sizeof(trans_package));
+            df("re-send last failed package return %d", ret);
+        }
+        else{
+            df("can't re-send last failed package, data lost");
+        }
+    }
+    if(tp->p_type == ACK){
+        ret = mynt.net_send((const char*)tp, sizeof(trans_package));
+        df("send ack of id %d return %d", tp->pk_id, ret);
+        return ret;
+    }
+    tp->pk_id = current_pk_id++;
+    df("%s type %d %s id %d", __func__, tp->p_type,
+            pk_type_str[tp->p_type], tp->pk_id);
+    acked_pk_id=0;
+    return mynt.net_send((const char*)tp, sizeof(trans_package));
 }
 
 bool net_remote_player::send_cmd(package_type pt)
@@ -157,12 +198,9 @@ bool net_remote_player::send_cmd(package_type pt)
     return true;
 }
 
-#if 0
-bool net_remote_player::send_cur_timeout(int to)
+bool net_remote_player::send_ack(int id)
 {
-    tpg.p_type = SEND_CURRENT_TIMEOUT;
-    tpg.pd.timeout = to;
-    send_package(&tpg);
-    return true;
+    ack_tpg.p_type = ACK;
+    ack_tpg.pk_id = id;
+    return send_package(&ack_tpg);
 }
-#endif
