@@ -548,7 +548,7 @@ LRESULT CALLBACK WindowProc(
                         }
                         break;
                     case IDB_FOUR://give
-                        {
+                        if(PLAYING_STATE == g_chess_game.get_running_state()){ 
                             if(remote_side->is_ready()){
                                 trans_package* tp_tmp = remote_side->get_trans_pack_buf();
                                 tp_tmp->p_type = REQUEST_GIVE;
