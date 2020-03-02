@@ -33,6 +33,7 @@ static char mpbuf0[256];
 static char mpbuf1[256];
 static char* mpbuf[2]={mpbuf0, mpbuf1};
 static int mpbuf_index = 0;
+char debug_buf[1024];
 
 #define MESS_PRINT(fmt,arg...) \
     {   \
