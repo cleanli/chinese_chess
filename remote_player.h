@@ -5,6 +5,7 @@
 #include "net_trans.h"
 
 #define MAX_STR_LEN 128
+#define MAX_PK_PENDING 4
 enum package_type{
     CHESS_STEP,
     REQUEST_DRAWN,
@@ -73,7 +74,8 @@ class net_remote_player:public remote_player
         int data_left_len;
         char* data_left_buf;
         int current_pk_id;
-        int acked_pk_id;
+        int pending_pk_id;
+        int pk_pending_last;
 
 };
 

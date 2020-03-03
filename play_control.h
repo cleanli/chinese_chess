@@ -5,7 +5,7 @@
  * 0.1 local mode works
  * 0.2 net mode works
  * */
-#define VERSION "0.5 ack & log"
+#define VERSION "0.51 ack & log"
 #define PORT_NUM 34567
 enum RUN_MODE
 {
