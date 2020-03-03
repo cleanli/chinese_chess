@@ -123,6 +123,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
             InvalidateRect(hwnd,NULL,TRUE);
         }
         last_game_state = rs_tmp;
+        //df("timer ----");
         if(remote_side->is_ready()){
             while((tptmp = remote_side->get_recved_ok())!=NULL){
                 df("timer:recv remote message id %d", tptmp->pk_id);
@@ -408,21 +409,6 @@ LRESULT CALLBACK WindowProc(
                     ReleaseDC(hwnd, hdc);
                 }
             }
-            //timer init
-            // Create the timer queue.
-            hTimerQueue = CreateTimerQueue();
-            if (NULL == hTimerQueue)
-            {
-                MessageBox(hwnd, "CreateTimerQueue failed", "Error", MB_ICONERROR);
-                break;
-            }
-            // Set a timer to call the timer routine in 10 seconds.
-            if (!CreateTimerQueueTimer( &hTimer, hTimerQueue,
-                        (WAITORTIMERCALLBACK)TimerRoutine, hwnd , 500, 100, 0))
-            {
-                MessageBox(hwnd, "CreateTimerQueueTimer failed", "Error", MB_ICONERROR);
-                break;
-            }
             break;
         case WM_CONTEXTMENU:
             {
@@ -596,6 +582,22 @@ LRESULT CALLBACK WindowProc(
                                     remote_side->send_package(tp_tmp);
                                 }
                                 MESS_PRINT("Running as server");
+                            }
+
+                            //timer init
+                            // Create the timer queue.
+                            hTimerQueue = CreateTimerQueue();
+                            if (NULL == hTimerQueue)
+                            {
+                                MessageBox(hwnd, "CreateTimerQueue failed", "Error", MB_ICONERROR);
+                                break;
+                            }
+                            // Set a timer to call the timer routine in 10 seconds.
+                            if (!CreateTimerQueueTimer( &hTimer, hTimerQueue,
+                                        (WAITORTIMERCALLBACK)TimerRoutine, hwnd , 500, 100, 0))
+                            {
+                                MessageBox(hwnd, "CreateTimerQueueTimer failed", "Error", MB_ICONERROR);
+                                break;
                             }
 
                             enable_by_id(IDC_RADBTN1, 0);
