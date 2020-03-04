@@ -36,6 +36,7 @@ static char* mpbuf[2]={mpbuf0, mpbuf1};
 static int mpbuf_index = 0;
 char debug_buf[1024];
 ch_config g_cconfig;
+int log_to_file = 0;
 
 #define MESS_PRINT(fmt,arg...) \
     {   \
@@ -134,7 +135,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                     case CHESS_STEP:
                         {
                             bool ret;
-                            MESS_PRINT("recvstep %d-%d-%d-%d",
+                            df("recvstep %d-%d-%d-%d",
                                     tptmp->pd.ch_move_step.x1,
                                     tptmp->pd.ch_move_step.y1,
                                     tptmp->pd.ch_move_step.x2,
@@ -234,6 +235,8 @@ int CALLBACK WinMain(
         int nCmdShow
         )
 {
+    g_cconfig.get_config();
+    log_to_file=g_cconfig.log;
     CreateMyMenu();
     // class name
     const char* cls_Name = "My Class";
@@ -303,7 +306,6 @@ LRESULT CALLBACK WindowProc(
     {
         case WM_CREATE:
             {
-                g_cconfig.get_config();
                 //create three button
                 CreateWindow("Button", "Start", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         5, 5, 60, 20, hwnd, (HMENU)IDB_FIVE, hg_app, NULL);

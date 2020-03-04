@@ -3,6 +3,7 @@
 
 #include "windows.h"
 extern char debug_buf[1024];
+extern int log_to_file;
 #define LEN_TIMESTAMP 28
 #define df(fmt,arg...) \
     { \
@@ -16,9 +17,11 @@ extern char debug_buf[1024];
         sprintf(full_str, fmt"\n", ##arg);\
         printf("%s", debug_buf);\
         fflush(stdout); \
+        if(log_to_file){\
         FILE* f = fopen("chess_log", "a");\
         if(!f){printf("open log fail\n");}\
         else {fprintf(f, "%s", debug_buf);\
         fclose(f);}\
+        }\
     }
 #endif

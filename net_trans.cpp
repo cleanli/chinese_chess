@@ -78,20 +78,21 @@ bool net_trans::init(const char*ip, u_short pt)
     }  
 
     /* connect to the server */  
+    df("connecting to server...");
     status=connect(usingSocket, (LPSOCKADDR)&usingSockAddr, sizeof(usingSockAddr));  
     if (status == SOCKET_ERROR)  
     {  
-        cerr << "ERROR: connect unsuccessful" << endl;  
+        df("ERROR: connect failed");
 
         status=closesocket(usingSocket);  
         if (status == SOCKET_ERROR)  
-            cerr << "ERROR: closesocket unsuccessful"  
-                << endl;  
+            cerr << "ERROR: closesocket failed"<< endl;
         status=WSACleanup();  
         if (status == SOCKET_ERROR)  
-            cerr << "ERROR: WSACleanup unsuccessful"  << endl;  
+            cerr << "ERROR: WSACleanup failed"<< endl;
         return(false);  
     }
+    df("connect OK");
     ioctlsocket(usingSocket,FIONBIO,(unsigned long *)&ul);
     connect_status = CLIENT_READY;
     return true;
