@@ -303,9 +303,7 @@ LRESULT CALLBACK WindowProc(
     {
         case WM_CREATE:
             {
-                g_chess_game.reset();
                 g_cconfig.get_config();
-
                 //create three button
                 CreateWindow("Button", "Start", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         5, 5, 60, 20, hwnd, (HMENU)IDB_FIVE, hg_app, NULL);
@@ -417,24 +415,27 @@ LRESULT CALLBACK WindowProc(
             {
                 //load menu rc
                 //HMENU hroot = LoadMenu((HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), MAKEINTRESOURCE(IDR_CONTEXT));
-                HMENU hroot = hRoot;
-                if(hroot)
-                {
-                    // get first pop menu
-                    HMENU hpop = GetSubMenu(hroot,0);
-                    // get cordinate of mouse
-                    int px = GET_X_LPARAM(lParam);
-                    int py = GET_Y_LPARAM(lParam);
-                    // display pop menu
-                    TrackPopupMenu(hpop,
-                            TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RIGHTBUTTON,
-                            px,
-                            py,
-                            0,
-                            (HWND)wParam,
-                            NULL);
-                    // destroy after use
-                    //DestroyMenu(hroot);
+                df("running state %d", g_chess_game.get_running_state());
+                if(INIT_STATE == g_chess_game.get_running_state()&& running_mode != TBD){
+                    HMENU hroot = hRoot;
+                    if(hroot)
+                    {
+                        // get first pop menu
+                        HMENU hpop = GetSubMenu(hroot,0);
+                        // get cordinate of mouse
+                        int px = GET_X_LPARAM(lParam);
+                        int py = GET_Y_LPARAM(lParam);
+                        // display pop menu
+                        TrackPopupMenu(hpop,
+                                TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RIGHTBUTTON,
+                                px,
+                                py,
+                                0,
+                                (HWND)wParam,
+                                NULL);
+                        // destroy after use
+                        //DestroyMenu(hroot);
+                    }
                 }
             }
             break;
@@ -444,24 +445,24 @@ LRESULT CALLBACK WindowProc(
                 switch(LOWORD(wParam))
                 {
                     case IDM_OPT1:
-                        g_chess_game.set_timeout(local_player,
-                                g_chess_game.get_timeout(local_player)/10-50);
+                        g_cconfig.timeout -= 50;
+                        g_chess_game.set_timeout(local_player, g_cconfig.timeout);
                         if(remote_side->is_ready()){
                             trans_package* tp_tmp = remote_side->get_trans_pack_buf();
                             tp_tmp->p_type = SET_TIMEOUT;
-                            tp_tmp->pd.timeout = g_chess_game.get_timeout(local_player)/10;
+                            tp_tmp->pd.timeout = g_cconfig.timeout;
                             remote_side->send_package(tp_tmp);
                         }
                         //MessageBox(hwnd,"timeout=timeout-50","Notice",MB_OK);
                         InvalidateRect(hwnd,NULL,TRUE);
                         break;
                     case IDM_OPT2:
-                        g_chess_game.set_timeout(local_player,
-                                g_chess_game.get_timeout(local_player)/10+50);
+                        g_cconfig.timeout += 50;
+                        g_chess_game.set_timeout(local_player, g_cconfig.timeout);
                         if(remote_side->is_ready()){
                             trans_package* tp_tmp = remote_side->get_trans_pack_buf();
                             tp_tmp->p_type = SET_TIMEOUT;
-                            tp_tmp->pd.timeout = g_chess_game.get_timeout(local_player)/10;
+                            tp_tmp->pd.timeout = g_cconfig.timeout;
                             remote_side->send_package(tp_tmp);
                         }
                         //MessageBox(hwnd,"timeout=timeout+50","notice",MB_OK);
@@ -473,11 +474,15 @@ LRESULT CALLBACK WindowProc(
                             g_cdtts.set_revert(local_player == SIDE_RED);
                             chess_playing_handle[local_player] = SCREEN_CLICK_TYPE;
                             chess_playing_handle[(local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED] = NET_TYPE;
+                            g_chess_game.set_timeout(local_player, g_cconfig.timeout);
                             if(remote_side->is_ready()){
                                 trans_package* tp_tmp = remote_side->get_trans_pack_buf();
                                 tp_tmp->p_type = SET_REMOTE_PLAYER;
                                 tp_tmp->pd.remote_side = OTHER_SIDE(local_player);
                                 MESS_PRINT("send_package:set remote player");
+                                remote_side->send_package(tp_tmp);
+                                tp_tmp->p_type = SET_TIMEOUT;
+                                tp_tmp->pd.timeout = g_cconfig.timeout;
                                 remote_side->send_package(tp_tmp);
                             }
                             InvalidateRect(hwnd,NULL,TRUE);
@@ -550,6 +555,9 @@ LRESULT CALLBACK WindowProc(
                         break;
                     case IDB_FIVE://choose mode
                         {
+                            g_chess_game.reset();
+                            g_chess_game.set_timeout(local_player, g_cconfig.timeout);
+
                             if(Button_GetCheck(rb3Hd)){
                                 running_mode = LOCAL_MODE;
                                 chess_playing_handle[SIDE_RED] = SCREEN_CLICK_TYPE;
@@ -563,6 +571,8 @@ LRESULT CALLBACK WindowProc(
                                 chess_playing_handle[(local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED] = NET_TYPE;
                                 memset(strbuf, 0, 128);
                                 GetWindowText(editHd, strbuf, 128);
+                                strcpy(g_cconfig.ip, strbuf);
+                                df("ip input:%s", strbuf);
                                 if(!remote_side->init(strbuf,(u_short)PORT_NUM)){
                                     MessageBox(hwnd, "connect to server fail", "Notice", MB_OK | MB_ICONINFORMATION);
                                     break;

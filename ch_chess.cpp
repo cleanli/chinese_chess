@@ -266,7 +266,7 @@ void chess_game::set_timeout(PLAYING_SIDE sd, int t)
 chess_game::chess_game(int timeout)
   : red_saved_timeout(timeout),
     black_saved_timeout(timeout),
-    running_state(INIT_STATE),
+    running_state(UNINIT_STATE),
     choosen_cp(NULL),
     red_request_drawn(false),
     black_request_drawn(false),

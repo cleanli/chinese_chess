@@ -10,6 +10,7 @@
 
 enum RUN_STATE
 {
+    UNINIT_STATE = -1,
     INIT_STATE = 0,
     PLAYING_STATE,
     END_STATE
