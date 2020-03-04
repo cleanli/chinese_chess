@@ -6,6 +6,7 @@
 #include "ch_chess.h"
 #include "coordinate_trans.h"
 #include "remote_player.h"
+#include "config.h"
 
 #define IDR_CONTEXT  200
 #define IDM_OPT1     301
@@ -34,6 +35,7 @@ static char mpbuf1[256];
 static char* mpbuf[2]={mpbuf0, mpbuf1};
 static int mpbuf_index = 0;
 char debug_buf[1024];
+ch_config g_cconfig;
 
 #define MESS_PRINT(fmt,arg...) \
     {   \
@@ -302,6 +304,7 @@ LRESULT CALLBACK WindowProc(
         case WM_CREATE:
             {
                 g_chess_game.reset();
+                g_cconfig.get_config();
 
                 //create three button
                 CreateWindow("Button", "Start", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
@@ -321,7 +324,7 @@ LRESULT CALLBACK WindowProc(
                 enable_by_id(IDM_OPT1, 0);
                 enable_by_id(IDM_OPT2, 0);
                 //CreateWindow(TEXT("edit"),TEXT("myedit"),WS_CHILD|WS_VISIBLE|WS_VSCROLL|WS_BORDER|ES_LEFT|ES_MULTILINE|ES_AUTOVSCROLL,
-                editHd = CreateWindow(TEXT("edit"),TEXT("127.0.0.1"),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT,
+                editHd = CreateWindow(TEXT("edit"),TEXT(g_cconfig.ip),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT,
                         100, 73, 190, 20, hwnd,(HMENU)ID_DATA, hg_app,NULL);
                 // y cordinate, base
                 int yLoc = 0;
@@ -773,6 +776,7 @@ LRESULT CALLBACK WindowProc(
             break;
         case WM_DESTROY:
             df("quit");
+            g_cconfig.save_config();
             // Delete all timers in the timer queue.
             if (!DeleteTimerQueue(hTimerQueue))
                 printf("DeleteTimerQueue failed (%d)\n", GetLastError());
