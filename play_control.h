@@ -6,7 +6,7 @@
  * 0.2 net mode works
  * 0.6 config & timeout ok"
  * */
-#define VERSION "0.71 init connect in thread"
+#define VERSION "0.72 init connect in thread"
 #define PORT_NUM 34567
 enum RUN_MODE
 {
