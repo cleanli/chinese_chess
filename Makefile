@@ -1,2 +1,13 @@
-cchess:cchess.cpp
-	g++ -mwindows cchess.cpp ch_chess.cpp remote_player.cpp net_trans.cpp config.cpp c:/MinGW/lib/libws2_32.a -o cchess
+CHESS_SRCS := $(wildcard *cpp)
+CHESS_OBJS := $(subst .cpp,.o, $(CHESS_SRCS))
+TARGET_NAME := cchess
+LIB_NAME := c:/MinGW/lib/libws2_32.a
+
+$(TARGET_NAME):$(CHESS_OBJS)
+	g++ $(CHESS_OBJS) $(LIB_NAME) -l Gdi32 -o $@
+
+%.o:%.cpp
+	g++ -mwindows -c -o $@ $<
+
+clean:
+	rm -rf $(CHESS_OBJS) $(TARGET_NAME)

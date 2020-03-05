@@ -1,1 +1,4 @@
 *.exe
+*.o
+chess_config
+chess_log
