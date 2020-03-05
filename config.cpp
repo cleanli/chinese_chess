@@ -5,7 +5,7 @@
 
 ch_config::ch_config()
     :timeout(300),
-    log(1)
+    log(0)
 {
     strcpy(ip, "127.0.0.1");
 };
