@@ -4,7 +4,7 @@ TARGET_NAME := cchess
 LIB_NAME := c:/MinGW/lib/libws2_32.a
 
 $(TARGET_NAME):$(CHESS_OBJS)
-	g++ $(CHESS_OBJS) $(LIB_NAME) -l Gdi32 -o $@
+	g++ -mwindows $(CHESS_OBJS) $(LIB_NAME) -l Gdi32 -o $@
 
 %.o:%.cpp
 	g++ -mwindows -c -o $@ $<
