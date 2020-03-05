@@ -189,6 +189,13 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         g_cdtts.set_revert(local_player == SIDE_RED);
                         chess_playing_handle[local_player] = SCREEN_CLICK_TYPE;
                         chess_playing_handle[(local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED] = NET_TYPE;
+                        g_chess_game.set_timeout(local_player, g_cconfig.timeout);
+                        if(remote_side->is_ready()){
+                            trans_package* tp_tmp = remote_side->get_trans_pack_buf();
+                            tp_tmp->p_type = SET_TIMEOUT;
+                            tp_tmp->pd.timeout = g_cconfig.timeout;
+                            remote_side->send_package(tp_tmp);
+                        }
                         InvalidateRect(hwnd,NULL,TRUE);
                         break;
                     case NETCMD_START_BUTTON:
