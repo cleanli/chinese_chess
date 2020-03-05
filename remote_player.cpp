@@ -77,6 +77,7 @@ bool dummy_remote_player::send_package(trans_package*tp)
 
 remote_player::remote_player()
   : connec_is_rdy(false),
+    error_status(0),
     init_state(NOT_CALLED)
 {
 }
@@ -138,6 +139,11 @@ trans_package* net_remote_player::get_recved_ok()
         else{
             df("can't re-send last failed package, data lost");
         }
+    }
+    if(pk_pending_last > ERROR_PK_PENDING){
+        df("connection is error, stop send/recv");
+        error_status = 1;
+        connec_is_rdy = false;
     }
     //check pk id ack end
     if(data_left_len == 0){

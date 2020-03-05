@@ -230,6 +230,9 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                 }
             }
         }
+        if(remote_side->get_error_status()){
+            MessageBox(hwnd, "Connection is ERROR", "Notice", MB_ICONQUESTION);
+        }
         //message_print("%d", timer_count);
         //MESS_PRINT("%d", timer_count);
 #if 0
