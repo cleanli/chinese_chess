@@ -6,6 +6,12 @@
 
 #define MAX_STR_LEN 128
 #define MAX_PK_PENDING 4
+enum net_init_state{
+    NOT_CALLED,
+    WAITING,
+    READY,
+    FAILED
+};
 enum package_type{
     CHESS_STEP,
     REQUEST_DRAWN,
@@ -41,11 +47,16 @@ class remote_player
         virtual bool send_package(trans_package*)=0;
         virtual bool send_cmd(package_type)=0;
         virtual bool send_ack(int id)=0;
+        net_init_state get_init_state()
+        {
+            return init_state;
+        }
 
     protected:
         bool connec_is_rdy;
         trans_package tpg;
         trans_package ack_tpg;
+        net_init_state init_state;
 };
 class dummy_remote_player:public remote_player
 {
@@ -70,12 +81,15 @@ class net_remote_player:public remote_player
         bool send_ack(int id);
         ~net_remote_player();
     private:
+        const char*mip;
+        u_short mport;
         net_trans mynt;
         int data_left_len;
         char* data_left_buf;
         int current_pk_id;
         int pending_pk_id;
         int pk_pending_last;
+        static DWORD WINAPI init_thread_func(LPVOID lpThreadParameter);
 
 };
 

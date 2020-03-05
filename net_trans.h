@@ -26,6 +26,7 @@ class net_trans
         net_trans();
         bool init(u_short port);
         bool init(const char* ip, u_short port);
+        bool try_init(const char* ip, u_short port);
         bool get_status();
         bool net_send(const char* buf, int len);
         char* net_recv(int*len);

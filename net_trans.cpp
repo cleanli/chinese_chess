@@ -40,6 +40,16 @@ char* net_trans::get_local_ip()
     return local_ip;
 }
 
+bool net_trans::try_init(const char* ip, u_short port)
+{
+    if(ip == NULL){
+        return init(port);
+    }
+    else{
+        return init(ip, port);
+    }
+}
+
 bool net_trans::init(const char*ip, u_short pt)
 {
     unsigned long usingAddr;  

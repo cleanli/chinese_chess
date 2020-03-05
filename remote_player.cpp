@@ -76,7 +76,8 @@ bool dummy_remote_player::send_package(trans_package*tp)
 }
 
 remote_player::remote_player()
-  : connec_is_rdy(false)
+  : connec_is_rdy(false),
+    init_state(NOT_CALLED)
 {
 }
 
@@ -99,25 +100,13 @@ net_remote_player::~net_remote_player()
 bool net_remote_player::init(const char*ip, u_short port)
 {
     //connec_is_rdy = true;
+    mip = ip;
+    mport = port;
     df("net_remote_player::init");
     memset(&tpg, 0, sizeof(trans_package));
-    if(!ip){
-        if(mynt.init(port)){
-            connec_is_rdy=true;
-        }
-        else{
-            connec_is_rdy=false;
-        }
-    }
-    else{
-        if(mynt.init(ip,port)){
-            connec_is_rdy=true;
-        }
-        else{
-            connec_is_rdy=false;
-        }
-    }
-    return connec_is_rdy;
+    DWORD dwThreadID;
+    HANDLE hHandle = CreateThread(0, 0, init_thread_func, (LPVOID)this, 0, &dwThreadID);
+    return true;
 }
 
 bool net_remote_player::is_ready()
@@ -216,3 +205,20 @@ bool net_remote_player::send_ack(int id)
     ack_tpg.pk_id = id;
     return send_package(&ack_tpg);
 }
+
+DWORD WINAPI net_remote_player::init_thread_func(LPVOID lpThreadParameter)
+{
+    net_remote_player* p = (net_remote_player*)lpThreadParameter;
+    p->init_state = WAITING;
+    df("%s run", __func__);
+    if(p->mynt.try_init(p->mip,p->mport)){
+        p->connec_is_rdy=true;
+        p->init_state=READY;
+    }
+    else{
+        p->connec_is_rdy=false;
+        p->init_state=FAILED;
+    }
+    return 0;
+}
+

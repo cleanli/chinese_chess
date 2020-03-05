@@ -37,6 +37,10 @@ static int mpbuf_index = 0;
 char debug_buf[1024];
 ch_config g_cconfig;
 int log_to_file = 0;
+#define CONNECT_NOT_STARTED 0
+#define CONNECT_WAITING 1
+#define CONNECT_DONE 2
+int wait_net_connect = CONNECT_NOT_STARTED;
 
 #define MESS_PRINT(fmt,arg...) \
     {   \
@@ -79,7 +83,9 @@ PLAYING_SIDE local_player = SIDE_BLACK;
 //remote_player* remote_side = new dummy_remote_player();
 remote_player* remote_side = new net_remote_player();
 
+void mode_init(HWND hwnd);
 void message_print(const char *fmt, ...);
+void enable_by_id(int id, int enable);
 LRESULT CALLBACK WindowProc(
         HWND hwnd,
         UINT uMsg,
@@ -126,6 +132,9 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
             InvalidateRect(hwnd,NULL,TRUE);
         }
         last_game_state = rs_tmp;
+        if(wait_net_connect == CONNECT_WAITING){
+            mode_init(hwnd);
+        }
         //df("timer ----");
         if(remote_side->is_ready()){
             while((tptmp = remote_side->get_recved_ok())!=NULL){
@@ -227,6 +236,57 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
     }
 }
 
+void mode_init(HWND hwnd)
+{
+    int start_init = 0;
+    int cur_net_init_state = remote_side->get_init_state();
+
+    if(running_mode == LOCAL_MODE){
+        start_init = 1;
+    }
+    else{
+        if(cur_net_init_state == FAILED){
+            //MessageBox(hwnd, "Net init failed", "Notice", MB_ICONQUESTION);
+            df("Net init failed");
+            MESS_PRINT("Net init failed");
+            enable_by_id(IDC_RADBTN1, 1);
+            enable_by_id(IDC_RADBTN2, 1);
+            enable_by_id(IDC_RADBTN3, 1);
+            enable_by_id(ID_DATA, 1);
+            HWND hdtmp = GetDlgItem(hwnd, IDB_FIVE);
+            EnableWindow(hdtmp, true);
+            wait_net_connect = CONNECT_NOT_STARTED;
+            running_mode = TBD;
+        }
+        else if(cur_net_init_state == READY){
+            start_init = 1;
+        }
+    }
+
+    if(start_init){
+        if(running_mode == SERVER_MODE && (remote_side->is_ready())){
+            trans_package* tp_tmp = remote_side->get_trans_pack_buf();
+            tp_tmp->p_type = SET_REMOTE_PLAYER;
+            tp_tmp->pd.remote_side = OTHER_SIDE(local_player);
+            MESS_PRINT("send_package:set remote player");
+            remote_side->send_package(tp_tmp);
+            MESS_PRINT("Running as server");
+        }
+        wait_net_connect = CONNECT_DONE;
+        enable_by_id(IDC_RADBTN1, 0);
+        enable_by_id(IDC_RADBTN2, 0);
+        enable_by_id(IDC_RADBTN3, 0);
+        enable_by_id(ID_DATA, 0);
+        EnableWindow(Button1Hd, true);
+        EnableWindow(Button2Hd, true);
+        EnableWindow(Button3Hd, true);
+        EnableWindow(Button4Hd, true);
+        HWND hdtmp = GetDlgItem(hwnd, IDB_FIVE);
+        EnableWindow(hdtmp, false);
+        InvalidateRect(hwnd,NULL,TRUE);
+    }
+}
+
 //entry of program
 int CALLBACK WinMain(
         HINSTANCE hInstance,
@@ -280,6 +340,26 @@ int CALLBACK WinMain(
         DispatchMessage(&msg);
     }
     return 0;
+}
+
+void timer_init(HWND hwnd)
+{
+    //timer init
+    // Create the timer queue.
+    hTimerQueue = CreateTimerQueue();
+    if (NULL == hTimerQueue)
+    {
+        MessageBox(hwnd, "CreateTimerQueue failed", "Error", MB_ICONERROR);
+        return;
+    }
+    // Set a timer to call the timer routine in 10 seconds.
+    if (!CreateTimerQueueTimer( &hTimer, hTimerQueue,
+                (WAITORTIMERCALLBACK)TimerRoutine, hwnd , 500, 100, 0))
+    {
+        MessageBox(hwnd, "CreateTimerQueueTimer failed", "Error", MB_ICONERROR);
+        return;
+    }
+
 }
 
 void enable_by_id(int id, int enable)
@@ -412,6 +492,7 @@ LRESULT CALLBACK WindowProc(
                     ReleaseDC(hwnd, hdc);
                 }
             }
+            timer_init(hwnd);
             break;
         case WM_CONTEXTMENU:
             {
@@ -575,57 +656,23 @@ LRESULT CALLBACK WindowProc(
                                 GetWindowText(editHd, strbuf, 128);
                                 strcpy(g_cconfig.ip, strbuf);
                                 df("ip input:%s", strbuf);
-                                if(!remote_side->init(strbuf,(u_short)PORT_NUM)){
-                                    MessageBox(hwnd, "connect to server fail", "Notice", MB_OK | MB_ICONINFORMATION);
-                                    break;
-                                }
+                                remote_side->init(strbuf,(u_short)PORT_NUM);
                             }
                             if(Button_GetCheck(rb1Hd)){
                                 SetWindowText(seripHd, net_trans::get_local_ip());
                                 running_mode = SERVER_MODE;
                                 chess_playing_handle[local_player] = SCREEN_CLICK_TYPE;
                                 chess_playing_handle[(local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED] = NET_TYPE;
-                                if(!remote_side->init(NULL,(u_short)PORT_NUM)){
-                                    MessageBox(hwnd, "wait client connect fail", "Notice", MB_OK | MB_ICONINFORMATION);
-                                    break;
-                                }
-                                if(remote_side->is_ready()){
-                                    trans_package* tp_tmp = remote_side->get_trans_pack_buf();
-                                    tp_tmp->p_type = SET_REMOTE_PLAYER;
-                                    tp_tmp->pd.remote_side = OTHER_SIDE(local_player);
-                                    MESS_PRINT("send_package:set remote player");
-                                    remote_side->send_package(tp_tmp);
-                                }
+                                remote_side->init(NULL,(u_short)PORT_NUM);
                                 MESS_PRINT("Running as server");
                             }
-
-                            //timer init
-                            // Create the timer queue.
-                            hTimerQueue = CreateTimerQueue();
-                            if (NULL == hTimerQueue)
-                            {
-                                MessageBox(hwnd, "CreateTimerQueue failed", "Error", MB_ICONERROR);
-                                break;
-                            }
-                            // Set a timer to call the timer routine in 10 seconds.
-                            if (!CreateTimerQueueTimer( &hTimer, hTimerQueue,
-                                        (WAITORTIMERCALLBACK)TimerRoutine, hwnd , 500, 100, 0))
-                            {
-                                MessageBox(hwnd, "CreateTimerQueueTimer failed", "Error", MB_ICONERROR);
-                                break;
-                            }
-
+                            wait_net_connect = CONNECT_WAITING;
                             enable_by_id(IDC_RADBTN1, 0);
                             enable_by_id(IDC_RADBTN2, 0);
                             enable_by_id(IDC_RADBTN3, 0);
                             enable_by_id(ID_DATA, 0);
-                            EnableWindow(Button1Hd, true);
-                            EnableWindow(Button2Hd, true);
-                            EnableWindow(Button3Hd, true);
-                            EnableWindow(Button4Hd, true);
                             HWND hdtmp = GetDlgItem(hwnd, IDB_FIVE);
                             EnableWindow(hdtmp, false);
-                            InvalidateRect(hwnd,NULL,TRUE);
                         }
                         break;
                     default:
@@ -689,7 +736,7 @@ LRESULT CALLBACK WindowProc(
                 //image of background
                 GetClientRect(hwnd, &rt);
                 BitBlt(hdc, 0, 100, rt.right, rt.bottom, s_hdcMem, 0, 0, SRCCOPY);
-                if(running_mode != TBD){
+                if(running_mode != TBD && wait_net_connect != CONNECT_WAITING){
 #if 1
                     for(int i = 0;i < CP_NUM_MAX;i++){
                         chess_piece * cptmp = g_chess_game.get_cp((CHESS_PIECES_INDEX)i);
