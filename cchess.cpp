@@ -170,10 +170,10 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         }
                         break;
                     case REQUEST_DRAWN:
-                        MessageBox(hwnd, "Remote request DRAWN", "Notice", MB_ICONQUESTION);
                         if(g_chess_game.request_drawn_side(OTHER_SIDE(local_player))){
                             InvalidateRect(hwnd,NULL,TRUE);
                         }
+                        MessageBox(hwnd, "Remote request DRAWN", "Notice", MB_ICONQUESTION);
                         break;
                     case REQUEST_SWITCH:
                         MessageBox(hwnd, "Remote request switch side", "Notice", MB_ICONQUESTION);
@@ -622,6 +622,13 @@ LRESULT CALLBACK WindowProc(
                         switch(running_mode){
                             case SERVER_MODE:
                             case CLIENT_MODE:
+                                if(remote_side->is_ready()){
+                                    trans_package* tp_tmp = remote_side->get_trans_pack_buf();
+                                    tp_tmp->p_type = REQUEST_DRAWN;
+                                    remote_side->send_package(tp_tmp);
+                                    MESS_PRINT("send_package:request drawn");
+                                    df("send_package:request drawn");
+                                }
                                 if(g_chess_game.request_drawn_side(local_player)){
                                     InvalidateRect(hwnd,NULL,TRUE);
                                 }
