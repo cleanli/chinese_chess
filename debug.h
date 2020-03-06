@@ -4,21 +4,21 @@
 #include "windows.h"
 extern char debug_buf[1024];
 extern int log_to_file;
-#define LEN_TIMESTAMP 28
 #define df(fmt,arg...) \
     { \
-        SYSTEMTIME time;\
+        SYSTEMTIME time; \
+        DWORD thisid = GetCurrentProcessId();\
+        DWORD thistid = GetCurrentThreadId();\
         GetLocalTime(&time);\
-        char* full_str = debug_buf + LEN_TIMESTAMP;\
-        sprintf(debug_buf, "%d%02d%02d-%02d:%02d:%02d.%03d %05d ", \
+        sprintf(debug_buf, "%d%02d%02d-%02d:%02d:%02d.%03d %05d %05d " fmt "\n", \
                 time.wYear, time.wMonth, time.wDay, time.wHour, \
                 time.wMinute, time.wSecond, time.wMilliseconds, \
-                GetCurrentProcessId());\
-        sprintf(full_str, fmt"\n", ##arg);\
+                thisid, thistid, ##arg);\
         printf("%s", debug_buf);\
         fflush(stdout); \
-        if(log_to_file){\
-        FILE* f = fopen("chess_log", "a");\
+        if(log_to_file){char filenm[256];\
+        sprintf(filenm, "chess_log_%d.txt", thisid);\
+        FILE* f = fopen(filenm, "a");\
         if(!f){printf("open log fail\n");}\
         else {fprintf(f, "%s", debug_buf);\
         fclose(f);}\

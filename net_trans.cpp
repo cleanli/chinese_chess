@@ -165,13 +165,13 @@ bool net_trans::init(u_short pt)
     if((FD_ISSET(serverSocket, &sock_set) == 0))
     {
         int sts;
-        cout<<"No client connecting...quit"<<endl;
+        df("No client connecting...quit");
         sts=closesocket(serverSocket);
         if (sts == SOCKET_ERROR)
-            cout<<"close error "<<sts<<endl;
+            df("close error");;
         sts=WSACleanup();
         if (sts == SOCKET_ERROR)
-            cout<<"cleanup error "<<sts<<endl;
+            df("cleanup error");
         return false;
     }
 
