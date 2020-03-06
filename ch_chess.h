@@ -14,7 +14,8 @@ enum RUN_STATE
     UNINIT_STATE = -1,
     INIT_STATE = 0,
     PLAYING_STATE,
-    END_STATE
+    END_STATE,
+    REVIEW_STATE
 };
 
 enum PLAYING_RESULT
@@ -145,6 +146,8 @@ class chess_game{
     public:
         chess_game(int timeout_in_01second);
         void reset();
+        void review_reset();
+        void review_next();
         void start();
         void set_win(PLAYING_SIDE);
         void set_timeout(PLAYING_SIDE, int t);

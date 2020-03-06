@@ -201,7 +201,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                     case NETCMD_START_BUTTON:
                         {
                             RUN_STATE rstmp = g_chess_game.get_running_state();
-                            if(END_STATE == rstmp){
+                            if(END_STATE == rstmp || REVIEW_STATE == rstmp){
                                 g_chess_game.reset();
                                 EnableWindow(Button1Hd, true);
                             }
@@ -601,13 +601,14 @@ LRESULT CALLBACK WindowProc(
                             }
                             else{
                                 RUN_STATE rstmp = g_chess_game.get_running_state();
-                                MESS_PRINT("send_package:send start");
                                 if(remote_side->is_ready()){
+                                    MESS_PRINT("send_package:send start");
                                     remote_side->send_cmd(NETCMD_START_BUTTON);
                                 }
-                                if(END_STATE == rstmp){
+                                if(END_STATE == rstmp || REVIEW_STATE == rstmp){
                                     g_chess_game.reset();
                                     EnableWindow(Button1Hd, true);
+                                    SetWindowText(Button3Hd, "Drawn");
                                 }
                                 else if(INIT_STATE == rstmp){
                                     g_chess_game.start();
@@ -619,26 +620,44 @@ LRESULT CALLBACK WindowProc(
                         }
                         break;
                     case IDB_THREE://drawn
-                        switch(running_mode){
-                            case SERVER_MODE:
-                            case CLIENT_MODE:
-                                if(remote_side->is_ready()){
-                                    trans_package* tp_tmp = remote_side->get_trans_pack_buf();
-                                    tp_tmp->p_type = REQUEST_DRAWN;
-                                    remote_side->send_package(tp_tmp);
-                                    MESS_PRINT("send_package:request drawn");
-                                    df("send_package:request drawn");
-                                }
-                                if(g_chess_game.request_drawn_side(local_player)){
+                        {
+                            RUN_STATE rstmp = g_chess_game.get_running_state();
+                            switch(rstmp){
+                                case END_STATE:
+                                    g_chess_game.review_reset();
                                     InvalidateRect(hwnd,NULL,TRUE);
-                                }
-                                break;
-                            case LOCAL_MODE:
-                            default:
-                                if(g_chess_game.request_drawn_side(g_chess_game.get_current_playing_side())){
+                                    break;
+                                case REVIEW_STATE:
+                                    g_chess_game.review_next();
                                     InvalidateRect(hwnd,NULL,TRUE);
-                                }
-                                break;
+                                    break;
+                                case PLAYING_STATE:
+                                    {
+                                        switch(running_mode){
+                                            case SERVER_MODE:
+                                            case CLIENT_MODE:
+                                                if(remote_side->is_ready()){
+                                                    trans_package* tp_tmp = remote_side->get_trans_pack_buf();
+                                                    tp_tmp->p_type = REQUEST_DRAWN;
+                                                    remote_side->send_package(tp_tmp);
+                                                    MESS_PRINT("send_package:request drawn");
+                                                    df("send_package:request drawn");
+                                                }
+                                                if(g_chess_game.request_drawn_side(local_player)){
+                                                    InvalidateRect(hwnd,NULL,TRUE);
+                                                }
+                                                break;
+                                            case LOCAL_MODE:
+                                            default:
+                                                if(g_chess_game.request_drawn_side(g_chess_game.get_current_playing_side())){
+                                                    InvalidateRect(hwnd,NULL,TRUE);
+                                                }
+                                                break;
+                                        }
+                                    }
+                                default:
+                                    break;
+                            }
                         }
                         break;
                     case IDB_FOUR://give
@@ -822,6 +841,7 @@ LRESULT CALLBACK WindowProc(
                         Ellipse(ps.hdc,g_cdtts.chess_to_screen_x(x-1),g_cdtts.chess_to_screen_y(y-1),g_cdtts.chess_to_screen_x(x+1),g_cdtts.chess_to_screen_y(y+1));
                         SelectObject(ps.hdc, orgBrs);
                         DeleteObject(hb);
+                        SetWindowText(Button3Hd, "Review");
                     }
                 }
                 sprintf(strbuf, "Built @ %s %s, V%s", __DATE__, __TIME__, VERSION);

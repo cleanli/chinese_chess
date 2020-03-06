@@ -4,9 +4,10 @@
 /*
  * 0.1 local mode works
  * 0.2 net mode works
- * 0.6 config & timeout ok"
+ * 0.6 config & timeout ok
+ * 0.73 init connect in thread
  * */
-#define VERSION "0.73 init connect in thread"
+#define VERSION "0.8 chess review"
 #define PORT_NUM 34567
 enum RUN_MODE
 {

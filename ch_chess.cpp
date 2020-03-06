@@ -329,7 +329,35 @@ RUN_STATE chess_game::get_running_state()
     return running_state;
 }
 
-void chess_game::reset()
+void chess_game::review_next()
+{
+    if(running_state != REVIEW_STATE)
+        return;
+
+    unsigned short mt = move_steps_record[running_step];
+    if(mt == 0xeeee){
+        df("end of chess");
+        return;
+    }
+    int x1 = (0xf000 & mt) >> 12;
+    int y1 = (0x0f00 & mt) >> 8;
+    int x2 = (0x00f0 & mt) >> 4;
+    int y2 = (0x000f & mt) >> 0;
+    running_step++;
+    if(cpes_board[y2][x2] != NULL){
+        cpes_board[y2][x2]->set_alive(false);
+    }
+    cpes_board[y1][x1]->moveto(x2,y2);
+    cpes_board[y2][x2] = cpes_board[y1][x1];
+    cpes_board[y1][x1] = NULL;
+    lastmove.x1=x1;
+    lastmove.y1=y1;
+    lastmove.x2=x2;
+    lastmove.y2=y2;
+    return;
+}
+
+void chess_game::review_reset()
 {
     for(int i = 0; i<MAX_CHS_BOARD_Y;i++){
         for(int j = 0; j<MAX_CHS_BOARD_X;j++){
@@ -341,11 +369,17 @@ void chess_game::reset()
         cpes[i]->moveto(cp_create_map[i].cp_x, cp_create_map[i].cp_y);
         cpes_board[cp_create_map[i].cp_y][cp_create_map[i].cp_x] = cpes[i];
     }
+    running_step = 0;
+    running_state = REVIEW_STATE;
+}
+
+void chess_game::reset()
+{
+    review_reset();
     running_state = INIT_STATE;
     current_playing_side=SIDE_RED;
     red_timeout = red_saved_timeout*10;
     black_timeout = black_saved_timeout*10;
-    running_step = 0;
     choosen_cp = NULL;
     red_request_drawn = false;
     black_request_drawn = false;
@@ -402,7 +436,7 @@ bool chess_game::moveto_point(int x, int y)
     else{
         return false;
     }
-        return false;
+    return false;
 }
 
 void chess_game::dump_steps()
