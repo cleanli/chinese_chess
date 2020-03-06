@@ -7,6 +7,7 @@
 #define MAX_CHS_BOARD_Y 10
 #define RED_PAWN_LINE_Y 4
 #define BLACK_PAWN_LINE_Y 5
+#define MAX_MOVES_NUM 2048
 
 enum RUN_STATE
 {
@@ -178,6 +179,8 @@ class chess_game{
         RUN_STATE running_state;
         PLAYING_RESULT playresult;
         move_step lastmove;
+        unsigned short move_steps_record[MAX_MOVES_NUM];
+        void dump_steps();
         const cp_create_info cp_create_map[CP_NUM_MAX]={
             {CP_TYPE_ROOK,     SIDE_RED,  0, 0,  CP_RED_R_ROOK},
             {CP_TYPE_KNIGHT,   SIDE_RED,  1, 0,  CP_RED_R_KNIGHT},

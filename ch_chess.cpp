@@ -177,7 +177,10 @@ bool chess_piece_rook::can_goto_point(int p_x, int p_y)
 bool chess_piece_cannon::can_goto_point(int p_x, int p_y)
 {
     int ib = num_between(p_x, p_y);
-    if(ib == 0 || ib == 1){
+    if((ib == 0 && chg->get_cp(p_x, p_y)==NULL)||
+            (ib == 1 && chg->get_cp(p_x, p_y)!=NULL
+             && chg->get_cp(p_x, p_y)->get_cp_side()!=pside)
+            ){
         return true;
     }
     else{
@@ -302,6 +305,10 @@ bool chess_game::request_drawn_side(PLAYING_SIDE ps)
     if(red_request_drawn && black_request_drawn){
         running_state = END_STATE;
         playresult=RESULT_DRAWN;
+        if(running_step < MAX_MOVES_NUM){
+            move_steps_record[running_step]=0xeeee;
+        }
+        dump_steps();
         return true;
     }
     return false;
@@ -342,6 +349,9 @@ void chess_game::reset()
     choosen_cp = NULL;
     red_request_drawn = false;
     black_request_drawn = false;
+    for(int i = 0;i<MAX_MOVES_NUM;i++){
+        move_steps_record[i] = 0xffff;
+    }
 }
 
 bool chess_game::choose_point(int x, int y)
@@ -362,6 +372,17 @@ bool chess_game::moveto_point(int x, int y)
         return true;
     }
     else if(choosen_cp->can_goto_point(x,y)){
+        lastmove.x1=choosen_cp->get_p_x();
+        lastmove.y1=choosen_cp->get_p_y();
+        lastmove.x2=x;
+        lastmove.y2=y;
+        //record the move
+        if(running_step < MAX_MOVES_NUM){
+            move_steps_record[running_step]=
+                lastmove.x1<<12 | lastmove.y1<<8 | lastmove.x2 << 4 | lastmove.y2;
+            df("record move %d step: %04x", running_step, move_steps_record[running_step]);
+        }
+        running_step++;
         if(cpes_board[y][x] != NULL){
             cpes_board[y][x]->set_alive(false);
             if(cpes_board[y][x]->get_cpid() == CP_RED_KING){
@@ -372,21 +393,24 @@ bool chess_game::moveto_point(int x, int y)
             }
         }
         cpes_board[choosen_cp->get_p_y()][choosen_cp->get_p_x()] = NULL;
-        lastmove.x1=choosen_cp->get_p_x();
-        lastmove.y1=choosen_cp->get_p_y();
-        lastmove.x2=x;
-        lastmove.y2=y;
         choosen_cp->moveto(x,y);
         cpes_board[y][x] = choosen_cp;
         switch_turn();
         choosen_cp = NULL;
-        running_step++;
         return true;
     }
     else{
         return false;
     }
         return false;
+}
+
+void chess_game::dump_steps()
+{
+    for(int i = 0;i<MAX_MOVES_NUM;i++){
+        df("%d: %04x", i, move_steps_record[i]);
+        if(move_steps_record[i]==0xeeee)break;
+    }
 }
 
 void chess_game::switch_turn()
@@ -421,6 +445,10 @@ void chess_game::set_win(PLAYING_SIDE sd)
     if(running_state != PLAYING_STATE)return;
     running_state = END_STATE;
     (sd == SIDE_RED)?playresult=RESULT_RED_WIN:playresult=RESULT_BLACK_WIN;
+    if(running_step < MAX_MOVES_NUM){
+        move_steps_record[running_step]=0xeeee;
+    }
+    dump_steps();
 }
 
 void chess_game::timer_click()
