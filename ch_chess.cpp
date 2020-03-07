@@ -509,6 +509,10 @@ void chess_game::review_reset()
     dead_link_head = NULL;
     running_step = 0;
     running_state = REVIEW_STATE;
+    lastmove.x1=0;
+    lastmove.y1=0;
+    lastmove.x2=0;
+    lastmove.y2=0;
 }
 
 void chess_game::reset()

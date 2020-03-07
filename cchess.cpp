@@ -207,6 +207,9 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         {
                             RUN_STATE rstmp = g_chess_game.get_running_state();
                             if(END_STATE == rstmp || REVIEW_STATE == rstmp){
+                                if(!g_chess_game.is_saved()){
+                                    save_chess_game();
+                                }
                                 g_chess_game.reset();
                                 EnableWindow(Button1Hd, true);
                                 SetWindowText(Button3Hd, "Drawn");
