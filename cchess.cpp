@@ -388,7 +388,7 @@ char* get_saved_chess_file(char*input)
     ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;
     if(GetOpenFileName(&ofn))
     {
-        MessageBox(NULL, strFilename, TEXT("choosed file"), 0);
+        //MessageBox(NULL, strFilename, TEXT("choosed file"), 0);
         strcpy(input, strFilename);
     }
     return input;

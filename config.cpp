@@ -35,6 +35,7 @@ void ch_config::get_config(){
     strcpy(ip, pTmp+2);
     fgets(lineBuf, 256, f);//
     sscanf(lineBuf, "timeout=%d\n", &timeout);
+    fgets(lineBuf, 256, f);//
     sscanf(lineBuf, "log=%d\n", &log);
     fclose(f);
     df("get ip=%s", ip);
