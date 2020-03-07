@@ -258,8 +258,19 @@ char* chess_game::save_hint()
 
 char* chess_game::get_save_line()
 {
-    sprintf(save_line, "%04x", move_steps_record[running_step++]);
-    return save_line;
+    if(running_step >= MAX_MOVES_NUM){
+        return NULL;
+    }
+    df("run %d", running_step);
+    u_short ms= move_steps_record[running_step++];
+    df("line%d", __LINE__);
+    if(ms>0xeeee){
+        return NULL;
+    }
+    else{
+        sprintf(save_line, "%04x", ms);
+        return save_line;
+    }
 }
 
 void chess_game::set_idleside_timeout(int t)

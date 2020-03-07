@@ -366,8 +366,8 @@ void save_chess_game()
     else {
         while(NULL!=(write_line=g_chess_game.get_save_line())){
             fprintf(f, "%s\n", write_line);
-            fclose(f);
         }
+        fclose(f);
     }
 }
 

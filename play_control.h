@@ -7,7 +7,7 @@
  * 0.6 config & timeout ok
  * 0.73 init connect in thread
  * */
-#define VERSION "0.8 chess review"
+#define VERSION "0.81 chess review/save"
 #define PORT_NUM 34567
 enum RUN_MODE
 {
