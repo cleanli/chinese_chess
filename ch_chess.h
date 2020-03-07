@@ -172,6 +172,8 @@ class chess_game{
         void set_starttime(char*);
         char* save_hint();
         char* get_save_line();
+        bool read_step(char*);
+        bool is_saved();
         ~chess_game();
     private:
         chess_piece* dead_link_head;
@@ -196,6 +198,7 @@ class chess_game{
         chess_piece* get_next_dead();
         char starttime[128];
         char save_line[64];
+        bool saved;
         const cp_create_info cp_create_map[CP_NUM_MAX]={
             {CP_TYPE_ROOK,     SIDE_RED,  0, 0,  CP_RED_R_ROOK},
             {CP_TYPE_KNIGHT,   SIDE_RED,  1, 0,  CP_RED_R_KNIGHT},

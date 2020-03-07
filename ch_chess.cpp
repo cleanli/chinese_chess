@@ -247,13 +247,35 @@ chess_game::~chess_game()
 void chess_game::set_starttime(char*st)
 {
     df("start time: %s", st);
-    strcpy(starttime, st);
+    sprintf(starttime, "%s.chss", st);
+}
+
+bool chess_game::is_saved()
+{
+    return saved;
 }
 
 char* chess_game::save_hint()
 {
     review_reset();
     return starttime;
+}
+
+bool chess_game::read_step(char*input)
+{
+    saved=true;
+    running_state = REVIEW_STATE;
+    if(running_step >= MAX_MOVES_NUM){
+        return false;
+    }
+    df("run step %d in read func", running_step);
+    u_short ms;
+    sscanf(input, "%x", &ms);
+    move_steps_record[running_step++] = ms;
+    if(ms>=0xeeee){
+        return false;
+    }
+    return true;
 }
 
 char* chess_game::get_save_line()
@@ -264,6 +286,7 @@ char* chess_game::get_save_line()
     df("run step %d in save func", running_step);
     u_short ms= move_steps_record[running_step++];
     if(ms>0xeeee){
+        saved=true;
         return NULL;
     }
     else{
@@ -501,6 +524,7 @@ void chess_game::reset()
         move_steps_record[i] = 0xffff;
     }
     memset(starttime, 0, 128);
+    saved=false;
 }
 
 bool chess_game::choose_point(int x, int y)
@@ -532,6 +556,7 @@ bool chess_game::moveto_point(int x, int y)
             df("record move %d step: %04x", running_step, move_steps_record[running_step]);
         }
         running_step++;
+        saved=false;
         if(cpes_board[y][x] != NULL){
             cpes_board[y][x]->set_alive(false);
             if(cpes_board[y][x]->get_cpid() == CP_RED_KING){

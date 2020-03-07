@@ -19,6 +19,7 @@
 #define IDB_FOUR   3304
 #define IDB_FIVE   3305
 #define ID_DATA     3306
+#define IDB_LOAD   3307
 
 #define IDC_RADBTN1		50001
 #define IDC_RADBTN2		50002
@@ -37,6 +38,7 @@ static int mpbuf_index = 0;
 char debug_buf[1024];
 ch_config g_cconfig;
 int log_to_file = 0;
+int check_load_file = 1;
 #define CONNECT_NOT_STARTED 0
 #define CONNECT_WAITING 1
 #define CONNECT_DONE 2
@@ -72,6 +74,7 @@ HWND Button1Hd;
 HWND Button2Hd;
 HWND Button3Hd;
 HWND Button4Hd;
+HWND ButtonLoadHd;
 HWND MessageHd;
 RUN_MODE running_mode = TBD;
 RUN_STATE running_state = INIT_STATE;
@@ -203,7 +206,6 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         {
                             RUN_STATE rstmp = g_chess_game.get_running_state();
                             if(END_STATE == rstmp || REVIEW_STATE == rstmp){
-                                save_chess_game();
                                 g_chess_game.reset();
                                 EnableWindow(Button1Hd, true);
                                 SetWindowText(Button3Hd, "Drawn");
@@ -279,6 +281,7 @@ void mode_init(HWND hwnd)
         }
         else if(cur_net_init_state == READY){
             start_init = 1;
+            check_load_file == 0;
         }
     }
 
@@ -361,6 +364,51 @@ int CALLBACK WinMain(
     return 0;
 }
 
+char* get_saved_chess_file(char*input)
+{
+
+    OPENFILENAME ofn = { 0 };
+    TCHAR strFilename[MAX_PATH] = { 0 };
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFilter = TEXT("*.chss\0\0");
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFile = strFilename;
+    ofn.nMaxFile = sizeof(strFilename);
+    ofn.lpstrInitialDir = NULL;
+    ofn.lpstrTitle = TEXT("Please choose file");
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;
+    if(GetOpenFileName(&ofn))
+    {
+        MessageBox(NULL, strFilename, TEXT("choosed file"), 0);
+        strcpy(input, strFilename);
+    }
+    return input;
+
+}
+
+bool read_chess_file(char*fn)
+{
+    char read_line[64];
+    FILE* f = fopen(fn, "r");
+    if(!f)
+    {
+        df("open chess_file fail\n");
+        return false;
+    }
+    else {
+        do{
+            fgets(read_line, 100, f);
+            df("read:%s", read_line);
+        }
+        while(!feof(f) && g_chess_game.read_step(read_line));
+        fclose(f);
+        g_chess_game.read_step("eeee");
+        df("read %s done", fn);
+        return true;
+    }
+}
+
 void save_chess_game()
 {
     char*fn = g_chess_game.save_hint();
@@ -439,6 +487,8 @@ LRESULT CALLBACK WindowProc(
                         215, 610, 60, 20, hwnd, (HMENU)IDB_THREE, hg_app, NULL);
                 Button4Hd = CreateWindow("Button", "Give", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         290, 610, 60, 20, hwnd, (HMENU)IDB_FOUR, hg_app, NULL);
+                ButtonLoadHd = CreateWindow("Button", "Load", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                        365, 610, 60, 20, hwnd, (HMENU)IDB_LOAD, hg_app, NULL);
                 EnableWindow(Button1Hd, false);
                 EnableWindow(Button2Hd, false);
                 EnableWindow(Button3Hd, false);
@@ -646,7 +696,6 @@ LRESULT CALLBACK WindowProc(
                                     remote_side->send_cmd(NETCMD_START_BUTTON);
                                 }
                                 if(END_STATE == rstmp || REVIEW_STATE == rstmp){
-                                    save_chess_game();
                                     g_chess_game.reset();
                                     EnableWindow(Button1Hd, true);
                                     SetWindowText(Button1Hd, "Switch");
@@ -706,8 +755,33 @@ LRESULT CALLBACK WindowProc(
                             }
                         }
                         break;
+                    case IDB_LOAD://load
+                        memset(strbuf, 0, 128);
+                        if(PLAYING_STATE != g_chess_game.get_running_state()){
+                            EnableWindow(Button1Hd, false);
+                            EnableWindow(Button2Hd, false);
+                            EnableWindow(Button3Hd, false);
+                            EnableWindow(Button4Hd, false);
+                            EnableWindow(ButtonLoadHd, false);
+                            get_saved_chess_file(strbuf);
+                            EnableWindow(Button1Hd, true);
+                            EnableWindow(Button2Hd, true);
+                            EnableWindow(Button3Hd, true);
+                            EnableWindow(Button4Hd, true);
+                            EnableWindow(ButtonLoadHd, true);
+                            if(strlen(strbuf) !=0){
+                                df("will open %s", strbuf);
+                                if(read_chess_file(strbuf)){
+                                    SetWindowText(Button4Hd, "Prev");
+                                    SetWindowText(Button3Hd, "Next");
+                                    SetWindowText(Button1Hd, "Review");
+                                    g_chess_game.review_reset();
+                                }
+                            }
+                        }
+                        break;
                     case IDB_FOUR://give
-                        if(PLAYING_STATE == g_chess_game.get_running_state()){ 
+                        if(PLAYING_STATE == g_chess_game.get_running_state()){
                             if(remote_side->is_ready()){
                                 trans_package* tp_tmp = remote_side->get_trans_pack_buf();
                                 tp_tmp->p_type = REQUEST_GIVE;
@@ -871,6 +945,9 @@ LRESULT CALLBACK WindowProc(
                         DeleteObject(hPen);
                     }
                     if(g_chess_game.get_running_state() == END_STATE){
+                        if(!g_chess_game.is_saved()){
+                            save_chess_game();
+                        }
                         float x, y;
                         switch(g_chess_game.get_game_result()){
                             case RESULT_RED_WIN:
@@ -940,7 +1017,9 @@ LRESULT CALLBACK WindowProc(
             break;
         case WM_DESTROY:
             df("quit");
-            save_chess_game();
+            if(!g_chess_game.is_saved()){
+                save_chess_game();
+            }
             g_cconfig.save_config();
             // Delete all timers in the timer queue.
             if (!DeleteTimerQueue(hTimerQueue))
