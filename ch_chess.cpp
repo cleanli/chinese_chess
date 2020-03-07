@@ -456,7 +456,6 @@ void chess_game::review_prev()
         cpes_board[y2][x2]->set_alive(true);
         cpes_board[y2][x2]->moveto(x2,y2);
     }
-    df("lastmove setting");
     lastmove.x1=x1;
     lastmove.y1=y1;
     lastmove.x2=x2;

@@ -954,19 +954,21 @@ LRESULT CALLBACK WindowProc(
                             float dx = mstmp->x2 - mstmp->x1;
                             float dy = mstmp->y2 - mstmp->y1;
                             float len = sqrt(dx*dx + dy*dy);
-                            float sin_angle = dy/len;
-                            float cos_angle = dx/len;
-                            float x3 = mstmp->x2-ARROWLEN*cos_angle+V_ARROWLEN*sin_angle;
-                            float y3 = mstmp->y2-ARROWLEN*sin_angle-V_ARROWLEN*cos_angle;
-                            float x4 = mstmp->x2-ARROWLEN*cos_angle-V_ARROWLEN*sin_angle;
-                            float y4 = mstmp->y2-ARROWLEN*sin_angle+V_ARROWLEN*cos_angle;
+                            if(len != 0){
+                                float sin_angle = dy/len;
+                                float cos_angle = dx/len;
+                                float x3 = mstmp->x2-ARROWLEN*cos_angle+V_ARROWLEN*sin_angle;
+                                float y3 = mstmp->y2-ARROWLEN*sin_angle-V_ARROWLEN*cos_angle;
+                                float x4 = mstmp->x2-ARROWLEN*cos_angle-V_ARROWLEN*sin_angle;
+                                float y4 = mstmp->y2-ARROWLEN*sin_angle+V_ARROWLEN*cos_angle;
 #define RTIA2 0.1
-                            Ellipse(ps.hdc,g_cdtts.chess_to_screen_x(mstmp->x1-RTIA2),g_cdtts.chess_to_screen_y(mstmp->y1-RTIA2),g_cdtts.chess_to_screen_x(mstmp->x1+RTIA2),g_cdtts.chess_to_screen_y(mstmp->y1+RTIA2));
-                            MoveToEx(ps.hdc, g_cdtts.chess_to_screen_x(mstmp->x1),g_cdtts.chess_to_screen_y(mstmp->y1), NULL);
-                            LineTo(ps.hdc, g_cdtts.chess_to_screen_x(mstmp->x2),g_cdtts.chess_to_screen_y(mstmp->y2));
-                            LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x3),g_cdtts.chess_to_screen_y(y3));
-                            LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x4),g_cdtts.chess_to_screen_y(y4));
-                            LineTo(ps.hdc, g_cdtts.chess_to_screen_x(mstmp->x2),g_cdtts.chess_to_screen_y(mstmp->y2));
+                                Ellipse(ps.hdc,g_cdtts.chess_to_screen_x(mstmp->x1-RTIA2),g_cdtts.chess_to_screen_y(mstmp->y1-RTIA2),g_cdtts.chess_to_screen_x(mstmp->x1+RTIA2),g_cdtts.chess_to_screen_y(mstmp->y1+RTIA2));
+                                MoveToEx(ps.hdc, g_cdtts.chess_to_screen_x(mstmp->x1),g_cdtts.chess_to_screen_y(mstmp->y1), NULL);
+                                LineTo(ps.hdc, g_cdtts.chess_to_screen_x(mstmp->x2),g_cdtts.chess_to_screen_y(mstmp->y2));
+                                LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x3),g_cdtts.chess_to_screen_y(y3));
+                                LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x4),g_cdtts.chess_to_screen_y(y4));
+                                LineTo(ps.hdc, g_cdtts.chess_to_screen_x(mstmp->x2),g_cdtts.chess_to_screen_y(mstmp->y2));
+                            }
                         }
                         SelectObject(ps.hdc, orgPen);
                         DeleteObject(hPen);
