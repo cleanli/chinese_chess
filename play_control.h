@@ -8,7 +8,7 @@
  * 0.73 init connect in thread
  * 0.81 chess review/save
  * */
-#define VERSION "0.91 chess read saved file"
+#define VERSION "0.92 read saved chess file"
 #define PORT_NUM 34567
 enum RUN_MODE
 {

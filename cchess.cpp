@@ -765,11 +765,11 @@ LRESULT CALLBACK WindowProc(
                         }
                         break;
                     case IDB_LOAD://load
-                        if(!g_chess_game.is_saved()){
-                            save_chess_game();
-                        }
                         memset(strbuf, 0, 128);
                         if(PLAYING_STATE != g_chess_game.get_running_state()){
+                            if(!g_chess_game.is_saved()){
+                                save_chess_game();
+                            }
                             EnableWindow(Button1Hd, false);
                             EnableWindow(Button2Hd, false);
                             EnableWindow(Button3Hd, false);
