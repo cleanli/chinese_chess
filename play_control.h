@@ -9,7 +9,7 @@
  * 0.81 chess review/save
  * 0.92 read saved chess file"
  * */
-#define VERSION "0.93 issue fix"
+#define VERSION "0.94 issue fix"
 #define PORT_NUM 34567
 enum RUN_MODE
 {

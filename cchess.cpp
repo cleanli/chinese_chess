@@ -405,6 +405,7 @@ bool read_chess_file(char*fn)
         return false;
     }
     else {
+        g_chess_game.review_reset();
         do{
             fgets(read_line, 100, f);
             df("read:%s", read_line);

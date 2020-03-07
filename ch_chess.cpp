@@ -448,6 +448,8 @@ void chess_game::review_prev()
     int y1 = (0x0f00 & mt) >> 8;
     int x2 = (0x00f0 & mt) >> 4;
     int y2 = (0x000f & mt) >> 0;
+    df("review prev steps %d", running_step);
+    df("x1y1x2y2 %d %d %d %d", x1, y1, x2, y2);
     cpes_board[y2][x2]->moveto(x1,y1);
     cpes_board[y1][x1] = cpes_board[y2][x2];
     cpes_board[y2][x2] = NULL;
@@ -473,10 +475,12 @@ void chess_game::review_next()
         df("end of chess");
         return;
     }
+    df("review next steps %d", running_step);
     int x1 = (0xf000 & mt) >> 12;
     int y1 = (0x0f00 & mt) >> 8;
     int x2 = (0x00f0 & mt) >> 4;
     int y2 = (0x000f & mt) >> 0;
+    df("x1y1x2y2 %d %d %d %d", x1, y1, x2, y2);
     if(cpes_board[y2][x2] != NULL){
         cpes_board[y2][x2]->set_alive(false);
         push_dead_cp(cpes_board[y2][x2]);
