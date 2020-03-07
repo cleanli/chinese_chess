@@ -261,9 +261,8 @@ char* chess_game::get_save_line()
     if(running_step >= MAX_MOVES_NUM){
         return NULL;
     }
-    df("run %d", running_step);
+    df("run step %d in save func", running_step);
     u_short ms= move_steps_record[running_step++];
-    df("line%d", __LINE__);
     if(ms>0xeeee){
         return NULL;
     }
@@ -313,6 +312,7 @@ chess_game::chess_game(int timeout)
     for(int i = 0; i<CP_NUM_MAX;i++){
         cpes[i] = create_cp(&cp_create_map[i]);
     }
+    memset(starttime, 0, 128);
 }
 
 move_step*chess_game::get_lastmove()
@@ -500,6 +500,7 @@ void chess_game::reset()
     for(int i = 0;i<MAX_MOVES_NUM;i++){
         move_steps_record[i] = 0xffff;
     }
+    memset(starttime, 0, 128);
 }
 
 bool chess_game::choose_point(int x, int y)
