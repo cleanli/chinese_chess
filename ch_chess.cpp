@@ -261,7 +261,7 @@ char* chess_game::save_hint()
     return starttime;
 }
 
-bool chess_game::read_step(char*input)
+bool chess_game::read_step(const char*input)
 {
     saved=true;
     running_state = REVIEW_STATE;

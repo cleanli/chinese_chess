@@ -172,7 +172,7 @@ class chess_game{
         void set_starttime(char*);
         char* save_hint();
         char* get_save_line();
-        bool read_step(char*);
+        bool read_step(const char*);
         bool is_saved();
         ~chess_game();
     private:

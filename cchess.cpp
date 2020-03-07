@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <WindowsX.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "play_control.h"
 #include "ch_chess.h"
@@ -922,7 +923,7 @@ LRESULT CALLBACK WindowProc(
                     {
                         //HBRUSH hb = CreateSolidBrush(RGB(255,255,0));
                         //HBRUSH hb = (HBRUSH)GetStockObject(NULL_BRUSH);
-                        HPEN hPen = CreatePen(PS_SOLID,4,RGB(255,0,255));;
+                        HPEN hPen = CreatePen(PS_SOLID,4,RGB(0,95,255));;
                         HPEN orgPen = (HPEN)SelectObject(ps.hdc, hPen);
                         if(g_chess_game.get_choosen_cp() != NULL){
                             int x, y;
@@ -938,9 +939,27 @@ LRESULT CALLBACK WindowProc(
                         }
                         else if(g_chess_game.get_lastmove() != NULL){
                             move_step*mstmp=g_chess_game.get_lastmove();
+#define ARROWLEN 0.2f
+#define V_ARROWLEN 0.1f
+                            df("%d %d %d %d", mstmp->x1, mstmp->y1, mstmp->x2, mstmp->y2);
+                            float dx = mstmp->x2 - mstmp->x1;
+                            float dy = mstmp->y2 - mstmp->y1;
+                            float len = sqrt(dx*dx + dy*dy);
+                            df("dx dy %f %f l %f", dx, dy, len);
+                            float sin_angle = dy/len;
+                            float cos_angle = dx/len;
+                            df("sin %f cos %f", sin_angle, cos_angle);
+                            float x3 = mstmp->x2-ARROWLEN*cos_angle+V_ARROWLEN*sin_angle;
+                            float y3 = mstmp->y2-ARROWLEN*sin_angle-V_ARROWLEN*cos_angle;
+                            float x4 = mstmp->x2-ARROWLEN*cos_angle-V_ARROWLEN*sin_angle;
+                            float y4 = mstmp->y2-ARROWLEN*sin_angle+V_ARROWLEN*cos_angle;
+                            df("out %f %f %f %f", x3, y3, x4, y4);
 #define RTIA2 0.1
                             Ellipse(ps.hdc,g_cdtts.chess_to_screen_x(mstmp->x1-RTIA2),g_cdtts.chess_to_screen_y(mstmp->y1-RTIA2),g_cdtts.chess_to_screen_x(mstmp->x1+RTIA2),g_cdtts.chess_to_screen_y(mstmp->y1+RTIA2));
                             MoveToEx(ps.hdc, g_cdtts.chess_to_screen_x(mstmp->x1),g_cdtts.chess_to_screen_y(mstmp->y1), NULL);
+                            LineTo(ps.hdc, g_cdtts.chess_to_screen_x(mstmp->x2),g_cdtts.chess_to_screen_y(mstmp->y2));
+                            LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x3),g_cdtts.chess_to_screen_y(y3));
+                            LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x4),g_cdtts.chess_to_screen_y(y4));
                             LineTo(ps.hdc, g_cdtts.chess_to_screen_x(mstmp->x2),g_cdtts.chess_to_screen_y(mstmp->y2));
                         }
                         SelectObject(ps.hdc, orgPen);
