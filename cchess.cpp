@@ -204,6 +204,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                             if(END_STATE == rstmp || REVIEW_STATE == rstmp){
                                 g_chess_game.reset();
                                 EnableWindow(Button1Hd, true);
+                                SetWindowText(Button3Hd, "Drawn");
                             }
                             else if(INIT_STATE == rstmp){
                                 g_chess_game.start();
@@ -842,6 +843,23 @@ LRESULT CALLBACK WindowProc(
                         SelectObject(ps.hdc, orgBrs);
                         DeleteObject(hb);
                         SetWindowText(Button3Hd, "Review");
+                    }
+                    if(g_chess_game.get_running_state() == PLAYING_STATE){
+                        float x, y;
+                        if(g_chess_game.get_current_playing_side() == OTHER_SIDE(local_player)){
+                            x = 29;
+                            y = 258;
+                        }
+                        else{
+                            x = 29;
+                            y = 460;
+                        }
+                        HBRUSH hb = CreateSolidBrush(RGB(0,0,255));
+                        HBRUSH orgBrs = (HBRUSH)SelectObject(ps.hdc, hb);
+#define TIMER_DISPLAY_SIZE 30
+                        Ellipse(ps.hdc,x-TIMER_DISPLAY_SIZE,y-TIMER_DISPLAY_SIZE,x+TIMER_DISPLAY_SIZE,y+TIMER_DISPLAY_SIZE);
+                        SelectObject(ps.hdc, orgBrs);
+                        DeleteObject(hb);
                     }
                 }
                 sprintf(strbuf, "Built @ %s %s, V%s", __DATE__, __TIME__, VERSION);
