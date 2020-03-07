@@ -649,6 +649,9 @@ LRESULT CALLBACK WindowProc(
                     case IDB_ONE://switch
                         if(END_STATE == g_chess_game.get_running_state() ||
                                 REVIEW_STATE == g_chess_game.get_running_state()){
+                            if(!g_chess_game.is_saved()){
+                                save_chess_game();
+                            }
                             g_chess_game.review_reset();
                             InvalidateRect(hwnd,NULL,TRUE);
                             SetWindowText(Button3Hd, "Next");
@@ -699,6 +702,9 @@ LRESULT CALLBACK WindowProc(
                                     remote_side->send_cmd(NETCMD_START_BUTTON);
                                 }
                                 if(END_STATE == rstmp || REVIEW_STATE == rstmp){
+                                    if(!g_chess_game.is_saved()){
+                                        save_chess_game();
+                                    }
                                     g_chess_game.reset();
                                     EnableWindow(Button1Hd, true);
                                     SetWindowText(Button1Hd, "Switch");
@@ -759,6 +765,9 @@ LRESULT CALLBACK WindowProc(
                         }
                         break;
                     case IDB_LOAD://load
+                        if(!g_chess_game.is_saved()){
+                            save_chess_game();
+                        }
                         memset(strbuf, 0, 128);
                         if(PLAYING_STATE != g_chess_game.get_running_state()){
                             EnableWindow(Button1Hd, false);
@@ -966,9 +975,6 @@ LRESULT CALLBACK WindowProc(
                         DeleteObject(hPen);
                     }
                     if(g_chess_game.get_running_state() == END_STATE){
-                        if(!g_chess_game.is_saved()){
-                            save_chess_game();
-                        }
                         float x, y;
                         switch(g_chess_game.get_game_result()){
                             case RESULT_RED_WIN:
