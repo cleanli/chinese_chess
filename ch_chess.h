@@ -114,6 +114,8 @@ class chess_piece{
         void set_alive(bool);
         virtual bool can_goto_point(int x,int y)=0;
         PLAYING_SIDE get_cp_side();
+        chess_piece*dead_link;
+        int dead_step;
     protected:
         int current_x;
         int current_y;
@@ -148,6 +150,7 @@ class chess_game{
         void reset();
         void review_reset();
         void review_next();
+        void review_prev();
         void start();
         void set_win(PLAYING_SIDE);
         void set_timeout(PLAYING_SIDE, int t);
@@ -168,6 +171,7 @@ class chess_game{
         chess_piece* create_cp(const cp_create_info*);
         ~chess_game();
     private:
+        chess_piece* dead_link_head;
         chess_piece* choosen_cp;
         chess_piece* cpes[CP_NUM_MAX];
         chess_piece* cpes_board[MAX_CHS_BOARD_Y][MAX_CHS_BOARD_X];
@@ -184,6 +188,9 @@ class chess_game{
         move_step lastmove;
         unsigned short move_steps_record[MAX_MOVES_NUM];
         void dump_steps();
+        chess_piece* push_dead_cp(chess_piece*cp);
+        chess_piece* pop_dead_cp();
+        chess_piece* get_next_dead();
         const cp_create_info cp_create_map[CP_NUM_MAX]={
             {CP_TYPE_ROOK,     SIDE_RED,  0, 0,  CP_RED_R_ROOK},
             {CP_TYPE_KNIGHT,   SIDE_RED,  1, 0,  CP_RED_R_KNIGHT},

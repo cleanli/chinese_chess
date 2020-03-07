@@ -335,6 +335,81 @@ RUN_STATE chess_game::get_running_state()
     return running_state;
 }
 
+chess_piece* chess_game::push_dead_cp(chess_piece*cp)
+{
+    chess_piece*tmpp = dead_link_head;
+    if(tmpp==NULL){
+        dead_link_head = cp;
+        return cp;
+    }
+    while(tmpp->dead_link != NULL){
+        tmpp = tmpp->dead_link;
+    }
+    tmpp->dead_link = cp;
+    return cp;
+}
+
+chess_piece* chess_game::pop_dead_cp()
+{
+    chess_piece*last_tmpp=NULL;
+    chess_piece*tmpp = dead_link_head;
+    if(tmpp==NULL){
+        return NULL;
+    }
+    while(tmpp->dead_link != NULL){
+        last_tmpp = tmpp;
+        tmpp = tmpp->dead_link;
+    }
+    if(NULL!=last_tmpp)
+        last_tmpp->dead_link = NULL;
+    else
+        dead_link_head = NULL;
+    return tmpp;
+}
+
+chess_piece* chess_game::get_next_dead()
+{
+    chess_piece*tmpp = dead_link_head;
+    if(tmpp==NULL){
+        return NULL;
+    }
+    while(tmpp->dead_link != NULL){
+        tmpp = tmpp->dead_link;
+    }
+    return tmpp;
+}
+
+void chess_game::review_prev()
+{
+    if(running_state != REVIEW_STATE)
+        return;
+
+    if(running_step==0){
+        df("begining of chess");
+        return;
+    }
+    running_step--;
+    unsigned short mt = move_steps_record[running_step];
+    int x1 = (0xf000 & mt) >> 12;
+    int y1 = (0x0f00 & mt) >> 8;
+    int x2 = (0x00f0 & mt) >> 4;
+    int y2 = (0x000f & mt) >> 0;
+    cpes_board[y2][x2]->moveto(x1,y1);
+    cpes_board[y1][x1] = cpes_board[y2][x2];
+    cpes_board[y2][x2] = NULL;
+    if(get_next_dead()!=NULL)
+    if(get_next_dead()!=NULL && get_next_dead()->dead_step == running_step){
+        cpes_board[y2][x2]=pop_dead_cp();
+        cpes_board[y2][x2]->set_alive(true);
+        cpes_board[y2][x2]->moveto(x2,y2);
+    }
+    lastmove.x1=x1;
+    lastmove.y1=y1;
+    lastmove.x2=x2;
+    lastmove.y2=y2;
+    return;
+}
+
 void chess_game::review_next()
 {
     if(running_state != REVIEW_STATE)
@@ -349,9 +424,10 @@ void chess_game::review_next()
     int y1 = (0x0f00 & mt) >> 8;
     int x2 = (0x00f0 & mt) >> 4;
     int y2 = (0x000f & mt) >> 0;
-    running_step++;
     if(cpes_board[y2][x2] != NULL){
         cpes_board[y2][x2]->set_alive(false);
+        push_dead_cp(cpes_board[y2][x2]);
+        cpes_board[y2][x2]->dead_step = running_step;
     }
     cpes_board[y1][x1]->moveto(x2,y2);
     cpes_board[y2][x2] = cpes_board[y1][x1];
@@ -360,6 +436,7 @@ void chess_game::review_next()
     lastmove.y1=y1;
     lastmove.x2=x2;
     lastmove.y2=y2;
+    running_step++;
     return;
 }
 
@@ -371,10 +448,12 @@ void chess_game::review_reset()
         }
     }
     for(int i = 0; i<CP_NUM_MAX;i++){
+        cpes[i]->dead_link = NULL;
         cpes[i]->set_alive(true);
         cpes[i]->moveto(cp_create_map[i].cp_x, cp_create_map[i].cp_y);
         cpes_board[cp_create_map[i].cp_y][cp_create_map[i].cp_x] = cpes[i];
     }
+    dead_link_head = NULL;
     running_step = 0;
     running_state = REVIEW_STATE;
 }

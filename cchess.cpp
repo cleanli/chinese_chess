@@ -563,6 +563,14 @@ LRESULT CALLBACK WindowProc(
                         InvalidateRect(hwnd,NULL,TRUE);
                         break;
                     case IDB_ONE://switch
+                        if(END_STATE == g_chess_game.get_running_state() ||
+                                REVIEW_STATE == g_chess_game.get_running_state()){
+                            g_chess_game.review_reset();
+                            InvalidateRect(hwnd,NULL,TRUE);
+                            SetWindowText(Button3Hd, "Next");
+                            SetWindowText(Button4Hd, "Prev");
+                            break;
+                        }
                         if(running_mode == SERVER_MODE || running_mode == LOCAL_MODE){
                             local_player = (local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED;
                             g_cdtts.set_revert(local_player == SIDE_RED);
@@ -609,7 +617,9 @@ LRESULT CALLBACK WindowProc(
                                 if(END_STATE == rstmp || REVIEW_STATE == rstmp){
                                     g_chess_game.reset();
                                     EnableWindow(Button1Hd, true);
+                                    SetWindowText(Button1Hd, "Switch");
                                     SetWindowText(Button3Hd, "Drawn");
+                                    SetWindowText(Button4Hd, "Give");
                                 }
                                 else if(INIT_STATE == rstmp){
                                     g_chess_game.start();
@@ -624,10 +634,6 @@ LRESULT CALLBACK WindowProc(
                         {
                             RUN_STATE rstmp = g_chess_game.get_running_state();
                             switch(rstmp){
-                                case END_STATE:
-                                    g_chess_game.review_reset();
-                                    InvalidateRect(hwnd,NULL,TRUE);
-                                    break;
                                 case REVIEW_STATE:
                                     g_chess_game.review_next();
                                     InvalidateRect(hwnd,NULL,TRUE);
@@ -670,6 +676,10 @@ LRESULT CALLBACK WindowProc(
                                 MESS_PRINT("send_package:request give");
                             }
                             g_chess_game.set_win((g_chess_game.get_current_playing_side()==SIDE_RED)?SIDE_BLACK:SIDE_RED);
+                            InvalidateRect(hwnd,NULL,TRUE);
+                        }
+                        else if(REVIEW_STATE == g_chess_game.get_running_state()){
+                            g_chess_game.review_prev();
                             InvalidateRect(hwnd,NULL,TRUE);
                         }
                         break;
@@ -842,7 +852,8 @@ LRESULT CALLBACK WindowProc(
                         Ellipse(ps.hdc,g_cdtts.chess_to_screen_x(x-1),g_cdtts.chess_to_screen_y(y-1),g_cdtts.chess_to_screen_x(x+1),g_cdtts.chess_to_screen_y(y+1));
                         SelectObject(ps.hdc, orgBrs);
                         DeleteObject(hb);
-                        SetWindowText(Button3Hd, "Review");
+                        SetWindowText(Button1Hd, "Review");
+                        EnableWindow(Button1Hd, true);
                     }
                     if(g_chess_game.get_running_state() == PLAYING_STATE){
                         float x, y;
