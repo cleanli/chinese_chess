@@ -83,6 +83,7 @@ PLAYING_SIDE local_player = SIDE_BLACK;
 //remote_player* remote_side = new dummy_remote_player();
 remote_player* remote_side = new net_remote_player();
 
+void save_chess_game();
 void mode_init(HWND hwnd);
 void message_print(const char *fmt, ...);
 void enable_by_id(int id, int enable);
@@ -202,11 +203,18 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         {
                             RUN_STATE rstmp = g_chess_game.get_running_state();
                             if(END_STATE == rstmp || REVIEW_STATE == rstmp){
+                                save_chess_game();
                                 g_chess_game.reset();
                                 EnableWindow(Button1Hd, true);
                                 SetWindowText(Button3Hd, "Drawn");
                             }
                             else if(INIT_STATE == rstmp){
+                                SYSTEMTIME time;
+                                GetLocalTime(&time);
+                                sprintf(strbuf, "chess_%d%02d%02d_%02d_%02d_%02d_%03d",
+                                        time.wYear, time.wMonth, time.wDay, time.wHour,
+                                        time.wMinute, time.wSecond, time.wMilliseconds);
+                                g_chess_game.set_starttime(strbuf);
                                 g_chess_game.start();
                                 EnableWindow(Button2Hd, false);
                                 EnableWindow(Button1Hd, false);
