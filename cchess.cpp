@@ -297,6 +297,9 @@ void mode_init(HWND hwnd)
             MESS_PRINT("send_package:set remote player");
             remote_side->send_package(tp_tmp);
             MESS_PRINT("Running as server");
+            tp_tmp->p_type = SET_TIMEOUT;
+            tp_tmp->pd.timeout = g_cconfig.timeout;
+            remote_side->send_package(tp_tmp);
         }
         wait_net_connect = CONNECT_DONE;
         enable_by_id(IDC_RADBTN1, 0);
