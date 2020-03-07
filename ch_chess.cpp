@@ -340,7 +340,9 @@ chess_game::chess_game(int timeout)
 
 move_step*chess_game::get_lastmove()
 {
-    if(running_step == 0)return NULL;
+    if(running_step == 0 &&
+            running_state != REVIEW_STATE)
+        return NULL;
     return &lastmove;
 }
 
@@ -449,12 +451,12 @@ void chess_game::review_prev()
     cpes_board[y2][x2]->moveto(x1,y1);
     cpes_board[y1][x1] = cpes_board[y2][x2];
     cpes_board[y2][x2] = NULL;
-    if(get_next_dead()!=NULL)
     if(get_next_dead()!=NULL && get_next_dead()->dead_step == running_step){
         cpes_board[y2][x2]=pop_dead_cp();
         cpes_board[y2][x2]->set_alive(true);
         cpes_board[y2][x2]->moveto(x2,y2);
     }
+    df("lastmove setting");
     lastmove.x1=x1;
     lastmove.y1=y1;
     lastmove.x2=x2;

@@ -948,6 +948,7 @@ LRESULT CALLBACK WindowProc(
                         }
                         else if(g_chess_game.get_lastmove() != NULL){
                             move_step*mstmp=g_chess_game.get_lastmove();
+                            df("last move %d %d %d %d", mstmp->x1, mstmp->y1, mstmp->x2, mstmp->y2);
 #define ARROWLEN 0.2f
 #define V_ARROWLEN 0.1f
                             float dx = mstmp->x2 - mstmp->x1;
