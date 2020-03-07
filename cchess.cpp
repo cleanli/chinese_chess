@@ -655,9 +655,6 @@ LRESULT CALLBACK WindowProc(
                     case IDB_ONE://switch
                         if(END_STATE == g_chess_game.get_running_state() ||
                                 REVIEW_STATE == g_chess_game.get_running_state()){
-                            if(!g_chess_game.is_saved()){
-                                save_chess_game();
-                            }
                             g_chess_game.review_reset();
                             InvalidateRect(hwnd,NULL,TRUE);
                             SetWindowText(Button3Hd, "Next");
@@ -794,6 +791,7 @@ LRESULT CALLBACK WindowProc(
                                     SetWindowText(Button3Hd, "Next");
                                     SetWindowText(Button1Hd, "Review");
                                     g_chess_game.review_reset();
+                                    InvalidateRect(hwnd,NULL,TRUE);
                                 }
                             }
                         }
