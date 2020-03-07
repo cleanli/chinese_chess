@@ -244,6 +244,24 @@ chess_game::~chess_game()
     }
 }
 
+void chess_game::set_starttime(char*st)
+{
+    df("start time: %s", st);
+    strcpy(starttime, st);
+}
+
+char* chess_game::save_hint()
+{
+    review_reset();
+    return starttime;
+}
+
+char* chess_game::get_save_line()
+{
+    sprintf(save_line, "%04x", move_steps_record[running_step++]);
+    return save_line;
+}
+
 void chess_game::set_idleside_timeout(int t)
 {
     if(running_state == PLAYING_STATE)

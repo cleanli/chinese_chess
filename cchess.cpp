@@ -353,6 +353,24 @@ int CALLBACK WinMain(
     return 0;
 }
 
+void save_chess_game()
+{
+    char*fn = g_chess_game.save_hint();
+    df("fn %s", fn);
+    FILE* f = fopen(fn, "w");
+    char*write_line;
+    if(!f)
+    {
+        printf("open chess_save_file fail\n");
+    }
+    else {
+        while(NULL!=(write_line=g_chess_game.get_save_line())){
+            fprintf(f, "%s\n", write_line);
+            fclose(f);
+        }
+    }
+}
+
 void timer_init(HWND hwnd)
 {
     //timer init
@@ -615,6 +633,7 @@ LRESULT CALLBACK WindowProc(
                                     remote_side->send_cmd(NETCMD_START_BUTTON);
                                 }
                                 if(END_STATE == rstmp || REVIEW_STATE == rstmp){
+                                    save_chess_game();
                                     g_chess_game.reset();
                                     EnableWindow(Button1Hd, true);
                                     SetWindowText(Button1Hd, "Switch");
@@ -622,6 +641,13 @@ LRESULT CALLBACK WindowProc(
                                     SetWindowText(Button4Hd, "Give");
                                 }
                                 else if(INIT_STATE == rstmp){
+                                    SYSTEMTIME time;
+                                    GetLocalTime(&time);
+
+                                    sprintf(strbuf, "chess_%d%02d%02d_%02d_%02d_%02d_%03d",
+                                            time.wYear, time.wMonth, time.wDay, time.wHour,
+                                            time.wMinute, time.wSecond, time.wMilliseconds);
+                                    g_chess_game.set_starttime(strbuf);
                                     g_chess_game.start();
                                     EnableWindow(Button2Hd, false);
                                     EnableWindow(Button1Hd, false);
