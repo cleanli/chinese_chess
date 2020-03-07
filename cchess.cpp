@@ -303,6 +303,7 @@ void mode_init(HWND hwnd)
         EnableWindow(Button2Hd, true);
         EnableWindow(Button3Hd, true);
         EnableWindow(Button4Hd, true);
+        EnableWindow(ButtonLoadHd, true);
         HWND hdtmp = GetDlgItem(hwnd, IDB_FIVE);
         EnableWindow(hdtmp, false);
         InvalidateRect(hwnd,NULL,TRUE);
@@ -493,6 +494,7 @@ LRESULT CALLBACK WindowProc(
                 EnableWindow(Button2Hd, false);
                 EnableWindow(Button3Hd, false);
                 EnableWindow(Button4Hd, false);
+                EnableWindow(ButtonLoadHd, false);
                 enable_by_id(IDM_OPT1, 0);
                 enable_by_id(IDM_OPT2, 0);
                 //CreateWindow(TEXT("edit"),TEXT("myedit"),WS_CHILD|WS_VISIBLE|WS_VSCROLL|WS_BORDER|ES_LEFT|ES_MULTILINE|ES_AUTOVSCROLL,
