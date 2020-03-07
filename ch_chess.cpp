@@ -98,6 +98,12 @@ int chess_piece::dist_sq(int dx, int dy)
 
 bool chess_piece_king::can_goto_point(int p_x, int p_y)
 {
+    if(chg->get_cp(p_x,p_y)!=NULL &&
+            (chg->get_cp(p_x,p_y)->get_cpid() == CP_RED_KING ||
+            chg->get_cp(p_x,p_y)->get_cpid() == CP_BLACK_KING)&&
+            current_x == p_x && num_between(p_x, p_y) == 0){
+        return true;
+    }
     if(!chess_piece::can_goto_point(p_x, p_y)){
         return false;
     }
