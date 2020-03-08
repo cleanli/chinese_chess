@@ -449,6 +449,18 @@ void save_chess_game()
     }
 }
 
+DWORD WINAPI thread_save_chess_game(LPVOID lpThreadParameter)
+{
+    save_chess_game();
+    return 0;
+}
+
+void create_thread_save_chess_game()
+{
+    DWORD dwThreadID;
+    HANDLE hHandle = CreateThread(0, 0, thread_save_chess_game, (LPVOID)NULL, 0, &dwThreadID);
+}
+
 void timer_init(HWND hwnd)
 {
     //timer init
@@ -714,7 +726,7 @@ LRESULT CALLBACK WindowProc(
                                 }
                                 if(END_STATE == rstmp || REVIEW_STATE == rstmp){
                                     if(!g_chess_game.is_saved()){
-                                        save_chess_game();
+                                        create_thread_save_chess_game();
                                     }
                                     g_chess_game.reset();
                                     EnableWindow(Button1Hd, true);

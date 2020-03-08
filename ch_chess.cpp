@@ -641,14 +641,14 @@ void chess_game::timer_click()
 {
     if(running_state == PLAYING_STATE){
         (current_playing_side== SIDE_RED)?red_timeout--:black_timeout--;
-    }
-    if(!red_timeout){
-        df("red timeout");
-        set_win(SIDE_BLACK);
-    }
-    if(!black_timeout){
-        df("black timeout");
-        set_win(SIDE_RED);
+        if(!red_timeout){
+            df("red timeout");
+            set_win(SIDE_BLACK);
+        }
+        if(!black_timeout){
+            df("black timeout");
+            set_win(SIDE_RED);
+        }
     }
 }
 
