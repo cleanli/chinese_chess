@@ -361,8 +361,10 @@ int chess_game::get_timeout(PLAYING_SIDE sd)
 bool chess_game::request_drawn_side(PLAYING_SIDE ps)
 {
     if(running_state != PLAYING_STATE)return false;
+    df("player %d request drawn", ps);
     ps == SIDE_RED?red_request_drawn = true:black_request_drawn = true;
     if(red_request_drawn && black_request_drawn){
+        df("Drawn done!");
         running_state = END_STATE;
         playresult=RESULT_DRAWN;
         if(running_step < MAX_MOVES_NUM){
@@ -626,6 +628,7 @@ PLAYING_SIDE chess_game::get_current_playing_side()
 void chess_game::set_win(PLAYING_SIDE sd)
 {
     if(running_state != PLAYING_STATE)return;
+    df("player %d win", sd);
     running_state = END_STATE;
     (sd == SIDE_RED)?playresult=RESULT_RED_WIN:playresult=RESULT_BLACK_WIN;
     if(running_step < MAX_MOVES_NUM){
@@ -639,7 +642,13 @@ void chess_game::timer_click()
     if(running_state == PLAYING_STATE){
         (current_playing_side== SIDE_RED)?red_timeout--:black_timeout--;
     }
-    if(!red_timeout)set_win(SIDE_BLACK);
-    if(!black_timeout)set_win(SIDE_RED);
+    if(!red_timeout){
+        df("red timeout");
+        set_win(SIDE_BLACK);
+    }
+    if(!black_timeout){
+        df("black timeout");
+        set_win(SIDE_RED);
+    }
 }
 
