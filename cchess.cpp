@@ -667,6 +667,7 @@ LRESULT CALLBACK WindowProc(
                             remote_side->send_package(tp_tmp);
                         }
                         //MessageBox(hwnd,"timeout=timeout-50","Notice",MB_OK);
+                        df("timeout=timeout-50");
                         InvalidateRect(hwnd,NULL,TRUE);
                         break;
                     case IDM_OPT2:
@@ -679,9 +680,11 @@ LRESULT CALLBACK WindowProc(
                             remote_side->send_package(tp_tmp);
                         }
                         //MessageBox(hwnd,"timeout=timeout+50","notice",MB_OK);
+                        df("timeout=timeout+50");
                         InvalidateRect(hwnd,NULL,TRUE);
                         break;
                     case IDB_ONE://switch
+                        df("button 1 clicked");
                         if(END_STATE == g_chess_game.get_running_state() ||
                                 REVIEW_STATE == g_chess_game.get_running_state()){
                             g_chess_game.review_reset();
@@ -716,6 +719,7 @@ LRESULT CALLBACK WindowProc(
                         }
                         break;
                     case IDB_TWO://start
+                        df("button 2 clicked");
                         //MessageBox(hwnd, "your clicked two", "Notice", MB_OK | MB_ICONINFORMATION);
                         //SendMessage((HWND)lParam, WM_SETTEXT, (WPARAM)NULL, (LPARAM)"second clicked");
                         {
@@ -763,6 +767,7 @@ LRESULT CALLBACK WindowProc(
                         break;
                     case IDB_THREE://drawn
                         {
+                            df("button 3 clicked");
                             RUN_STATE rstmp = g_chess_game.get_running_state();
                             switch(rstmp){
                                 case REVIEW_STATE:
@@ -798,6 +803,7 @@ LRESULT CALLBACK WindowProc(
                         }
                         break;
                     case IDB_LOAD://load
+                        df("button load clicked");
                         memset(strbuf, 0, 128);
                         if(PLAYING_STATE != g_chess_game.get_running_state()){
                             if(!g_chess_game.is_saved()){
@@ -827,6 +833,7 @@ LRESULT CALLBACK WindowProc(
                         }
                         break;
                     case IDB_FOUR://give
+                        df("button 4 clicked");
                         if(PLAYING_STATE == g_chess_game.get_running_state()){
                             if(remote_side->is_ready()){
                                 trans_package* tp_tmp = remote_side->get_trans_pack_buf();
@@ -843,6 +850,7 @@ LRESULT CALLBACK WindowProc(
                         break;
                     case IDB_FIVE://choose mode
                         {
+                            df("button 5 clicked");
                             g_chess_game.reset();
                             g_chess_game.set_timeout(local_player, g_cconfig.timeout);
 
@@ -889,7 +897,7 @@ LRESULT CALLBACK WindowProc(
             {
                 int x = GET_X_LPARAM(lParam);
                 int y = GET_Y_LPARAM(lParam);
-                //df("left mouse %d %d", x, y);
+                df("left mouse %d %d", x, y);
                 if(PLAYING_STATE == g_chess_game.get_running_state() &&
                         (SCREEN_CLICK_TYPE == chess_playing_handle[g_chess_game.get_current_playing_side()]) &&
                         g_cdtts.is_in_chessboard(x,y))
@@ -978,7 +986,7 @@ LRESULT CALLBACK WindowProc(
                         }
                         else if(g_chess_game.get_lastmove() != NULL){
                             move_step*mstmp=g_chess_game.get_lastmove();
-                            df("last move %d %d %d %d", mstmp->x1, mstmp->y1, mstmp->x2, mstmp->y2);
+                            df("paint last move %d %d %d %d", mstmp->x1, mstmp->y1, mstmp->x2, mstmp->y2);
 #define ARROWLEN 0.2f
 #define V_ARROWLEN 0.1f
                             float dx = mstmp->x2 - mstmp->x1;
