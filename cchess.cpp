@@ -180,15 +180,18 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         if(g_chess_game.request_drawn_side(OTHER_SIDE(local_player))){
                             InvalidateRect(hwnd,NULL,TRUE);
                         }
-                        MessageBox(hwnd, "Remote request DRAWN", "Notice", MB_ICONQUESTION);
+                        //MessageBox(hwnd, "Remote request DRAWN", "Notice", MB_ICONQUESTION);
+                        MESS_PRINT("Remote request DRAWN");
                         break;
                     case REQUEST_SWITCH:
-                        MessageBox(hwnd, "Remote request switch side", "Notice", MB_ICONQUESTION);
+                        //MessageBox(hwnd, "Remote request switch side", "Notice", MB_ICONQUESTION);
+                        MESS_PRINT("Remote request switch side");
                         break;
                     case REQUEST_GIVE:
                         g_chess_game.set_win(local_player);
                         InvalidateRect(hwnd,NULL,TRUE);
-                        MessageBox(hwnd, "Remote request GIVE", "Notice", MB_ICONQUESTION);
+                        //MessageBox(hwnd, "Remote request GIVE", "Notice", MB_ICONQUESTION);
+                        MESS_PRINT("Remote request GIVE");
                         break;
                     case SET_REMOTE_PLAYER:
                         df("got setremote cmd");
@@ -237,7 +240,8 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         }
                         break;
                     case APP_QUIT:
-                        MessageBox(hwnd, "Remote side have left", "Notice", MB_ICONQUESTION);
+                        //MessageBox(hwnd, "Remote side have left", "Notice", MB_ICONQUESTION);
+                        MESS_PRINT("Remote side have left");
                         break;
                     case STRING:
                         MESS_PRINT("remote str:%s", tptmp->pd.str_message);
@@ -248,7 +252,8 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
             }
         }
         if(remote_side->get_error_status()){
-            MessageBox(hwnd, "Connection is ERROR", "Notice", MB_ICONQUESTION);
+            //MessageBox(hwnd, "Connection is ERROR", "Notice", MB_ICONQUESTION);
+            MESS_PRINT("Connection is ERROR");
         }
         //message_print("%d", timer_count);
         //MESS_PRINT("%d", timer_count);
@@ -296,9 +301,7 @@ void mode_init(HWND hwnd)
             trans_package* tp_tmp = remote_side->get_trans_pack_buf();
             tp_tmp->p_type = SET_REMOTE_PLAYER;
             tp_tmp->pd.remote_side = OTHER_SIDE(local_player);
-            MESS_PRINT("send_package:set remote player");
             remote_side->send_package(tp_tmp);
-            MESS_PRINT("Running as server");
             tp_tmp->p_type = SET_TIMEOUT;
             tp_tmp->pd.timeout = g_cconfig.timeout;
             remote_side->send_package(tp_tmp);
@@ -468,14 +471,16 @@ void timer_init(HWND hwnd)
     hTimerQueue = CreateTimerQueue();
     if (NULL == hTimerQueue)
     {
-        MessageBox(hwnd, "CreateTimerQueue failed", "Error", MB_ICONERROR);
+        //MessageBox(hwnd, "CreateTimerQueue failed", "Error", MB_ICONERROR);
+        MESS_PRINT("CreateTimerQueue failed");
         return;
     }
     // Set a timer to call the timer routine in 10 seconds.
     if (!CreateTimerQueueTimer( &hTimer, hTimerQueue,
                 (WAITORTIMERCALLBACK)TimerRoutine, hwnd , 500, 100, 0))
     {
-        MessageBox(hwnd, "CreateTimerQueueTimer failed", "Error", MB_ICONERROR);
+        //MessageBox(hwnd, "CreateTimerQueueTimer failed", "Error", MB_ICONERROR);
+        MESS_PRINT("CreateTimerQueueTimer failed");
         return;
     }
 
@@ -574,7 +579,6 @@ LRESULT CALLBACK WindowProc(
                         hwnd, NULL,
                         hg_app,
                         NULL);
-                MESS_PRINT("wm create done");
             }
 
             memset(strbuf, 0, 128);
@@ -585,7 +589,8 @@ LRESULT CALLBACK WindowProc(
             hBitmap = (HBITMAP)LoadImage(NULL, "qipan.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
             if (hBitmap == NULL)
             {
-                MessageBox(hwnd, "LoadImage failed", "Error", MB_ICONERROR);
+                //MessageBox(hwnd, "LoadImage failed", "Error", MB_ICONERROR);
+                MESS_PRINT("LoadImage qipan failed");
             }
             else
             {
@@ -601,7 +606,8 @@ LRESULT CALLBACK WindowProc(
                 hBitmapCP[i] = (HBITMAP)LoadImage(NULL, chess_pieces_bmp_path[i], IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
                 if (hBitmapCP[i] == NULL)
                 {
-                    MessageBox(hwnd, "LoadImage failed", "Error", MB_ICONERROR);
+                    //MessageBox(hwnd, "LoadImage failed", "Error", MB_ICONERROR);
+                    MESS_PRINT("LoadImage %d failed", i);
                 }
                 else
                 {
@@ -691,7 +697,7 @@ LRESULT CALLBACK WindowProc(
                                 trans_package* tp_tmp = remote_side->get_trans_pack_buf();
                                 tp_tmp->p_type = SET_REMOTE_PLAYER;
                                 tp_tmp->pd.remote_side = OTHER_SIDE(local_player);
-                                MESS_PRINT("send_package:set remote player");
+                                df("send_package:set remote player");
                                 remote_side->send_package(tp_tmp);
                                 tp_tmp->p_type = SET_TIMEOUT;
                                 tp_tmp->pd.timeout = g_cconfig.timeout;
@@ -703,7 +709,7 @@ LRESULT CALLBACK WindowProc(
                             trans_package* tp_tmp = remote_side->get_trans_pack_buf();
                             tp_tmp->p_type = REQUEST_SWITCH;
                             remote_side->send_package(tp_tmp);
-                            MESS_PRINT("send_package:request switch");
+                            df("send_package:request switch");
                         }
                         break;
                     case IDB_TWO://start
@@ -712,11 +718,13 @@ LRESULT CALLBACK WindowProc(
                         {
                             if((running_mode == SERVER_MODE || running_mode == CLIENT_MODE)
                                     && !remote_side->is_ready()){
-                                MessageBox(hwnd, "Connection is not ready", "Notice", MB_OK | MB_ICONINFORMATION);
+                                //MessageBox(hwnd, "Connection is not ready", "Notice", MB_OK | MB_ICONINFORMATION);
+                                MESS_PRINT("Connection is not ready");
                                 break;
                             }
                             if(running_mode == CLIENT_MODE){
-                                MessageBox(hwnd, "Will wait Server start", "Notice", MB_OK | MB_ICONINFORMATION);
+                                MESS_PRINT("Will wait Server start");
+                                //MessageBox(hwnd, "Will wait Server start", "Notice", MB_OK | MB_ICONINFORMATION);
                             }
                             else{
                                 RUN_STATE rstmp = g_chess_game.get_running_state();
@@ -744,7 +752,7 @@ LRESULT CALLBACK WindowProc(
                                 }
                                 InvalidateRect(hwnd,NULL,TRUE);
                                 if(remote_side->is_ready()){
-                                    MESS_PRINT("send_package:send start");
+                                    df("send_package:send start");
                                     remote_side->send_cmd(NETCMD_START_BUTTON);
                                 }
                             }
@@ -767,7 +775,6 @@ LRESULT CALLBACK WindowProc(
                                                     trans_package* tp_tmp = remote_side->get_trans_pack_buf();
                                                     tp_tmp->p_type = REQUEST_DRAWN;
                                                     remote_side->send_package(tp_tmp);
-                                                    MESS_PRINT("send_package:request drawn");
                                                     df("send_package:request drawn");
                                                 }
                                                 if(g_chess_game.request_drawn_side(local_player)){
@@ -822,7 +829,6 @@ LRESULT CALLBACK WindowProc(
                                 trans_package* tp_tmp = remote_side->get_trans_pack_buf();
                                 tp_tmp->p_type = REQUEST_GIVE;
                                 remote_side->send_package(tp_tmp);
-                                MESS_PRINT("send_package:request give");
                             }
                             g_chess_game.set_win((g_chess_game.get_current_playing_side()==SIDE_RED)?SIDE_BLACK:SIDE_RED);
                             InvalidateRect(hwnd,NULL,TRUE);
@@ -880,7 +886,7 @@ LRESULT CALLBACK WindowProc(
             {
                 int x = GET_X_LPARAM(lParam);
                 int y = GET_Y_LPARAM(lParam);
-                MESS_PRINT("left mouse %d %d", x, y);
+                //df("left mouse %d %d", x, y);
                 if(PLAYING_STATE == g_chess_game.get_running_state() &&
                         (SCREEN_CLICK_TYPE == chess_playing_handle[g_chess_game.get_current_playing_side()]) &&
                         g_cdtts.is_in_chessboard(x,y))
@@ -905,15 +911,12 @@ LRESULT CALLBACK WindowProc(
                             if(remote_side->is_ready()){
                                 remote_side->send_package(tp_tmp);
                             }
-                            MESS_PRINT("send_package:step move");
                             df("move %d-%d-%d-%d",
                                     tp_tmp->pd.ch_move_step.x1,
                                     tp_tmp->pd.ch_move_step.y1,
                                     tp_tmp->pd.ch_move_step.x2,
                                     tp_tmp->pd.ch_move_step.y2
                                     );
-                            MESS_PRINT("send_package:curtimeout %d",
-                                    g_chess_game.get_timeout(local_player));
                         }
                     }
                     if(ret){
