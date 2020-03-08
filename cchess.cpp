@@ -720,13 +720,9 @@ LRESULT CALLBACK WindowProc(
                             }
                             else{
                                 RUN_STATE rstmp = g_chess_game.get_running_state();
-                                if(remote_side->is_ready()){
-                                    MESS_PRINT("send_package:send start");
-                                    remote_side->send_cmd(NETCMD_START_BUTTON);
-                                }
                                 if(END_STATE == rstmp || REVIEW_STATE == rstmp){
                                     if(!g_chess_game.is_saved()){
-                                        create_thread_save_chess_game();
+                                        save_chess_game();
                                     }
                                     g_chess_game.reset();
                                     EnableWindow(Button1Hd, true);
@@ -747,6 +743,10 @@ LRESULT CALLBACK WindowProc(
                                     EnableWindow(Button1Hd, false);
                                 }
                                 InvalidateRect(hwnd,NULL,TRUE);
+                                if(remote_side->is_ready()){
+                                    MESS_PRINT("send_package:send start");
+                                    remote_side->send_cmd(NETCMD_START_BUTTON);
+                                }
                             }
                         }
                         break;
