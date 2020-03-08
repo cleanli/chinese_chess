@@ -184,17 +184,17 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                             InvalidateRect(hwnd,NULL,TRUE);
                         }
                         //MessageBox(hwnd, "Remote request DRAWN", "Notice", MB_ICONQUESTION);
-                        MESS_PRINT("Remote request DRAWN");
+                        MESS_PRINT("%s", gp_text_rc->text_message_drawn);
                         break;
                     case REQUEST_SWITCH:
                         //MessageBox(hwnd, "Remote request switch side", "Notice", MB_ICONQUESTION);
-                        MESS_PRINT("Remote request switch side");
+                        MESS_PRINT("%s", gp_text_rc->text_message_switch);
                         break;
                     case REQUEST_GIVE:
                         g_chess_game.set_win(local_player);
                         InvalidateRect(hwnd,NULL,TRUE);
                         //MessageBox(hwnd, "Remote request GIVE", "Notice", MB_ICONQUESTION);
-                        MESS_PRINT("Remote request GIVE");
+                        MESS_PRINT("%s", gp_text_rc->text_message_give);
                         break;
                     case SET_REMOTE_PLAYER:
                         df("got setremote cmd");
@@ -221,7 +221,9 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                                 }
                                 g_chess_game.reset();
                                 EnableWindow(Button1Hd, true);
+                                SetWindowText(Button1Hd, gp_text_rc->text_switch);
                                 SetWindowText(Button3Hd, gp_text_rc->text_drawn);
+                                SetWindowText(Button4Hd, gp_text_rc->text_give);
                             }
                             else if(INIT_STATE == rstmp){
                                 SYSTEMTIME time;
@@ -247,7 +249,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                     case APP_QUIT:
                         df("got app quit");
                         //MessageBox(hwnd, "Remote side have left", "Notice", MB_ICONQUESTION);
-                        MESS_PRINT("Remote side have left");
+                        MESS_PRINT("%s", gp_text_rc->text_message_leave);
                         break;
                     case STRING:
                         MESS_PRINT("remote str:%s", tptmp->pd.str_message);
@@ -569,13 +571,13 @@ LRESULT CALLBACK WindowProc(
                         hwnd,(HMENU)IDC_RADBTN3,hg_app,NULL);
                 HWND hdtmp = GetDlgItem(hwnd, IDC_RADBTN3);
                 SendMessage(hdtmp, BM_SETCHECK, 1, 0);
-                rb1Hd = CreateWindow("Button","server",
+                rb1Hd = CreateWindow("Button",gp_text_rc->text_server,
                         WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
                         10, 50, 80, 20,
                         hwnd,
                         (HMENU)IDC_RADBTN1,
                         hg_app,NULL);
-                rb2Hd = CreateWindow("Button","client",
+                rb2Hd = CreateWindow("Button",gp_text_rc->text_client,
                         WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
                         10, 73, 80, 20,
                         hwnd,(HMENU)IDC_RADBTN2,hg_app,NULL);
