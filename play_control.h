@@ -10,7 +10,7 @@
  * 0.92 read saved chess file"
  * 0.95 Chinese language
  * */
-#define VERSION "0.96 More log"
+#define VERSION "0.97 More log/net,timer init protection"
 #define PORT_NUM 34567
 enum RUN_MODE
 {

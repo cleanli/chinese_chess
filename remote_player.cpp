@@ -170,10 +170,11 @@ trans_package* net_remote_player::get_recved_ok()
         }
     }
     df("%s p_type:%d %s", __func__, tpg.p_type, pk_type_str[tpg.p_type]);
+    df("ack of package id %d, pending pk id %d",
+            tpg.pk_id, pending_pk_id);
     if(tpg.p_type == ACK){
         if(pending_pk_id == tpg.pk_id){
-            df("ack of package id %d received, pending %d clear",
-                    tpg.pk_id, pk_pending_last);
+            df("pending %d clear", pk_pending_last);
             pk_pending_last = 0;
             pending_pk_id = 0;
         }

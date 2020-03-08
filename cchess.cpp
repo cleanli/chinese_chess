@@ -103,6 +103,7 @@ LRESULT CALLBACK WindowProc(
 
 int movingx = 100;
 int movingy = 100;
+LONG volatile timer_guard = 0;
 VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
 {
     static RUN_STATE last_game_state = INIT_STATE;
@@ -144,7 +145,8 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
             mode_init(hwnd);
         }
         //df("timer ----");
-        if(remote_side->is_ready()){
+        InterlockedIncrement(&timer_guard);
+        if(remote_side->is_ready() && timer_guard == 1){
             while((tptmp = remote_side->get_recved_ok())!=NULL){
                 df("timer:recv remote message id %d", tptmp->pk_id);
                 remote_side->send_ack(tptmp->pk_id);
@@ -255,6 +257,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                 }
             }
         }
+        InterlockedDecrement(&timer_guard);
         if(remote_side->get_error_status()){
             //MessageBox(hwnd, "Connection is ERROR", "Notice", MB_ICONQUESTION);
             MESS_PRINT("Connection is ERROR");
@@ -274,8 +277,16 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
 
 void mode_init(HWND hwnd)
 {
+    static volatile LONG func_guard = 0;
     int start_init = 0;
     int cur_net_init_state = remote_side->get_init_state();
+
+    InterlockedIncrement(&func_guard);
+    if(func_guard>1){
+        df("mode_init is running, quit");
+        InterlockedDecrement(&func_guard);
+        return;
+    }
 
     if(running_mode == LOCAL_MODE){
         start_init = 1;
@@ -301,6 +312,7 @@ void mode_init(HWND hwnd)
 
     if(start_init){
         if(running_mode == SERVER_MODE && (remote_side->is_ready())){
+            df("line %d: start_init+", __LINE__);
             trans_package* tp_tmp = remote_side->get_trans_pack_buf();
             tp_tmp->p_type = SET_REMOTE_PLAYER;
             tp_tmp->pd.remote_side = OTHER_SIDE(local_player);
@@ -308,6 +320,7 @@ void mode_init(HWND hwnd)
             tp_tmp->p_type = SET_TIMEOUT;
             tp_tmp->pd.timeout = g_cconfig.timeout;
             remote_side->send_package(tp_tmp);
+            df("line %d: start_init-", __LINE__);
         }
         wait_net_connect = CONNECT_DONE;
         enable_by_id(IDC_RADBTN1, 0);
@@ -322,7 +335,9 @@ void mode_init(HWND hwnd)
         HWND hdtmp = GetDlgItem(hwnd, IDB_FIVE);
         EnableWindow(hdtmp, false);
         InvalidateRect(hwnd,NULL,TRUE);
+        InterlockedIncrement(&func_guard);//never enter here again
     }
+    InterlockedDecrement(&func_guard);
 }
 
 //entry of program
