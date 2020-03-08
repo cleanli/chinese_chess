@@ -51,6 +51,7 @@ int wait_net_connect = CONNECT_NOT_STARTED;
     {   \
         int tmplen; \
         sprintf(mpbuf[mpbuf_index], fmt"\r\n", ##arg); \
+        df(fmt, ##arg);\
         tmplen = strlen(mpbuf[mpbuf_index]); \
         memcpy(mpbuf[mpbuf_index]+tmplen, mpbuf[1-mpbuf_index], MESS_SIZE-tmplen); \
         mpbuf[mpbuf_index][MESS_SIZE-1]=0; \
@@ -171,7 +172,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                                     InvalidateRect(hwnd,NULL,TRUE);
                                 }
                             }
-                            MESS_PRINT("remote timeout %d local %d",
+                            df("remote timeout %d local %d",
                                     tptmp->pd.timeout, g_chess_game.get_timeout(OTHER_SIDE(local_player)));
                             g_chess_game.set_idleside_timeout(tptmp->pd.timeout);
                         }
@@ -210,6 +211,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         break;
                     case NETCMD_START_BUTTON:
                         {
+                            df("got netcmd start button");
                             RUN_STATE rstmp = g_chess_game.get_running_state();
                             if(END_STATE == rstmp || REVIEW_STATE == rstmp){
                                 if(!g_chess_game.is_saved()){
@@ -235,11 +237,13 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         }
                     case SET_TIMEOUT:
                         {
+                            df("got set timeout");
                             int net_timeout = tptmp->pd.timeout;
                             g_chess_game.set_timeout(OTHER_SIDE(local_player), net_timeout);
                         }
                         break;
                     case APP_QUIT:
+                        df("got app quit");
                         //MessageBox(hwnd, "Remote side have left", "Notice", MB_ICONQUESTION);
                         MESS_PRINT("Remote side have left");
                         break;
@@ -279,7 +283,6 @@ void mode_init(HWND hwnd)
     else{
         if(cur_net_init_state == FAILED){
             //MessageBox(hwnd, "Net init failed", "Notice", MB_ICONQUESTION);
-            df("Net init failed");
             MESS_PRINT("Net init failed");
             enable_by_id(IDC_RADBTN1, 1);
             enable_by_id(IDC_RADBTN2, 1);
