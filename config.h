@@ -9,6 +9,7 @@ class ch_config{
         char ip[64];
         int timeout;
         int log;
+        int language;
 };
 
 extern ch_config g_cconfig;

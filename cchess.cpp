@@ -8,6 +8,7 @@
 #include "coordinate_trans.h"
 #include "remote_player.h"
 #include "config.h"
+#include "text_rc.h"
 
 #define IDR_CONTEXT  200
 #define IDM_OPT1     301
@@ -40,6 +41,7 @@ char debug_buf[1024];
 ch_config g_cconfig;
 int log_to_file = 0;
 int check_load_file = 1;
+text_rc* gp_text_rc = &eng_tr;
 #define CONNECT_NOT_STARTED 0
 #define CONNECT_WAITING 1
 #define CONNECT_DONE 2
@@ -212,7 +214,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                                 }
                                 g_chess_game.reset();
                                 EnableWindow(Button1Hd, true);
-                                SetWindowText(Button3Hd, "Drawn");
+                                SetWindowText(Button3Hd, gp_text_rc->text_drawn);
                             }
                             else if(INIT_STATE == rstmp){
                                 SYSTEMTIME time;
@@ -327,6 +329,12 @@ int CALLBACK WinMain(
 {
     g_cconfig.get_config();
     log_to_file=g_cconfig.log;
+    if(g_cconfig.language == 0){//eng
+        gp_text_rc = &eng_tr;
+    }
+    else{
+        gp_text_rc = &GBK_tr;
+    }
     CreateMyMenu();
     // class name
     const char* cls_Name = "My Class";
@@ -345,7 +353,7 @@ int CALLBACK WinMain(
     // create windows
     HWND hwnd = CreateWindow(
             cls_Name,           //class name, same with registered
-            "My window",  //title of windows
+            gp_text_rc->text_app_title,  //title of windows
             WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX& ~WS_THICKFRAME,
             38,                 //x cordinate in father windows
             20,                 //y cordinate in father windows
@@ -486,17 +494,17 @@ LRESULT CALLBACK WindowProc(
         case WM_CREATE:
             {
                 //create three button
-                CreateWindow("Button", "Start", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                CreateWindow("Button", gp_text_rc->text_start_up, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         5, 5, 60, 20, hwnd, (HMENU)IDB_FIVE, hg_app, NULL);
-                Button1Hd = CreateWindow("Button", "Switch", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                Button1Hd = CreateWindow("Button", gp_text_rc->text_switch, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         60, 610, 60, 20, hwnd, (HMENU)IDB_ONE, hg_app, NULL);
-                Button2Hd = CreateWindow("Button", "Start", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                Button2Hd = CreateWindow("Button", gp_text_rc->text_start, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         135, 610, 60, 20, hwnd, (HMENU)IDB_TWO, hg_app, NULL);
-                Button3Hd = CreateWindow("Button", "Drawn", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                Button3Hd = CreateWindow("Button", gp_text_rc->text_drawn, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         215, 610, 60, 20, hwnd, (HMENU)IDB_THREE, hg_app, NULL);
-                Button4Hd = CreateWindow("Button", "Give", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                Button4Hd = CreateWindow("Button", gp_text_rc->text_give, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         290, 610, 60, 20, hwnd, (HMENU)IDB_FOUR, hg_app, NULL);
-                ButtonLoadHd = CreateWindow("Button", "Load", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                ButtonLoadHd = CreateWindow("Button", gp_text_rc->text_load, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         365, 610, 60, 20, hwnd, (HMENU)IDB_LOAD, hg_app, NULL);
                 EnableWindow(Button1Hd, false);
                 EnableWindow(Button2Hd, false);
@@ -520,7 +528,7 @@ LRESULT CALLBACK WindowProc(
                         NULL);
                 // group 1
                 yLoc += 20;
-                rb3Hd = CreateWindow("Button","local",
+                rb3Hd = CreateWindow("Button", gp_text_rc->text_local,
                         WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP,
                         10, 27, 80, 20,
                         hwnd,(HMENU)IDC_RADBTN3,hg_app,NULL);
@@ -558,7 +566,6 @@ LRESULT CALLBACK WindowProc(
             }
 
             memset(strbuf, 0, 128);
-            SetWindowText(hwnd, "Chinese Chess");
             // set dlg size changable
             //SetWindowLong(hwnd, GWL_STYLE, GetWindowLong(hwnd, GWL_STYLE) | WS_SIZEBOX);
             // load image
@@ -658,8 +665,8 @@ LRESULT CALLBACK WindowProc(
                                 REVIEW_STATE == g_chess_game.get_running_state()){
                             g_chess_game.review_reset();
                             InvalidateRect(hwnd,NULL,TRUE);
-                            SetWindowText(Button3Hd, "Next");
-                            SetWindowText(Button4Hd, "Prev");
+                            SetWindowText(Button4Hd, gp_text_rc->text_prev);
+                            SetWindowText(Button3Hd, gp_text_rc->text_next);
                             break;
                         }
                         if(running_mode == SERVER_MODE || running_mode == LOCAL_MODE){
@@ -711,9 +718,9 @@ LRESULT CALLBACK WindowProc(
                                     }
                                     g_chess_game.reset();
                                     EnableWindow(Button1Hd, true);
-                                    SetWindowText(Button1Hd, "Switch");
-                                    SetWindowText(Button3Hd, "Drawn");
-                                    SetWindowText(Button4Hd, "Give");
+                                    SetWindowText(Button1Hd, gp_text_rc->text_switch);
+                                    SetWindowText(Button3Hd, gp_text_rc->text_drawn);
+                                    SetWindowText(Button4Hd, gp_text_rc->text_give);
                                 }
                                 else if(INIT_STATE == rstmp){
                                     SYSTEMTIME time;
@@ -788,9 +795,9 @@ LRESULT CALLBACK WindowProc(
                             if(strlen(strbuf) !=0){
                                 df("will open %s", strbuf);
                                 if(read_chess_file(strbuf)){
-                                    SetWindowText(Button4Hd, "Prev");
-                                    SetWindowText(Button3Hd, "Next");
-                                    SetWindowText(Button1Hd, "Review");
+                                    SetWindowText(Button4Hd, gp_text_rc->text_prev);
+                                    SetWindowText(Button3Hd, gp_text_rc->text_next);
+                                    SetWindowText(Button1Hd, gp_text_rc->text_review);
                                     g_chess_game.review_reset();
                                     InvalidateRect(hwnd,NULL,TRUE);
                                 }
@@ -999,7 +1006,7 @@ LRESULT CALLBACK WindowProc(
                         Ellipse(ps.hdc,g_cdtts.chess_to_screen_x(x-1),g_cdtts.chess_to_screen_y(y-1),g_cdtts.chess_to_screen_x(x+1),g_cdtts.chess_to_screen_y(y+1));
                         SelectObject(ps.hdc, orgBrs);
                         DeleteObject(hb);
-                        SetWindowText(Button1Hd, "Review");
+                        SetWindowText(Button1Hd, gp_text_rc->text_review);
                         EnableWindow(Button1Hd, true);
                     }
                     if(g_chess_game.get_running_state() == PLAYING_STATE){
