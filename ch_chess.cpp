@@ -623,7 +623,8 @@ bool chess_game::moveto_point(int x, int y)
                     df("cp_create_map[i].cp_tp %d side %d", cp_create_map[i].cp_tp, cpes[i]->get_cp_side());
                     if(cp_create_map[i].cp_tp == cp_create_map[choosen_cp->get_cpid()].cp_tp &&
                         choosen_cp->get_cp_side() == cpes[i]->get_cp_side() &&
-                        choosen_cp->get_p_x() == cpes[i]->get_p_x()){
+                        choosen_cp->get_p_x() == cpes[i]->get_p_x() &&
+                        cpes[i]->is_alive()){
                         if(cpes[i]->get_p_y()>choosen_cp->get_p_y()){
                             before_choosen++;
                         }
