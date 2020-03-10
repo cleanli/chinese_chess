@@ -9,8 +9,9 @@
  * 0.81 chess review/save
  * 0.92 read saved chess file"
  * 0.95 Chinese language
+ * 0.98 net,timer init protection, more chinese"
  * */
-#define VERSION "0.98 net,timer init protection, more chinese"
+#define VERSION "0.99 chinese move step output"
 #define PORT_NUM 34567
 enum RUN_MODE
 {
