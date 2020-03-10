@@ -9,6 +9,66 @@
 #define BLACK_PAWN_LINE_Y 5
 #define MAX_MOVES_NUM 2048
 
+const char GBK_empty[2] = {(char)0x00, (char)0x00};
+const char GBK_forward[2] = {(char)0x00, (char)0x00};
+const char GBK_back[2] = {(char)0x00, (char)0x00};
+const char GBK_horizontal[2] = {(char)0x00, (char)0x00};
+const char GBK_front[2] = {(char)0x00, (char)0x00};
+const char GBK_behind[2] = {(char)0x00, (char)0x00};
+const char GBK_middle[2] = {(char)0x00, (char)0x00};
+const char GBK_king[2][2] = {
+    {(char)0xcb, (char)0xa7},
+    {(char)0xbd, (char)0xab},
+};
+const char GBK_guard[2][2] = {
+    {(char)0xca, (char)0xcb},
+    {(char)0xca, (char)0xbf},
+};
+const char GBK_minister[2][2] = {
+    {(char)0xcf, (char)0xf3},
+    {(char)0xcf, (char)0xe0},
+};
+const char GBK_knight[2][2] = {
+    {(char)0xf1, (char)0x52},
+    {(char)0xf1, (char)0x52},
+};
+const char GBK_rook[2][2] = {
+    {(char)0xdc, (char)0x87},
+    {(char)0xdc, (char)0x87},
+};
+const char GBK_cannon[2][2] = {
+    {(char)0xc5, (char)0xda},
+    {(char)0xb3, (char)0x68},
+};
+const char GBK_pawn[2][2] = {
+    {(char)0xb1, (char)0xf8},
+    {(char)0xd7, (char)0xe4},
+};
+const char GBK_number[2][9][2] = {
+    {
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+    },
+    {
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+        {(char)0x00, (char)0x00},
+    },
+};
+
 enum RUN_STATE
 {
     UNINIT_STATE = -1,
@@ -93,6 +153,7 @@ struct cp_create_info{
     int cp_x;
     int cp_y;
     CHESS_PIECES_INDEX cp_id;
+    const char* ch_name;
 };
 
 struct move_step{
@@ -116,6 +177,7 @@ class chess_piece{
         PLAYING_SIDE get_cp_side();
         chess_piece*dead_link;
         int dead_step;
+        const char*chinese_name;
     protected:
         int current_x;
         int current_y;
@@ -192,6 +254,7 @@ class chess_game{
         PLAYING_RESULT playresult;
         move_step lastmove;
         unsigned short move_steps_record[MAX_MOVES_NUM];
+        char chinese_move_steps[MAX_MOVES_NUM][9];
         void dump_steps();
         chess_piece* push_dead_cp(chess_piece*cp);
         chess_piece* pop_dead_cp();
@@ -200,39 +263,39 @@ class chess_game{
         char save_line[64];
         bool saved;
         const cp_create_info cp_create_map[CP_NUM_MAX]={
-            {CP_TYPE_ROOK,     SIDE_RED,  0, 0,  CP_RED_R_ROOK},
-            {CP_TYPE_KNIGHT,   SIDE_RED,  1, 0,  CP_RED_R_KNIGHT},
-            {CP_TYPE_MINISTER, SIDE_RED,  2, 0,  CP_RED_R_MINISTER},
-            {CP_TYPE_GUARD,    SIDE_RED,  3, 0,  CP_RED_R_GUARD},
-            {CP_TYPE_KING,     SIDE_RED,  4, 0,  CP_RED_KING},
-            {CP_TYPE_GUARD,    SIDE_RED,  5, 0,  CP_RED_L_GUARD},
-            {CP_TYPE_MINISTER, SIDE_RED,  6, 0,  CP_RED_L_MINISTER},
-            {CP_TYPE_KNIGHT,   SIDE_RED,  7, 0,  CP_RED_L_KNIGHT},
-            {CP_TYPE_ROOK,     SIDE_RED,  8, 0,  CP_RED_L_ROOK},
-            {CP_TYPE_CANNON,   SIDE_RED,  1, 2,  CP_RED_R_CANNON},
-            {CP_TYPE_CANNON,   SIDE_RED,  7, 2,  CP_RED_L_CANNON},
-            {CP_TYPE_PAWN,     SIDE_RED,  0, 3,  CP_RED_R_PAWN},
-            {CP_TYPE_PAWN,     SIDE_RED,  2, 3,  CP_RED_RM_PAWN},
-            {CP_TYPE_PAWN,     SIDE_RED,  4, 3,  CP_RED_M_PAWN},
-            {CP_TYPE_PAWN,     SIDE_RED,  6, 3,  CP_RED_LM_PAWN},
-            {CP_TYPE_PAWN,     SIDE_RED,  8, 3,  CP_RED_L_PAWN},
+            {CP_TYPE_ROOK,     SIDE_RED,  0, 0,  CP_RED_R_ROOK,      GBK_rook[0]},
+            {CP_TYPE_KNIGHT,   SIDE_RED,  1, 0,  CP_RED_R_KNIGHT,    GBK_knight[0]},
+            {CP_TYPE_MINISTER, SIDE_RED,  2, 0,  CP_RED_R_MINISTER,  GBK_minister[0]},
+            {CP_TYPE_GUARD,    SIDE_RED,  3, 0,  CP_RED_R_GUARD,     GBK_guard[0]},
+            {CP_TYPE_KING,     SIDE_RED,  4, 0,  CP_RED_KING,        GBK_king[0]},
+            {CP_TYPE_GUARD,    SIDE_RED,  5, 0,  CP_RED_L_GUARD,     GBK_guard[0]},
+            {CP_TYPE_MINISTER, SIDE_RED,  6, 0,  CP_RED_L_MINISTER,  GBK_minister[0]},
+            {CP_TYPE_KNIGHT,   SIDE_RED,  7, 0,  CP_RED_L_KNIGHT,    GBK_knight[0]},
+            {CP_TYPE_ROOK,     SIDE_RED,  8, 0,  CP_RED_L_ROOK,      GBK_rook[0]},
+            {CP_TYPE_CANNON,   SIDE_RED,  1, 2,  CP_RED_R_CANNON,    GBK_cannon[0]},
+            {CP_TYPE_CANNON,   SIDE_RED,  7, 2,  CP_RED_L_CANNON,    GBK_cannon[0]},
+            {CP_TYPE_PAWN,     SIDE_RED,  0, 3,  CP_RED_R_PAWN,      GBK_pawn[0]},
+            {CP_TYPE_PAWN,     SIDE_RED,  2, 3,  CP_RED_RM_PAWN,     GBK_pawn[0]},
+            {CP_TYPE_PAWN,     SIDE_RED,  4, 3,  CP_RED_M_PAWN,      GBK_pawn[0]},
+            {CP_TYPE_PAWN,     SIDE_RED,  6, 3,  CP_RED_LM_PAWN,     GBK_pawn[0]},
+            {CP_TYPE_PAWN,     SIDE_RED,  8, 3,  CP_RED_L_PAWN,      GBK_pawn[0]},
 
-            {CP_TYPE_ROOK,     SIDE_BLACK, 8, 9,  CP_BLACK_R_ROOK},
-            {CP_TYPE_KNIGHT,   SIDE_BLACK, 7, 9,  CP_BLACK_R_KNIGHT},
-            {CP_TYPE_MINISTER, SIDE_BLACK, 6, 9,  CP_BLACK_R_MINISTER},
-            {CP_TYPE_GUARD,    SIDE_BLACK, 5, 9,  CP_BLACK_R_GUARD},
-            {CP_TYPE_KING,     SIDE_BLACK, 4, 9,  CP_BLACK_KING},
-            {CP_TYPE_GUARD,    SIDE_BLACK, 3, 9,  CP_BLACK_L_GUARD},
-            {CP_TYPE_MINISTER, SIDE_BLACK, 2, 9,  CP_BLACK_L_MINISTER},
-            {CP_TYPE_KNIGHT,   SIDE_BLACK, 1, 9,  CP_BLACK_L_KNIGHT},
-            {CP_TYPE_ROOK,     SIDE_BLACK, 0, 9,  CP_BLACK_L_ROOK},
-            {CP_TYPE_CANNON,   SIDE_BLACK, 7, 7,  CP_BLACK_R_CANNON},
-            {CP_TYPE_CANNON,   SIDE_BLACK, 1, 7,  CP_BLACK_L_CANNON},
-            {CP_TYPE_PAWN,     SIDE_BLACK, 8, 6,  CP_BLACK_R_PAWN},
-            {CP_TYPE_PAWN,     SIDE_BLACK, 6, 6,  CP_BLACK_RM_PAWN},
-            {CP_TYPE_PAWN,     SIDE_BLACK, 4, 6,  CP_BLACK_M_PAWN},
-            {CP_TYPE_PAWN,     SIDE_BLACK, 2, 6,  CP_BLACK_LM_PAWN},
-            {CP_TYPE_PAWN,     SIDE_BLACK, 0, 6,  CP_BLACK_L_PAWN},
+            {CP_TYPE_ROOK,     SIDE_BLACK, 8, 9,  CP_BLACK_R_ROOK,     GBK_rook[1]},
+            {CP_TYPE_KNIGHT,   SIDE_BLACK, 7, 9,  CP_BLACK_R_KNIGHT,   GBK_knight[1]},
+            {CP_TYPE_MINISTER, SIDE_BLACK, 6, 9,  CP_BLACK_R_MINISTER, GBK_minister[1]},
+            {CP_TYPE_GUARD,    SIDE_BLACK, 5, 9,  CP_BLACK_R_GUARD,    GBK_guard[1]},
+            {CP_TYPE_KING,     SIDE_BLACK, 4, 9,  CP_BLACK_KING,       GBK_king[1]},
+            {CP_TYPE_GUARD,    SIDE_BLACK, 3, 9,  CP_BLACK_L_GUARD,    GBK_guard[1]},
+            {CP_TYPE_MINISTER, SIDE_BLACK, 2, 9,  CP_BLACK_L_MINISTER, GBK_minister[1]},
+            {CP_TYPE_KNIGHT,   SIDE_BLACK, 1, 9,  CP_BLACK_L_KNIGHT,   GBK_knight[1]},
+            {CP_TYPE_ROOK,     SIDE_BLACK, 0, 9,  CP_BLACK_L_ROOK,     GBK_rook[1]},
+            {CP_TYPE_CANNON,   SIDE_BLACK, 7, 7,  CP_BLACK_R_CANNON,   GBK_cannon[1]},
+            {CP_TYPE_CANNON,   SIDE_BLACK, 1, 7,  CP_BLACK_L_CANNON,   GBK_cannon[1]},
+            {CP_TYPE_PAWN,     SIDE_BLACK, 8, 6,  CP_BLACK_R_PAWN,     GBK_pawn[1]},
+            {CP_TYPE_PAWN,     SIDE_BLACK, 6, 6,  CP_BLACK_RM_PAWN,    GBK_pawn[1]},
+            {CP_TYPE_PAWN,     SIDE_BLACK, 4, 6,  CP_BLACK_M_PAWN,     GBK_pawn[1]},
+            {CP_TYPE_PAWN,     SIDE_BLACK, 2, 6,  CP_BLACK_LM_PAWN,    GBK_pawn[1]},
+            {CP_TYPE_PAWN,     SIDE_BLACK, 0, 6,  CP_BLACK_L_PAWN,     GBK_pawn[1]},
         };
 };
 

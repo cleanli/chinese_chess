@@ -284,13 +284,13 @@ char* chess_game::get_save_line()
         return NULL;
     }
     df("run step %d in save func", running_step);
-    u_short ms= move_steps_record[running_step++];
+    u_short ms= move_steps_record[running_step];
     if(ms>0xeeee){
         saved=true;
         return NULL;
     }
     else{
-        sprintf(save_line, "%04x", ms);
+        sprintf(save_line, "%04x;%s", ms,chinese_move_steps[running_step++]);
         return save_line;
     }
 }
@@ -507,6 +507,7 @@ void chess_game::review_reset()
         }
     }
     for(int i = 0; i<CP_NUM_MAX;i++){
+        cpes[i]->chinese_name= cp_create_map[i].ch_name;
         cpes[i]->dead_link = NULL;
         cpes[i]->set_alive(true);
         cpes[i]->moveto(cp_create_map[i].cp_x, cp_create_map[i].cp_y);
@@ -533,6 +534,8 @@ void chess_game::reset()
     black_request_drawn = false;
     for(int i = 0;i<MAX_MOVES_NUM;i++){
         move_steps_record[i] = 0xffff;
+        char init_array[]={(char)0xdc, (char)0x87, (char)0xbe, (char)0xc5,(char)0xdf,(char)0x4d,(char)0xd2,(char)0xbb,(char)0x00};
+        memcpy (chinese_move_steps[i], init_array, 9);
     }
     memset(starttime, 0, 128);
     saved=false;
@@ -565,6 +568,13 @@ bool chess_game::moveto_point(int x, int y)
             move_steps_record[running_step]=
                 lastmove.x1<<12 | lastmove.y1<<8 | lastmove.x2 << 4 | lastmove.y2;
             df("record move %d step: %04x", running_step, move_steps_record[running_step]);
+            //chinese move record
+            {
+                char*ch_steps = chinese_move_steps[running_step];
+                ch_steps[0]=choosen_cp->chinese_name[0];
+                ch_steps[1]=choosen_cp->chinese_name[1];
+            }
+            //chinese move record end
         }
         running_step++;
         saved=false;
