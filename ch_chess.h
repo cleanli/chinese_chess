@@ -10,9 +10,9 @@
 #define MAX_MOVES_NUM 2048
 
 const char GBK_empty[2] = {(char)0x00, (char)0x00};
-const char GBK_forward[2] = {(char)0x00, (char)0x00};
-const char GBK_back[2] = {(char)0x00, (char)0x00};
-const char GBK_horizontal[2] = {(char)0x00, (char)0x00};
+const char GBK_forward[2] = {(char)0xdf, (char)0x4d};
+const char GBK_back[2] = {(char)0xcd, (char)0xcb};
+const char GBK_horizontal[2] = {(char)0xc6, (char)0xbd};
 const char GBK_front[2] = {(char)0x00, (char)0x00};
 const char GBK_behind[2] = {(char)0x00, (char)0x00};
 const char GBK_middle[2] = {(char)0x00, (char)0x00};

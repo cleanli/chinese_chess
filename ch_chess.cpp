@@ -572,13 +572,44 @@ bool chess_game::moveto_point(int x, int y)
             {
                 char*ch_steps = chinese_move_steps[running_step];
                 int vertical_n;
+                int dy=(y>choosen_cp->get_p_y())?y-choosen_cp->get_p_y():choosen_cp->get_p_y()-y;
                 ch_steps[0]=choosen_cp->chinese_name[0];
                 ch_steps[1]=choosen_cp->chinese_name[1];
+                ch_steps[6]=GBK_number[choosen_cp->get_cp_side()][dy-1][0];
+                ch_steps[7]=GBK_number[choosen_cp->get_cp_side()][dy-1][1];
                 if(choosen_cp->get_cp_side() == SIDE_RED){
                     vertical_n = choosen_cp->get_p_x()+1;
+                    if(choosen_cp->get_p_y() < y){
+                        ch_steps[4]=GBK_forward[0];
+                        ch_steps[5]=GBK_forward[1];
+                    }
+                    else if(choosen_cp->get_p_y() == y){
+                        ch_steps[4]=GBK_horizontal[0];
+                        ch_steps[5]=GBK_horizontal[1];
+                        ch_steps[6]=GBK_number[choosen_cp->get_cp_side()][x][0];
+                        ch_steps[7]=GBK_number[choosen_cp->get_cp_side()][x][1];
+                    }
+                    else{
+                        ch_steps[4]=GBK_back[0];
+                        ch_steps[5]=GBK_back[1];
+                    }
                 }
                 else{
                     vertical_n = 9-choosen_cp->get_p_x();
+                    if(choosen_cp->get_p_y() > y){
+                        ch_steps[4]=GBK_forward[0];
+                        ch_steps[5]=GBK_forward[1];
+                    }
+                    else if(choosen_cp->get_p_y() == y){
+                        ch_steps[4]=GBK_horizontal[0];
+                        ch_steps[5]=GBK_horizontal[1];
+                        ch_steps[6]=GBK_number[choosen_cp->get_cp_side()][8-x][0];
+                        ch_steps[7]=GBK_number[choosen_cp->get_cp_side()][8-x][1];
+                    }
+                    else{
+                        ch_steps[4]=GBK_back[0];
+                        ch_steps[5]=GBK_back[1];
+                    }
                 }
                 ch_steps[2]=GBK_number[choosen_cp->get_cp_side()][vertical_n-1][0];
                 ch_steps[3]=GBK_number[choosen_cp->get_cp_side()][vertical_n-1][1];
