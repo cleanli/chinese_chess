@@ -571,8 +571,17 @@ bool chess_game::moveto_point(int x, int y)
             //chinese move record
             {
                 char*ch_steps = chinese_move_steps[running_step];
+                int vertical_n;
                 ch_steps[0]=choosen_cp->chinese_name[0];
                 ch_steps[1]=choosen_cp->chinese_name[1];
+                if(choosen_cp->get_cp_side() == SIDE_RED){
+                    vertical_n = choosen_cp->get_p_x()+1;
+                }
+                else{
+                    vertical_n = 9-choosen_cp->get_p_x();
+                }
+                ch_steps[2]=GBK_number[choosen_cp->get_cp_side()][vertical_n-1][0];
+                ch_steps[3]=GBK_number[choosen_cp->get_cp_side()][vertical_n-1][1];
             }
             //chinese move record end
         }
