@@ -439,7 +439,7 @@ bool read_chess_file(char*fn)
         g_chess_game.review_reset();
         do{
             fgets(read_line, 100, f);
-            df("read:%s", read_line);
+            //df("read:%s", read_line);
         }
         while(!feof(f) && g_chess_game.read_step(read_line));
         fclose(f);

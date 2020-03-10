@@ -268,7 +268,7 @@ bool chess_game::read_step(const char*input)
     if(running_step >= MAX_MOVES_NUM){
         return false;
     }
-    df("run step %d in read func", running_step);
+    //df("run step %d in read func", running_step);
     u_short ms;
     sscanf(input, "%x", &ms);
     move_steps_record[running_step++] = ms;
@@ -283,7 +283,7 @@ char* chess_game::get_save_line()
     if(running_step >= MAX_MOVES_NUM){
         return NULL;
     }
-    df("run step %d in save func", running_step);
+    //df("run step %d in save func", running_step);
     u_short ms= move_steps_record[running_step];
     if(ms>0xeeee){
         saved=true;
@@ -291,7 +291,7 @@ char* chess_game::get_save_line()
     }
     else{
         sprintf(save_line, "%04x;%s(%04d)", ms,
-                chinese_move_steps[running_step++], running_step);
+                chinese_move_steps[running_step], ++running_step);
         return save_line;
     }
 }
@@ -616,11 +616,11 @@ bool chess_game::moveto_point(int x, int y)
                 ch_steps[3]=GBK_number[choosen_cp->get_cp_side()][vertical_n-1][1];
                 //handle same type cp in same x line
                 int before_choosen = 0, after_choosen = 0;
-                df("choosen_cp->get_cpid() %d", choosen_cp->get_cpid());
+                //df("choosen_cp->get_cpid() %d", choosen_cp->get_cpid());
                 for(int i = CP_RED_R_ROOK; i < CP_NUM_MAX; i++){
                     if(i == choosen_cp->get_cpid())
                         continue;
-                    df("cp_create_map[i].cp_tp %d side %d", cp_create_map[i].cp_tp, cpes[i]->get_cp_side());
+                    //df("cp_create_map[i].cp_tp %d side %d", cp_create_map[i].cp_tp, cpes[i]->get_cp_side());
                     if(cp_create_map[i].cp_tp == cp_create_map[choosen_cp->get_cpid()].cp_tp &&
                         choosen_cp->get_cp_side() == cpes[i]->get_cp_side() &&
                         choosen_cp->get_p_x() == cpes[i]->get_p_x() &&
