@@ -290,7 +290,8 @@ char* chess_game::get_save_line()
         return NULL;
     }
     else{
-        sprintf(save_line, "%04x;%s", ms,chinese_move_steps[running_step++]);
+        sprintf(save_line, "%04x;%s(%04d)", ms,
+                chinese_move_steps[running_step++], running_step);
         return save_line;
     }
 }
@@ -613,6 +614,92 @@ bool chess_game::moveto_point(int x, int y)
                 }
                 ch_steps[2]=GBK_number[choosen_cp->get_cp_side()][vertical_n-1][0];
                 ch_steps[3]=GBK_number[choosen_cp->get_cp_side()][vertical_n-1][1];
+                //handle same type cp in same x line
+                int before_choosen = 0, after_choosen = 0;
+                df("choosen_cp->get_cpid() %d", choosen_cp->get_cpid());
+                for(int i = CP_RED_R_ROOK; i < CP_NUM_MAX; i++){
+                    if(i == choosen_cp->get_cpid())
+                        continue;
+                    df("cp_create_map[i].cp_tp %d side %d", cp_create_map[i].cp_tp, cpes[i]->get_cp_side());
+                    if(cp_create_map[i].cp_tp == cp_create_map[choosen_cp->get_cpid()].cp_tp &&
+                        choosen_cp->get_cp_side() == cpes[i]->get_cp_side() &&
+                        choosen_cp->get_p_x() == cpes[i]->get_p_x()){
+                        if(cpes[i]->get_p_y()>choosen_cp->get_p_y()){
+                            before_choosen++;
+                        }
+                        else{
+                            after_choosen++;
+                        }
+                    }
+                }
+                df("before %d after %d", before_choosen, after_choosen);
+                if(choosen_cp->get_cp_side() == SIDE_BLACK){
+                    int t = before_choosen;
+                    before_choosen =  after_choosen;
+                    after_choosen = t;
+                }
+                int total = before_choosen+after_choosen;
+                switch(total){
+                    case 0:
+                        break;
+                    case 1:
+                        ch_steps[2]= ch_steps[0];
+                        ch_steps[3]= ch_steps[1];
+                        if(before_choosen == 1){
+                            ch_steps[0]=GBK_behind[0];
+                            ch_steps[1]=GBK_behind[1];
+                        }
+                        else{
+                            ch_steps[0]=GBK_front[0];
+                            ch_steps[1]=GBK_front[1];
+                        }
+                        break;
+                    case 2:
+                        ch_steps[2]= ch_steps[0];
+                        ch_steps[3]= ch_steps[1];
+                        if(before_choosen == 0){
+                            ch_steps[0]=GBK_front[0];
+                            ch_steps[1]=GBK_front[1];
+                        }
+                        else if(before_choosen == 1){
+                            ch_steps[0]=GBK_middle[0];
+                            ch_steps[1]=GBK_middle[1];
+                        }
+                        else{
+                            ch_steps[0]=GBK_behind[0];
+                            ch_steps[1]=GBK_behind[1];
+                        }
+                        break;
+                    case 3:
+                    case 4:
+                        ch_steps[2]= ch_steps[0];
+                        ch_steps[3]= ch_steps[1];
+                        if(before_choosen == 0){
+                            ch_steps[0]=GBK_front[0];
+                            ch_steps[1]=GBK_front[1];
+                        }
+                        else{
+                            ch_steps[0]=GBK_number[choosen_cp->get_cp_side()][before_choosen][0];
+                            ch_steps[1]=GBK_number[choosen_cp->get_cp_side()][before_choosen][1];
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                //for guard, minister, knight, last char should be x cordinate
+                CHESS_PIECE_TYPE choosen_cp_type = cp_create_map[choosen_cp->get_cpid()].cp_tp;
+                if(choosen_cp_type == CP_TYPE_GUARD
+                        || choosen_cp_type == CP_TYPE_MINISTER
+                        || choosen_cp_type == CP_TYPE_KNIGHT){
+                    if(choosen_cp->get_cp_side() == SIDE_RED){
+                        ch_steps[6]=GBK_number[choosen_cp->get_cp_side()][x][0];
+                        ch_steps[7]=GBK_number[choosen_cp->get_cp_side()][x][1];
+                    }
+                    else{
+                        ch_steps[6]=GBK_number[choosen_cp->get_cp_side()][8-x][0];
+                        ch_steps[7]=GBK_number[choosen_cp->get_cp_side()][8-x][1];
+                    }
+                }
             }
             //chinese move record end
         }
