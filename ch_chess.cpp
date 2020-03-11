@@ -291,7 +291,8 @@ char* chess_game::get_save_line()
     }
     else{
         sprintf(save_line, "%04x;%s(%04d)", ms,
-                chinese_move_steps[running_step], ++running_step);
+                chinese_move_steps[running_step], running_step+1);
+        running_step++;
         return save_line;
     }
 }
