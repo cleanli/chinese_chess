@@ -7,11 +7,12 @@
  * 0.6 config & timeout ok
  * 0.73 init connect in thread
  * 0.81 chess review/save
- * 0.92 read saved chess file"
+ * 0.92 read saved chess file
  * 0.95 Chinese language
- * 0.98 net,timer init protection, more chinese"
+ * 0.98 net,timer init protection, more chinese
+ * 0.995 chinese move step output
  * */
-#define VERSION "0.995 chinese move step output"
+#define VERSION "0.996 chinese move step output"
 #define PORT_NUM 34567
 enum RUN_MODE
 {

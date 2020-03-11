@@ -10,6 +10,10 @@
 #define MAX_MOVES_NUM 2048
 
 const char GBK_empty[2] = {(char)0x00, (char)0x00};
+const char GBK_win[2] = {(char)0xca, (char)0xa4};
+const char GBK_give[4] = {(char)0xc8, (char)0xcf, (char)0xb8, (char)0xba};
+const char GBK_timeout[4] = {(char)0xb3, (char)0xac, (char)0xca, (char)0xb1};
+const char GBK_drawn_result[4] = {(char)0xba, (char)0xcd, (char)0xc6, (char)0xe5};
 const char GBK_forward[2] = {(char)0xdf, (char)0x4d};
 const char GBK_back[2] = {(char)0xcd, (char)0xcb};
 const char GBK_horizontal[2] = {(char)0xc6, (char)0xbd};
@@ -44,6 +48,10 @@ const char GBK_pawn[2][2] = {
     {(char)0xb1, (char)0xf8},
     {(char)0xd7, (char)0xe4},
 };
+const char GBK_side[2][2] = {
+    {(char)0xba, (char)0xec},
+    {(char)0xba, (char)0xda},
+};
 const char GBK_number[2][9][2] = {
     {
         {(char)0xd2, (char)0xbb},
@@ -67,6 +75,13 @@ const char GBK_number[2][9][2] = {
         {(char)0xa3, (char)0xb8},
         {(char)0xa3, (char)0xb9},
     },
+};
+
+enum WIN_REASON
+{
+    KING_KILL,
+    OPPONENT_GIVE,
+    OPPONENT_TIMEOUT,
 };
 
 enum RUN_STATE
@@ -214,7 +229,7 @@ class chess_game{
         void review_next();
         void review_prev();
         void start();
-        void set_win(PLAYING_SIDE);
+        void set_win(PLAYING_SIDE, WIN_REASON);
         void set_timeout(PLAYING_SIDE, int t);
         void set_idleside_timeout(int t);
         void switch_turn();

@@ -191,7 +191,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         MESS_PRINT("%s", gp_text_rc->text_message_switch);
                         break;
                     case REQUEST_GIVE:
-                        g_chess_game.set_win(local_player);
+                        g_chess_game.set_win(local_player, OPPONENT_GIVE);
                         InvalidateRect(hwnd,NULL,TRUE);
                         //MessageBox(hwnd, "Remote request GIVE", "Notice", MB_ICONQUESTION);
                         MESS_PRINT("%s", gp_text_rc->text_message_give);
@@ -464,6 +464,7 @@ void save_chess_game()
         df("open chess_save_file fail\n");
     }
     else {
+        fprintf(f, ";%s\n", fn);
         while(NULL!=(write_line=g_chess_game.get_save_line())){
             fprintf(f, "%s\n", write_line);
         }
@@ -857,7 +858,7 @@ LRESULT CALLBACK WindowProc(
                                 tp_tmp->p_type = REQUEST_GIVE;
                                 remote_side->send_package(tp_tmp);
                             }
-                            g_chess_game.set_win((g_chess_game.get_current_playing_side()==SIDE_RED)?SIDE_BLACK:SIDE_RED);
+                            g_chess_game.set_win(OTHER_SIDE(g_chess_game.get_current_playing_side()), OPPONENT_GIVE);
                             InvalidateRect(hwnd,NULL,TRUE);
                         }
                         else if(REVIEW_STATE == g_chess_game.get_running_state()){

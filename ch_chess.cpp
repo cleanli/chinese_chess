@@ -268,6 +268,9 @@ bool chess_game::read_step(const char*input)
     if(running_step >= MAX_MOVES_NUM){
         return false;
     }
+    if(!input || input[0]==';'){
+        return true;
+    }
     //df("run step %d in read func", running_step);
     u_short ms;
     sscanf(input, "%x", &ms);
@@ -290,8 +293,14 @@ char* chess_game::get_save_line()
         return NULL;
     }
     else{
-        sprintf(save_line, "%04x;%s(%04d)", ms,
-                chinese_move_steps[running_step], running_step+1);
+        if(ms == 0xeeee){
+            sprintf(save_line, "%04x;%s", ms,
+                    chinese_move_steps[running_step]);
+        }
+        else{
+            sprintf(save_line, "%04x;%s(%04d)", ms,
+                    chinese_move_steps[running_step], running_step+1);
+        }
         running_step++;
         return save_line;
     }
@@ -370,9 +379,11 @@ bool chess_game::request_drawn_side(PLAYING_SIDE ps)
         running_state = END_STATE;
         playresult=RESULT_DRAWN;
         if(running_step < MAX_MOVES_NUM){
+            char*ch_steps = chinese_move_steps[running_step];
+            memcpy(ch_steps, GBK_drawn_result, 4);
             move_steps_record[running_step]=0xeeee;
         }
-        dump_steps();
+        //dump_steps();
         return true;
     }
     return false;
@@ -536,8 +547,7 @@ void chess_game::reset()
     black_request_drawn = false;
     for(int i = 0;i<MAX_MOVES_NUM;i++){
         move_steps_record[i] = 0xffff;
-        char init_array[]={(char)0xdc, (char)0x87, (char)0xbe, (char)0xc5,(char)0xdf,(char)0x4d,(char)0xd2,(char)0xbb,(char)0x00};
-        memcpy (chinese_move_steps[i], init_array, 9);
+        memset(chinese_move_steps[i], 0, 9);
     }
     memset(starttime, 0, 128);
     saved=false;
@@ -710,10 +720,10 @@ bool chess_game::moveto_point(int x, int y)
         if(cpes_board[y][x] != NULL){
             cpes_board[y][x]->set_alive(false);
             if(cpes_board[y][x]->get_cpid() == CP_RED_KING){
-                set_win(SIDE_BLACK);
+                set_win(SIDE_BLACK, KING_KILL);
             }
             if(cpes_board[y][x]->get_cpid() == CP_BLACK_KING){
-                set_win(SIDE_RED);
+                set_win(SIDE_RED, KING_KILL);
             }
         }
         cpes_board[choosen_cp->get_p_y()][choosen_cp->get_p_x()] = NULL;
@@ -764,16 +774,48 @@ PLAYING_SIDE chess_game::get_current_playing_side()
     return current_playing_side;
 }
 
-void chess_game::set_win(PLAYING_SIDE sd)
+void chess_game::set_win(PLAYING_SIDE sd, WIN_REASON rs)
 {
     if(running_state != PLAYING_STATE)return;
     df("player %d win", sd);
     running_state = END_STATE;
     (sd == SIDE_RED)?playresult=RESULT_RED_WIN:playresult=RESULT_BLACK_WIN;
     if(running_step < MAX_MOVES_NUM){
+        char tmp[16];
+        tmp[0] = GBK_side[sd][0];
+        tmp[1] = GBK_side[sd][1];
+        tmp[2] = GBK_win[0];
+        tmp[3] = GBK_win[1];
+        tmp[4] = 0;
         move_steps_record[running_step]=0xeeee;
+        char*ch_steps = chinese_move_steps[running_step];
+        switch(rs){
+            case KING_KILL:
+                strcpy(ch_steps, tmp);
+                break;
+            case OPPONENT_GIVE:
+                ch_steps[0] = GBK_side[OTHER_SIDE(sd)][0];
+                ch_steps[1] = GBK_side[OTHER_SIDE(sd)][1];
+                ch_steps[2] = GBK_give[0];
+                ch_steps[3] = GBK_give[1];
+                ch_steps[4] = GBK_give[2];
+                ch_steps[5] = GBK_give[3];
+                ch_steps[6] = 0;
+                strcat(ch_steps, tmp);
+                break;
+            case OPPONENT_TIMEOUT:
+                ch_steps[0] = GBK_side[OTHER_SIDE(sd)][0];
+                ch_steps[1] = GBK_side[OTHER_SIDE(sd)][1];
+                ch_steps[2] = GBK_timeout[0];
+                ch_steps[3] = GBK_timeout[1];
+                ch_steps[4] = GBK_timeout[2];
+                ch_steps[5] = GBK_timeout[3];
+                ch_steps[6] = 0;
+                strcat(ch_steps, tmp);
+                break;
+        }
     }
-    dump_steps();
+    //dump_steps();
 }
 
 void chess_game::timer_click()
@@ -782,11 +824,11 @@ void chess_game::timer_click()
         (current_playing_side== SIDE_RED)?red_timeout--:black_timeout--;
         if(!red_timeout){
             df("red timeout");
-            set_win(SIDE_BLACK);
+            set_win(SIDE_BLACK, OPPONENT_TIMEOUT);
         }
         if(!black_timeout){
             df("black timeout");
-            set_win(SIDE_RED);
+            set_win(SIDE_RED, OPPONENT_TIMEOUT);
         }
     }
 }
