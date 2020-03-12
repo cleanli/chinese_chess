@@ -187,12 +187,15 @@ bool net_trans::init(u_short pt)
 bool net_trans::deinit()
 {
     int sts;
-    sts=closesocket(usingSocket);  
-    if (sts == SOCKET_ERROR) 
-        return false;
-    sts=WSACleanup();  
-    if (sts == SOCKET_ERROR)  
-        return false;
+    sts=closesocket(usingSocket);
+    if (sts == SOCKET_ERROR)
+        df("error closesocket(usingSocket)");
+    sts=closesocket(serverSocket);
+    if (sts == SOCKET_ERROR)
+        df("error closesocket(serverSocket)");
+    sts=WSACleanup();
+    if (sts == SOCKET_ERROR)
+        df("error WSACleanup");
     return true;
     
 }

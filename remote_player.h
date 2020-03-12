@@ -6,7 +6,7 @@
 
 #define MAX_STR_LEN 128
 #define MAX_PK_PENDING 6
-#define ERROR_PK_PENDING 40
+#define ERROR_PK_PENDING 400
 enum net_init_state{
     NOT_CALLED,
     WAITING,
@@ -48,6 +48,7 @@ class remote_player
         virtual bool send_package(trans_package*)=0;
         virtual bool send_cmd(package_type)=0;
         virtual bool send_ack(int id)=0;
+        virtual void deinit()=0;
         net_init_state get_init_state()
         {
             return init_state;
@@ -74,6 +75,7 @@ class dummy_remote_player:public remote_player
         bool is_ready();
         trans_package* get_recved_ok();
         bool send_package(trans_package*);
+        void deinit();
 };
 class net_remote_player:public remote_player
 {
@@ -86,6 +88,7 @@ class net_remote_player:public remote_player
         bool send_package(trans_package*);
         bool send_cmd(package_type);
         bool send_ack(int id);
+        void deinit();
         ~net_remote_player();
     private:
         const char*mip;

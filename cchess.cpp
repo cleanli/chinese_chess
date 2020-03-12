@@ -335,7 +335,8 @@ void mode_init(HWND hwnd)
         EnableWindow(Button4Hd, true);
         EnableWindow(ButtonLoadHd, true);
         HWND hdtmp = GetDlgItem(hwnd, IDB_FIVE);
-        EnableWindow(hdtmp, false);
+        SetWindowText(hdtmp, "Reset");
+        EnableWindow(hdtmp, true);
         InvalidateRect(hwnd,NULL,TRUE);
         InterlockedIncrement(&func_guard);//never enter here again
     }
@@ -869,6 +870,24 @@ LRESULT CALLBACK WindowProc(
                     case IDB_FIVE://choose mode
                         {
                             df("button 5 clicked");
+                            if(running_mode != NOT_INITED){
+                                df("reset connection");
+                                if(running_mode == CLIENT_MODE){
+                                    remote_side->deinit();
+                                    MESS_PRINT("Reset client");
+                                    memset(strbuf, 0, 128);
+                                    GetWindowText(editHd, strbuf, 128);
+                                    strcpy(g_cconfig.ip, strbuf);
+                                    df("ip input:%s", strbuf);
+                                    remote_side->init(strbuf,(u_short)PORT_NUM);
+                                }
+                                else if(running_mode == SERVER_MODE){
+                                    remote_side->deinit();
+                                    remote_side->init(NULL,(u_short)PORT_NUM);
+                                    MESS_PRINT("Reset server");
+                                }
+                                break;
+                            }
                             g_chess_game.reset();
                             g_chess_game.set_timeout(local_player, g_cconfig.timeout);
 

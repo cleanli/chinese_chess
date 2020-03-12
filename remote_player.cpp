@@ -70,6 +70,10 @@ trans_package* dummy_remote_player::get_recved_ok()
     return &tpg;
 }
 
+void dummy_remote_player::deinit()
+{
+}
+
 bool dummy_remote_player::send_package(trans_package*tp)
 {
     return true;
@@ -227,5 +231,10 @@ DWORD WINAPI net_remote_player::init_thread_func(LPVOID lpThreadParameter)
         p->init_state=FAILED;
     }
     return 0;
+}
+
+void net_remote_player::deinit()
+{
+    mynt.deinit();
 }
 
