@@ -136,11 +136,11 @@ trans_package* net_remote_player::get_recved_ok()
         bool ret;
         df("Error! last package didn't get ack! id %d last %d",
                 pending_pk_id, pk_pending_last);
-        if(tpg.pk_id == pending_pk_id){
-            ret = mynt.net_send((const char*)&tpg, sizeof(trans_package));
-            df("re-send last failed package return %d", ret);
+        if(tpg_bak.pk_id == pending_pk_id && (pk_pending_last%10) == 0){
+            ret = mynt.net_send((const char*)&tpg_bak, sizeof(trans_package));
+            df("re-send last failed package id %d return %d", ret);
         }
-        else{
+        else if(tpg_bak.pk_id != pending_pk_id ){
             df("can't re-send last failed package, data lost");
         }
     }
@@ -200,6 +200,7 @@ bool net_remote_player::send_package(trans_package*tp)
             pk_type_str[tp->p_type], tp->pk_id);
     pending_pk_id=tp->pk_id;
     pk_pending_last = 0;
+    memcpy(&tpg_bak, (const char*)tp, sizeof(trans_package));
     return mynt.net_send((const char*)tp, sizeof(trans_package));
 }
 

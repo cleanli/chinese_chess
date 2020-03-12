@@ -6,7 +6,7 @@
 
 #define MAX_STR_LEN 128
 #define MAX_PK_PENDING 6
-#define ERROR_PK_PENDING 400
+#define ERROR_PK_PENDING 4000
 enum net_init_state{
     NOT_CALLED,
     WAITING,
@@ -63,6 +63,7 @@ class remote_player
         int error_status;
         bool connec_is_rdy;
         trans_package tpg;
+        trans_package tpg_bak;
         trans_package ack_tpg;
         net_init_state init_state;
 };

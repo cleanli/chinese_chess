@@ -11,8 +11,9 @@
  * 0.95 Chinese language
  * 0.98 net,timer init protection, more chinese
  * 0.995 chinese move step output
+ * 0.996 chinese move step output
  * */
-#define VERSION "0.996 chinese move step output"
+#define VERSION "0.997 add connect reset"
 #define PORT_NUM 34567
 enum RUN_MODE
 {
