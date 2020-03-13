@@ -894,7 +894,7 @@ LRESULT CALLBACK WindowProc(
                     case IDB_FIVE://choose mode
                         {
                             df("button 5 clicked");
-                            if(running_mode != NOT_INITED){
+                            if(running_mode != TBD){
                                 df("reset connection");
                                 if(running_mode == CLIENT_MODE){
                                     remote_side->deinit();
