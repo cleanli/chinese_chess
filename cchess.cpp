@@ -22,6 +22,7 @@
 #define IDB_FIVE   3305
 #define ID_DATA     3306
 #define IDB_LOAD   3307
+#define IDB_PAUSE  3308
 
 #define IDC_RADBTN1		50001
 #define IDC_RADBTN2		50002
@@ -78,6 +79,7 @@ HWND Button1Hd;
 HWND Button2Hd;
 HWND Button3Hd;
 HWND Button4Hd;
+HWND ButtonPauseHd;
 HWND ButtonLoadHd;
 HWND MessageHd;
 RUN_MODE running_mode = TBD;
@@ -543,6 +545,8 @@ LRESULT CALLBACK WindowProc(
                         215, 610, 60, 20, hwnd, (HMENU)IDB_THREE, hg_app, NULL);
                 Button4Hd = CreateWindow("Button", gp_text_rc->text_give, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         290, 610, 60, 20, hwnd, (HMENU)IDB_FOUR, hg_app, NULL);
+                ButtonPauseHd = CreateWindow("Button", gp_text_rc->text_pause, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                        5, 350, 40, 20, hwnd, (HMENU)IDB_PAUSE, hg_app, NULL);
                 ButtonLoadHd = CreateWindow("Button", gp_text_rc->text_load, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         365, 610, 60, 20, hwnd, (HMENU)IDB_LOAD, hg_app, NULL);
                 EnableWindow(Button1Hd, false);
@@ -848,6 +852,15 @@ LRESULT CALLBACK WindowProc(
                                     g_chess_game.review_reset();
                                     InvalidateRect(hwnd,NULL,TRUE);
                                 }
+                            }
+                        }
+                        break;
+                    case IDB_PAUSE://pause
+                        {
+                            if(running_mode == LOCAL_MODE ||
+                                    (running_mode != LOCAL_MODE &&
+                                     g_chess_game.get_current_playing_side() != local_player)){
+                                g_chess_game.set_timer_pause();
                             }
                         }
                         break;

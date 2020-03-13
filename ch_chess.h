@@ -229,6 +229,7 @@ class chess_game{
         void review_next();
         void review_prev();
         void start();
+        void set_timer_pause();
         void set_win(PLAYING_SIDE, WIN_REASON);
         void set_timeout(PLAYING_SIDE, int t);
         void set_idleside_timeout(int t);
@@ -253,6 +254,7 @@ class chess_game{
         bool is_saved();
         ~chess_game();
     private:
+        bool is_pause;
         chess_piece* dead_link_head;
         chess_piece* choosen_cp;
         chess_piece* cpes[CP_NUM_MAX];

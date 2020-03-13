@@ -255,6 +255,11 @@ bool chess_game::is_saved()
     return saved;
 }
 
+void chess_game::set_timer_pause()
+{
+    is_pause = !is_pause;
+}
+
 char* chess_game::save_hint()
 {
     review_reset();
@@ -533,6 +538,7 @@ void chess_game::review_reset()
     lastmove.y1=0;
     lastmove.x2=0;
     lastmove.y2=0;
+    is_pause = false;
 }
 
 void chess_game::reset()
@@ -731,6 +737,7 @@ bool chess_game::moveto_point(int x, int y)
         cpes_board[y][x] = choosen_cp;
         switch_turn();
         choosen_cp = NULL;
+        is_pause = false;
         return true;
     }
     else{
@@ -820,6 +827,8 @@ void chess_game::set_win(PLAYING_SIDE sd, WIN_REASON rs)
 
 void chess_game::timer_click()
 {
+    if(is_pause)
+        return;
     if(running_state == PLAYING_STATE){
         (current_playing_side== SIDE_RED)?red_timeout--:black_timeout--;
         if(!red_timeout){

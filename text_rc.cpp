@@ -41,6 +41,9 @@ const char GBK_text_next[]={
 const char GBK_text_prev[]={
     (char)0xba,(char)0xf3,(char)0xcd,(char)0xcb,(char)0x00,(char)0x00,(char)0x00,(char)0x00,
 };
+const char GBK_text_pause[]={
+    (char)0xd4,(char)0xdd,(char)0xcd,(char)0xa3,(char)0x00,(char)0x00,(char)0x00,(char)0x00,
+};
 const char GBK_text_message_switch[]={
     (char)0xb6,(char)0xd4,(char)0xb7,(char)0xbd,(char)0xc7,(char)0xeb,(char)0xc7,(char)0xf3,
     (char)0xbd,(char)0xbb,(char)0xbb,(char)0xbb,(char)0x00,(char)0x00,(char)0x00,(char)0x00,
@@ -72,6 +75,7 @@ const char* eng_text_load="Load";
 const char* eng_text_review="Review";
 const char* eng_text_next="Next";
 const char* eng_text_prev="Prev";
+const char* eng_text_pause="Pause";
 const char* eng_text_message_switch="Remote request Switch";
 const char* eng_text_message_drawn="Remote request Drawn";
 const char* eng_text_message_give="Remote request Give";
@@ -91,6 +95,7 @@ text_rc GBK_tr={
     GBK_text_review,
     GBK_text_next,
     GBK_text_prev,
+    GBK_text_pause,
     GBK_text_message_switch,
     GBK_text_message_drawn,
     GBK_text_message_give,
@@ -111,6 +116,7 @@ text_rc eng_tr={
     eng_text_review,
     eng_text_next,
     eng_text_prev,
+    eng_text_pause,
     eng_text_message_switch,
     eng_text_message_drawn,
     eng_text_message_give,

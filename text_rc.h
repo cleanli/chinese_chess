@@ -15,6 +15,7 @@ struct text_rc {
     const char* text_review;
     const char* text_next;
     const char* text_prev;
+    const char* text_pause;
     const char* text_message_switch;
     const char* text_message_drawn;
     const char* text_message_give;
