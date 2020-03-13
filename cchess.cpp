@@ -248,6 +248,14 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                             g_chess_game.set_timeout(OTHER_SIDE(local_player), net_timeout);
                         }
                         break;
+                    case TIMER_PAUSE:
+                        {
+                            df("got timer pause");
+                            if(g_chess_game.get_current_playing_side() == local_player){
+                                g_chess_game.set_timer_pause();
+                            }
+                        }
+                        break;
                     case APP_QUIT:
                         df("got app quit");
                         //MessageBox(hwnd, "Remote side have left", "Notice", MB_ICONQUESTION);
@@ -546,7 +554,7 @@ LRESULT CALLBACK WindowProc(
                 Button4Hd = CreateWindow("Button", gp_text_rc->text_give, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         290, 610, 60, 20, hwnd, (HMENU)IDB_FOUR, hg_app, NULL);
                 ButtonPauseHd = CreateWindow("Button", gp_text_rc->text_pause, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        5, 350, 40, 20, hwnd, (HMENU)IDB_PAUSE, hg_app, NULL);
+                        7, 220, 40, 20, hwnd, (HMENU)IDB_PAUSE, hg_app, NULL);
                 ButtonLoadHd = CreateWindow("Button", gp_text_rc->text_load, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         365, 610, 60, 20, hwnd, (HMENU)IDB_LOAD, hg_app, NULL);
                 EnableWindow(Button1Hd, false);
@@ -861,6 +869,9 @@ LRESULT CALLBACK WindowProc(
                                     (running_mode != LOCAL_MODE &&
                                      g_chess_game.get_current_playing_side() != local_player)){
                                 g_chess_game.set_timer_pause();
+                                if(remote_side->is_ready()){
+                                    remote_side->send_cmd(TIMER_PAUSE);
+                                }
                             }
                         }
                         break;

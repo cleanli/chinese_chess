@@ -23,6 +23,7 @@ enum package_type{
     SET_TIMEOUT,
     ACK,
     APP_QUIT,
+    TIMER_PAUSE,
     STRING
 };
 
