@@ -539,6 +539,7 @@ LRESULT CALLBACK WindowProc(
     HBITMAP hBitmapCP[DCP_NUM_MAX];
     static HDC s_hdcMem;
     static HDC s_hdcMemCP[DCP_NUM_MAX];
+    int chess_pieces_bitmap_id;
 
     switch(uMsg)
     {
@@ -639,8 +640,9 @@ LRESULT CALLBACK WindowProc(
                 ReleaseDC(hwnd, hdc);
             }
 #endif
+            chess_pieces_bitmap_id = CHESS_PIECE_BP_01;
             for(int i=0;i<DCP_NUM_MAX;i++){
-                hBitmapCP[i] = (HBITMAP)LoadImage(NULL, chess_pieces_bmp_path[i], IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+                hBitmapCP[i] = LoadBitmap((HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),MAKEINTRESOURCE(chess_pieces_bitmap_id));
                 if (hBitmapCP[i] == NULL)
                 {
                     //MessageBox(hwnd, "LoadImage failed", "Error", MB_ICONERROR);
@@ -655,6 +657,7 @@ LRESULT CALLBACK WindowProc(
                     SelectObject(s_hdcMemCP[i], hBitmapCP[i]);
                     ReleaseDC(hwnd, hdc);
                 }
+                chess_pieces_bitmap_id++;
             }
             timer_init(hwnd);
             break;

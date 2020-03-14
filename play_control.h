@@ -86,22 +86,4 @@ DISPLAY_CHESS_PIECE_TYPE cp_display_map[]=
     DCP_BLACK_PAWN,
     DCP_BLACK_PAWN,
 };
-
-const char* chess_pieces_bmp_path[]=
-{
-    "chesspieces/red_king.bmp",
-    "chesspieces/red_guard.bmp",
-    "chesspieces/red_minister.bmp",
-    "chesspieces/red_knight.bmp",
-    "chesspieces/red_rook.bmp",
-    "chesspieces/red_cannon.bmp",
-    "chesspieces/red_pawn.bmp",
-    "chesspieces/black_king.bmp",
-    "chesspieces/black_guard.bmp",
-    "chesspieces/black_minister.bmp",
-    "chesspieces/black_knight.bmp",
-    "chesspieces/black_rook.bmp",
-    "chesspieces/black_cannon.bmp",
-    "chesspieces/black_pawn.bmp",
-};
 #endif
