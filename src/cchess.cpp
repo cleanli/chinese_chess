@@ -393,8 +393,8 @@ int CALLBACK WinMain(
             WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX& ~WS_THICKFRAME,
             38,                 //x cordinate in father windows
             20,                 //y cordinate in father windows
-            530,                // width of windos
-            705,                // height of windows
+            FIX_WIN_WIDTH,                // width of windos
+            FIX_WIN_HEIGHT,                // height of windows
             NULL,               //no father windows, is NULL
             hRoot,               //menu
             hInstance,          //handle of current windows
@@ -545,9 +545,10 @@ LRESULT CALLBACK WindowProc(
     {
         case WM_CREATE:
             {
+                int dpx = RIGHT_CONTROL_X, dpy = RIGHT_CONTROL_Y;
                 //create three button
                 CreateWindow("Button", gp_text_rc->text_start_up, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        5, 5, 60, 20, hwnd, (HMENU)IDB_FIVE, hg_app, NULL);
+                        dpx, dpy, 60, 20, hwnd, (HMENU)IDB_FIVE, hg_app, NULL);
                 Button1Hd = CreateWindow("Button", gp_text_rc->text_switch, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         60, 610, 60, 20, hwnd, (HMENU)IDB_ONE, hg_app, NULL);
                 Button2Hd = CreateWindow("Button", gp_text_rc->text_start, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
@@ -1012,7 +1013,7 @@ LRESULT CALLBACK WindowProc(
 
                 //image of background
                 GetClientRect(hwnd, &rt);
-                BitBlt(hdc, 0, 100, rt.right, rt.bottom, s_hdcMem, 0, 0, SRCCOPY);
+                BitBlt(hdc, QIPAN_LOAD_POINT_X, QIPAN_LOAD_POINT_Y, rt.right, rt.bottom, s_hdcMem, 0, 0, SRCCOPY);
                 if(running_mode != TBD && wait_net_connect != CONNECT_WAITING){
 #if 1
                     for(int i = 0;i < CP_NUM_MAX;i++){
@@ -1121,7 +1122,7 @@ LRESULT CALLBACK WindowProc(
                     }
                 }
                 sprintf(strbuf, "Built @ %s %s, V%s", __DATE__, __TIME__, VERSION);
-                TextOut(ps.hdc,0, 640, strbuf,strlen(strbuf));
+                TextOut(ps.hdc,0, BUILD_MESSAGE_Y, strbuf,strlen(strbuf));
 #if 0
                 BitBlt(hdc, movingx, movingy, rt.right, rt.bottom, s_hdcMemBin, 0, 0, SRCCOPY);
                 BitBlt(hdc, 500-movingx, movingy, rt.right, rt.bottom, s_hdcMemBin, 0, 0, SRCCOPY);

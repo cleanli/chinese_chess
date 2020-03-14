@@ -17,6 +17,16 @@
  * */
 #define VERSION "0.999 add icon"
 #define PORT_NUM 34567
+
+//display control
+#define FIX_WIN_WIDTH 900
+#define FIX_WIN_HEIGHT 750
+#define QIPAN_LOAD_POINT_X 0
+#define QIPAN_LOAD_POINT_Y 0
+#define BUILD_MESSAGE_Y 720
+#define RIGHT_CONTROL_X 700
+#define RIGHT_CONTROL_Y 5
+//display end
 enum RUN_MODE
 {
     TBD = 0,

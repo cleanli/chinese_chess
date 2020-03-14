@@ -1,5 +1,5 @@
 CHESS_SRCS := $(wildcard src/*cpp)
-CHESS_H := $(wildcard *h)
+CHESS_H := $(wildcard include/*h)
 CHESS_OBJS := $(subst .cpp,.o, $(CHESS_SRCS))
 TARGET_NAME := cchess
 LIB_NAME := c:/MinGW/lib/libws2_32.a
