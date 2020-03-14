@@ -20,6 +20,8 @@ struct text_rc {
     const char* text_message_drawn;
     const char* text_message_give;
     const char* text_message_leave;
+    const char* text_message_net_error;
+    const char* text_message_net_recover;
 };
 
 extern text_rc GBK_tr;

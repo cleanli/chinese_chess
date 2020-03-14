@@ -107,6 +107,7 @@ LRESULT CALLBACK WindowProc(
 int movingx = 100;
 int movingy = 100;
 LONG volatile timer_guard = 0;
+void debug_str_dump(const char*s);
 VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
 {
     static RUN_STATE last_game_state = INIT_STATE;
@@ -270,23 +271,25 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                 }
             }
         }
-        InterlockedDecrement(&timer_guard);
-        {
+        if(timer_guard == 1){
             static int last_error = 0;
             if(remote_side->get_error_status()){
                 static int count = 0;
                 //MessageBox(hwnd, "Connection is ERROR", "Notice", MB_ICONQUESTION);
                 if(count++>10){
-                    MESS_PRINT("Connection ERROR!");
+                    MESS_PRINT("%s", gp_text_rc->text_message_net_error);
+                    debug_str_dump(gp_text_rc->text_message_net_error);
                     count = 0;
                 }
                 last_error = 1;
             }
             else if(last_error == 1){
-                MESS_PRINT("Connection Recover!");
+                MESS_PRINT("%s", gp_text_rc->text_message_net_recover);
+                debug_str_dump(gp_text_rc->text_message_net_recover);
                 last_error = 0;
             }
         }
+        InterlockedDecrement(&timer_guard);
         //message_print("%d", timer_count);
         //MESS_PRINT("%d", timer_count);
 #if 0
@@ -297,6 +300,14 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
         rctA = {(LONG)(500-movingx+1),(LONG)(movingy-1),(LONG)(500-movingx+CELL_SIZE+9),(LONG)(movingy+CELL_SIZE)};
         InvalidateRect(hwnd,&rctA,TRUE);
 #endif
+    }
+}
+
+void debug_str_dump(const char*s)
+{
+    const char*p = s;
+    while(*p != 0){
+        df("(char)0x%02x,",*p++);
     }
 }
 
