@@ -227,12 +227,14 @@ bool net_trans::buf_return()
 
 bool net_trans::net_send(const char*buf, int len)
 {
+    bool ret;
    int numsnt=send(usingSocket, buf, len, NO_FLAGS_SET);  
     df("%s %p %d ret %d", __func__, buf, len, numsnt);
    if(numsnt == len)
-       return true;
+       ret = true;
    else
-       return false;
+       ret = false;
+   return ret;
 }
 
 char* net_trans::net_recv(int*len)

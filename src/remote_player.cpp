@@ -134,6 +134,7 @@ trans_package* net_remote_player::get_recved_ok()
     }
     if(pk_pending_last > MAX_PK_PENDING){
         bool ret;
+        error_status = 1;
         df("Error! last package didn't get ack! id %d last %d",
                 pending_pk_id, pk_pending_last);
         if(tpg_bak.pk_id == pending_pk_id && (pk_pending_last%10) == 0){
@@ -181,6 +182,7 @@ trans_package* net_remote_player::get_recved_ok()
             df("pending %d clear", pk_pending_last);
             pk_pending_last = 0;
             pending_pk_id = 0;
+            error_status = 0;
         }
         return NULL;
     }

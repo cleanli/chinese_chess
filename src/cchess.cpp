@@ -271,9 +271,21 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
             }
         }
         InterlockedDecrement(&timer_guard);
-        if(remote_side->get_error_status()){
-            //MessageBox(hwnd, "Connection is ERROR", "Notice", MB_ICONQUESTION);
-            MESS_PRINT("Connection is ERROR");
+        {
+            static int last_error = 0;
+            if(remote_side->get_error_status()){
+                static int count = 0;
+                //MessageBox(hwnd, "Connection is ERROR", "Notice", MB_ICONQUESTION);
+                if(count++>10){
+                    MESS_PRINT("Connection ERROR!");
+                    count = 0;
+                }
+                last_error = 1;
+            }
+            else if(last_error == 1){
+                MESS_PRINT("Connection Recover!");
+                last_error = 0;
+            }
         }
         //message_print("%d", timer_count);
         //MESS_PRINT("%d", timer_count);

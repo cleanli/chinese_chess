@@ -55,9 +55,7 @@ class remote_player
             return init_state;
         }
         int get_error_status(){
-            bool ret = error_status;
-            error_status = 0;
-            return ret;
+            return error_status;
         }
 
     protected:
