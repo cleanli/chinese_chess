@@ -1020,13 +1020,22 @@ LRESULT CALLBACK WindowProc(
                 BitBlt(hdc, QIPAN_LOAD_POINT_X, QIPAN_LOAD_POINT_Y, rt.right, rt.bottom, s_hdcMem, 0, 0, SRCCOPY);
                 if(running_mode != TBD && wait_net_connect != CONNECT_WAITING){
 #if 1
+                    HBRUSH qipan_hb = CreateSolidBrush(RGB(255,255,255));
+                    HBRUSH qipan_orgBrs = (HBRUSH)SelectObject(ps.hdc, qipan_hb);
+                    int tmpx, tmpy, tmpd;
                     for(int i = 0;i < CP_NUM_MAX;i++){
                         chess_piece * cptmp = g_chess_game.get_cp((CHESS_PIECES_INDEX)i);
                         if(cptmp && cptmp->is_alive()){
+                            tmpx = cptmp->get_p_x();
+                            tmpy = cptmp->get_p_y();
+                            tmpd = CHESS_PIECE_SIZE/2;
                             //MESS_PRINT("bitblt %d %d",  cptmp->get_p_x(), cptmp->get_p_y());
-                            BitBlt(hdc, g_cdtts.chess_to_screen_x(cptmp->get_p_x())-CHESS_PIECE_SIZE/2, g_cdtts.chess_to_screen_y(cptmp->get_p_y())-CHESS_PIECE_SIZE/2, rt.right, rt.bottom, s_hdcMemCP[cp_display_map[i]], 0, 0, SRCCOPY);
+                            Ellipse(ps.hdc,g_cdtts.chess_to_screen_x(tmpx)-tmpd,g_cdtts.chess_to_screen_y(tmpy)-tmpd,g_cdtts.chess_to_screen_x(tmpx)+tmpd,g_cdtts.chess_to_screen_y(tmpy)+tmpd);
+                            BitBlt(hdc, g_cdtts.chess_to_screen_x(cptmp->get_p_x())-CHESS_WORD_SIZE/2, g_cdtts.chess_to_screen_y(cptmp->get_p_y())-CHESS_WORD_SIZE/2, rt.right, rt.bottom, s_hdcMemCP[cp_display_map[i]], 0, 0, SRCCOPY);
                         }
                     }
+                    SelectObject(ps.hdc, qipan_orgBrs);
+                    DeleteObject(qipan_hb);
 #else
                     for(int i = 0; i<MAX_CHS_BOARD_Y;i++){
                         for(int j = 0; j<MAX_CHS_BOARD_X;j++){

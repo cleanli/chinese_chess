@@ -6,7 +6,8 @@
 #define CHESS_BOARD_Y_START 59.0f
 #define CHESS_BOARD_X_END 645.0f
 #define CHESS_BOARD_Y_END 639.0f
-#define CHESS_PIECE_SIZE 50.0f
+#define CHESS_PIECE_SIZE 64.0f
+#define CHESS_WORD_SIZE 42.0f
 #define CELL_SIZE ((CHESS_BOARD_X_END-CHESS_BOARD_X_START)/8)
 
 class c_coordinate_trans
