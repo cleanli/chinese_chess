@@ -9,6 +9,8 @@ net_trans::net_trans()
 {
     memset(buffer_out, 0, MAXBUFLEN);
     memset(buffer_recv, 0, MAXBUFLEN);
+    send_guard = 0;
+    recv_guard = 0;
 }
 
 
@@ -228,20 +230,34 @@ bool net_trans::buf_return()
 bool net_trans::net_send(const char*buf, int len)
 {
     bool ret;
-   int numsnt=send(usingSocket, buf, len, NO_FLAGS_SET);  
+    InterlockedIncrement(&send_guard);
+    while(send_guard > 1){
+        df("net_send in process, waiting...");
+        Sleep(50);
+        df("net_send in process, waiting done...");
+    }
+    int numsnt=send(usingSocket, buf, len, NO_FLAGS_SET);
     df("%s %p %d ret %d", __func__, buf, len, numsnt);
-   if(numsnt == len)
-       ret = true;
-   else
-       ret = false;
-   return ret;
+    if(numsnt == len)
+        ret = true;
+    else
+        ret = false;
+    InterlockedDecrement(&send_guard);
+    return ret;
 }
 
 char* net_trans::net_recv(int*len)
 {
+    char* ret;
+    InterlockedIncrement(&recv_guard);
+    while(recv_guard > 1){
+        df("net_recv in process, waiting...");
+        Sleep(50);
+        df("net_recv in process, waiting done...");
+    }
    int numrcv=recv(usingSocket, buffer_recv, MAXBUFLEN, NO_FLAGS_SET);
    if ((numrcv == 0) || (numrcv == SOCKET_ERROR)){
-       return NULL;
+       ret = NULL;
    }
    else{
        df("net_recv:%d", numrcv);
@@ -249,13 +265,15 @@ char* net_trans::net_recv(int*len)
            memcpy(buffer_out, buffer_recv, numrcv);
            bufout_ready = false;
            *len=numrcv;
-           return buffer_out;
+           ret = buffer_out;
        }
        else{
            df("net_recv:data lost");
            received_data_lost = true;
-           return NULL;
+           ret = NULL;
        }
    }
+    InterlockedDecrement(&recv_guard);
+    return ret;
 }
 

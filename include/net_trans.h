@@ -47,6 +47,8 @@ class net_trans
         char buffer_recv[MAXBUFLEN];
         net_trans_status connect_status;
         bool bufout_ready;
+        LONG volatile send_guard;
+        LONG volatile recv_guard;
 };
 
 #endif
