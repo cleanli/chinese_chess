@@ -10,6 +10,8 @@ const char* pk_type_str[]={
     "SET_TIMEOUT",
     "ACK",
     "APP_QUIT",
+    "TIMER_PAUSE",
+    "HANDSHAKE",
     "STRING"
 };
 

@@ -272,20 +272,27 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
             }
         }
         if(timer_guard == 1){
+            static int count = 0;
             static int last_error = 0;
-            if(remote_side->get_error_status()){
-                static int count = 0;
-                //MessageBox(hwnd, "Connection is ERROR", "Notice", MB_ICONQUESTION);
-                if(count++>10){
-                    MESS_PRINT("%s", gp_text_rc->text_message_net_error);
-                    debug_str_dump(gp_text_rc->text_message_net_error);
-                    count = 0;
+            if(count++>(9+running_mode)){//make server & client not same interval
+                count = 0;
+                //1 second doing things
+                if(remote_side->is_ready()){
+                    df("send hand shake package");
+                    remote_side->send_cmd(HANDSHAKE);
                 }
-                last_error = 1;
+                //check net error status
+                if(remote_side->get_error_status()){
+                    MESS_PRINT("%s", gp_text_rc->text_message_net_error);
+                    //debug_str_dump(gp_text_rc->text_message_net_error);
+                    //MessageBox(hwnd, "Connection is ERROR", "Notice", MB_ICONQUESTION);
+                    last_error = 1;
+                }
             }
-            else if(last_error == 1){
+            if(last_error == 1 &&
+                    !remote_side->get_error_status()){
                 MESS_PRINT("%s", gp_text_rc->text_message_net_recover);
-                debug_str_dump(gp_text_rc->text_message_net_recover);
+                //debug_str_dump(gp_text_rc->text_message_net_recover);
                 last_error = 0;
             }
         }

@@ -24,6 +24,7 @@ enum package_type{
     ACK,
     APP_QUIT,
     TIMER_PAUSE,
+    HANDSHAKE,
     STRING
 };
 
