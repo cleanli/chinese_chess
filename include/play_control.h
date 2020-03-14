@@ -24,7 +24,7 @@
 #define QIPAN_LOAD_POINT_X 0
 #define QIPAN_LOAD_POINT_Y 0
 #define BUILD_MESSAGE_Y 720
-#define RIGHT_CONTROL_X 700
+#define RIGHT_CONTROL_X 705
 #define RIGHT_CONTROL_Y 5
 //display end
 enum RUN_MODE

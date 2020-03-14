@@ -549,18 +549,59 @@ LRESULT CALLBACK WindowProc(
                 //create three button
                 CreateWindow("Button", gp_text_rc->text_start_up, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         dpx, dpy, 60, 20, hwnd, (HMENU)IDB_FIVE, hg_app, NULL);
+                dpx+=5;
+                dpy+=23;
+                rb3Hd = CreateWindow("Button", gp_text_rc->text_local,
+                        WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP,
+                        dpx, dpy, 80, 20,
+                        hwnd,(HMENU)IDC_RADBTN3,hg_app,NULL);
+                HWND hdtmp = GetDlgItem(hwnd, IDC_RADBTN3);
+                SendMessage(hdtmp, BM_SETCHECK, 1, 0);
+                dpy+=23;
+                rb1Hd = CreateWindow("Button",gp_text_rc->text_server,
+                        WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
+                        dpx, dpy, 80, 20,
+                        hwnd,
+                        (HMENU)IDC_RADBTN1,
+                        hg_app,NULL);
+                dpy+=23;
+                seripHd = CreateWindow("Static","server ip",
+                        SS_SIMPLE | WS_CHILD | WS_VISIBLE,
+                        dpx+15,dpy,150,20,
+                        hwnd, NULL,
+                        hg_app,
+                        NULL);
+                dpy+=23;
+                rb2Hd = CreateWindow("Button",gp_text_rc->text_client,
+                        WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
+                        dpx, dpy, 80, 20,
+                        hwnd,(HMENU)IDC_RADBTN2,hg_app,NULL);
+                dpy+=23;
+                //CreateWindow(TEXT("edit"),TEXT("myedit"),WS_CHILD|WS_VISIBLE|WS_VSCROLL|WS_BORDER|ES_LEFT|ES_MULTILINE|ES_AUTOVSCROLL,
+                editHd = CreateWindow(TEXT("edit"),TEXT(g_cconfig.ip),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT,
+                        dpx+15, dpy, 160, 20, hwnd,(HMENU)ID_DATA, hg_app,NULL);
+                dpy+=50;
+                MessageHd = CreateWindow("Static","message\r\nmore message will be shown here. This is only test message",
+                        WS_CHILD | WS_VISIBLE,
+                        dpx-5,dpy,185,400,
+                        hwnd, (HMENU)IDS_MESSAGE,
+                        hg_app,
+                        NULL);
+                //////
+                dpy+=450;
                 Button1Hd = CreateWindow("Button", gp_text_rc->text_switch, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        60, 610, 60, 20, hwnd, (HMENU)IDB_ONE, hg_app, NULL);
+                        dpx-5, dpy, 60, 20, hwnd, (HMENU)IDB_ONE, hg_app, NULL);
                 Button2Hd = CreateWindow("Button", gp_text_rc->text_start, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        135, 610, 60, 20, hwnd, (HMENU)IDB_TWO, hg_app, NULL);
+                        dpx+59, dpy, 60, 20, hwnd, (HMENU)IDB_TWO, hg_app, NULL);
                 Button3Hd = CreateWindow("Button", gp_text_rc->text_drawn, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        215, 610, 60, 20, hwnd, (HMENU)IDB_THREE, hg_app, NULL);
+                        dpx+123, dpy, 60, 20, hwnd, (HMENU)IDB_THREE, hg_app, NULL);
+                dpy+=30;
                 Button4Hd = CreateWindow("Button", gp_text_rc->text_give, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        290, 610, 60, 20, hwnd, (HMENU)IDB_FOUR, hg_app, NULL);
+                        dpx-5, dpy, 60, 20, hwnd, (HMENU)IDB_FOUR, hg_app, NULL);
+                ButtonLoadHd = CreateWindow("Button", gp_text_rc->text_load, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                        dpx+59, dpy, 60, 20, hwnd, (HMENU)IDB_LOAD, hg_app, NULL);
                 ButtonPauseHd = CreateWindow("Button", gp_text_rc->text_pause, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         7, 220, 40, 20, hwnd, (HMENU)IDB_PAUSE, hg_app, NULL);
-                ButtonLoadHd = CreateWindow("Button", gp_text_rc->text_load, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        365, 610, 60, 20, hwnd, (HMENU)IDB_LOAD, hg_app, NULL);
                 EnableWindow(Button1Hd, false);
                 EnableWindow(Button2Hd, false);
                 EnableWindow(Button3Hd, false);
@@ -568,43 +609,6 @@ LRESULT CALLBACK WindowProc(
                 EnableWindow(ButtonLoadHd, false);
                 enable_by_id(IDM_OPT1, 0);
                 enable_by_id(IDM_OPT2, 0);
-                //CreateWindow(TEXT("edit"),TEXT("myedit"),WS_CHILD|WS_VISIBLE|WS_VSCROLL|WS_BORDER|ES_LEFT|ES_MULTILINE|ES_AUTOVSCROLL,
-                editHd = CreateWindow(TEXT("edit"),TEXT(g_cconfig.ip),WS_CHILD|WS_VISIBLE|WS_BORDER|ES_LEFT,
-                        100, 73, 190, 20, hwnd,(HMENU)ID_DATA, hg_app,NULL);
-                // y cordinate, base
-                int yLoc = 0;
-                // text
-                yLoc += 10;
-                seripHd = CreateWindow("Static","server ip",
-                        SS_SIMPLE | WS_CHILD | WS_VISIBLE,
-                        100,50,160,20,
-                        hwnd, NULL,
-                        hg_app,
-                        NULL);
-                // group 1
-                yLoc += 20;
-                rb3Hd = CreateWindow("Button", gp_text_rc->text_local,
-                        WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP,
-                        10, 27, 80, 20,
-                        hwnd,(HMENU)IDC_RADBTN3,hg_app,NULL);
-                HWND hdtmp = GetDlgItem(hwnd, IDC_RADBTN3);
-                SendMessage(hdtmp, BM_SETCHECK, 1, 0);
-                rb1Hd = CreateWindow("Button",gp_text_rc->text_server,
-                        WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-                        10, 50, 80, 20,
-                        hwnd,
-                        (HMENU)IDC_RADBTN1,
-                        hg_app,NULL);
-                rb2Hd = CreateWindow("Button",gp_text_rc->text_client,
-                        WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-                        10, 73, 80, 20,
-                        hwnd,(HMENU)IDC_RADBTN2,hg_app,NULL);
-                MessageHd = CreateWindow("Static","message\r\nmore message will be shown here. This is only test message",
-                        WS_CHILD | WS_VISIBLE,
-                        300,0,225,100,
-                        hwnd, (HMENU)IDS_MESSAGE,
-                        hg_app,
-                        NULL);
                 tmrLocalHd = CreateWindow("Static","local",
                         SS_SIMPLE | WS_CHILD | WS_VISIBLE,
                         3,450,250,60,
