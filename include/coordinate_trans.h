@@ -2,11 +2,12 @@
 #define _COORDINATE_TRANS_H
 #include "ch_chess.h"
 
-#define CELL_SIZE (364.0f/8)
-#define CHESS_BOARD_X_START 104.0f
-#define CHESS_BOARD_Y_START 154.0f
-#define CHESS_BOARD_X_END 468.0f
-#define CHESS_BOARD_Y_END 556.0f
+#define CHESS_BOARD_X_START 129.0f
+#define CHESS_BOARD_Y_START 59.0f
+#define CHESS_BOARD_X_END 645.0f
+#define CHESS_BOARD_Y_END 639.0f
+#define CHESS_PIECE_SIZE 50.0f
+#define CELL_SIZE ((CHESS_BOARD_X_END-CHESS_BOARD_X_START)/8)
 
 class c_coordinate_trans
 {

@@ -1024,7 +1024,7 @@ LRESULT CALLBACK WindowProc(
                         chess_piece * cptmp = g_chess_game.get_cp((CHESS_PIECES_INDEX)i);
                         if(cptmp && cptmp->is_alive()){
                             //MESS_PRINT("bitblt %d %d",  cptmp->get_p_x(), cptmp->get_p_y());
-                            BitBlt(hdc, g_cdtts.chess_to_screen_x(cptmp->get_p_x())-CELL_SIZE/2, g_cdtts.chess_to_screen_y(cptmp->get_p_y())-CELL_SIZE/2, rt.right, rt.bottom, s_hdcMemCP[cp_display_map[i]], 0, 0, SRCCOPY);
+                            BitBlt(hdc, g_cdtts.chess_to_screen_x(cptmp->get_p_x())-CHESS_PIECE_SIZE/2, g_cdtts.chess_to_screen_y(cptmp->get_p_y())-CHESS_PIECE_SIZE/2, rt.right, rt.bottom, s_hdcMemCP[cp_display_map[i]], 0, 0, SRCCOPY);
                         }
                     }
 #else
