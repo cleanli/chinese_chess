@@ -739,7 +739,12 @@ LRESULT CALLBACK WindowProc(
                             local_player = (local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED;
                             g_cdtts.set_revert(local_player == SIDE_RED);
                             chess_playing_handle[local_player] = SCREEN_CLICK_TYPE;
-                            chess_playing_handle[(local_player == SIDE_RED)?SIDE_BLACK:SIDE_RED] = NET_TYPE;
+                            if(running_mode == LOCAL_MODE){
+                                chess_playing_handle[OTHER_SIDE(local_player)] = SCREEN_CLICK_TYPE;
+                            }
+                            else{
+                                chess_playing_handle[OTHER_SIDE(local_player)] = NET_TYPE;
+                            }
                             g_chess_game.set_timeout(local_player, g_cconfig.timeout);
                             if(remote_side->is_ready()){
                                 trans_package* tp_tmp = remote_side->get_trans_pack_buf();
