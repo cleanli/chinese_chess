@@ -4,9 +4,9 @@
 #include "debug.h"
 
 ch_config::ch_config()
-    :timeout(300),
-    log(0),
-    language(0)
+    :timeout(400),
+    log(1),
+    language(1)
 {
     strcpy(ip, "127.0.0.1");
 };
