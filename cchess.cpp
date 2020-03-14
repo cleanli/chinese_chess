@@ -622,7 +622,8 @@ LRESULT CALLBACK WindowProc(
             //SetWindowLong(hwnd, GWL_STYLE, GetWindowLong(hwnd, GWL_STYLE) | WS_SIZEBOX);
             // load image
 #if 1
-            hBitmap = (HBITMAP)LoadImage(NULL, "qipan.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+            //hBitmap = (HBITMAP)LoadImage(NULL, "qipan.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+            hBitmap = LoadBitmap((HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),MAKEINTRESOURCE(QIPAN_BMP));
             if (hBitmap == NULL)
             {
                 //MessageBox(hwnd, "LoadImage failed", "Error", MB_ICONERROR);
