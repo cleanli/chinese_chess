@@ -9,6 +9,7 @@
 #include "remote_player.h"
 #include "config.h"
 #include "text_rc.h"
+#include "rc.h"
 
 #define IDR_CONTEXT  200
 #define IDM_OPT1     301
@@ -380,6 +381,7 @@ int CALLBACK WinMain(
     wc.hInstance = hInstance;
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wc.style = CS_HREDRAW | CS_VREDRAW;
+    wc.hIcon  = LoadIcon (hInstance,(LPCTSTR)(MAIN_CHESS_ICON));
     // register windows class
     RegisterClass(&wc);
 

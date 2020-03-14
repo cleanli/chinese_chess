@@ -13,8 +13,9 @@
  * 0.995 chinese move step output
  * 0.996 chinese move step output
  * 0.997 add connect reset"
- * */
 #define VERSION "0.998 add timer pause"
+ * */
+#define VERSION "0.999 add icon"
 #define PORT_NUM 34567
 enum RUN_MODE
 {
