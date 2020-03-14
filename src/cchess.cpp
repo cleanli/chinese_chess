@@ -1188,6 +1188,7 @@ LRESULT CALLBACK WindowProc(
 
 void CreateMyMenu()
 {
+    static char menu_char[]= "timeout+50";
     hRoot = CreateMenu();
     if(!hRoot)
         return;
@@ -1206,8 +1207,8 @@ void CreateMyMenu()
     MENUITEMINFO mif;
     mif.cbSize = sizeof(MENUITEMINFO);
     mif.cch = 100;
-    mif.dwItemData  = NULL;
-    mif.dwTypeData = "timeout+50";
+    mif.dwItemData  = (ULONG_PTR)NULL;
+    mif.dwTypeData = menu_char;
     mif.fMask = MIIM_ID | MIIM_STRING | MIIM_STATE;
     mif.fState = MFS_ENABLED;
     mif.fType = MIIM_STRING;
