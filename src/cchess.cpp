@@ -293,7 +293,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                     count = 0;
                     //1 second doing things
                     if(remote_side->is_ready()){
-                        df("send hand shake package");
+                        //df("send hand shake package");
                         remote_side->send_cmd(HANDSHAKE);
                     }
                     //check net error status

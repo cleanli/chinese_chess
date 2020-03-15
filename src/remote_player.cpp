@@ -201,14 +201,14 @@ trans_package* net_remote_player::get_recved_ok()
     error_status = 0;
     df("%s pk_id %d p_type:%d %s", __func__, tpg.pk_id, tpg.p_type, pk_type_str[tpg.p_type]);
     if(tpg.p_type == ACK){
-        df("pending pk id %d", pending_pk_id);
+        //df("pending pk id %d", pending_pk_id);
         if(pending_pk_id == tpg.pk_id){
-            df("pending last=%d, cleared", pk_pending_last);
+            //df("pending last=%d, cleared", pk_pending_last);
             pk_pending_last = 0;
             pending_pk_id = 0;
         }
         if(handshake_pending_pk_id == tpg.pk_id){
-            df("handshake pending last=%d, cleared", handshake_pk_pending_last);
+            //df("handshake pending last=%d, cleared", handshake_pk_pending_last);
             handshake_pk_pending_last = 0;
             handshake_pending_pk_id = 0;
         }
@@ -229,7 +229,7 @@ bool net_remote_player::send_package(trans_package*tp)
 
     if(tp->p_type == ACK){
         ret = mynt.net_send((const char*)tp, sizeof(trans_package));
-        df("send ack of id %d return %d", tp->pk_id, ret);
+        //df("send ack of id %d return %d", tp->pk_id, ret);
     }
     else if(tp->p_type == HANDSHAKE){
         tp->pk_id = current_pk_id++;
