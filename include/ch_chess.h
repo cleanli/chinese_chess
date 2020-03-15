@@ -29,8 +29,8 @@ const char GBK_guard[2][2] = {
     {(char)0xca, (char)0xbf},
 };
 const char GBK_minister[2][2] = {
-    {(char)0xcf, (char)0xf3},
     {(char)0xcf, (char)0xe0},
+    {(char)0xcf, (char)0xf3},
 };
 const char GBK_knight[2][2] = {
     {(char)0xf1, (char)0x52},
