@@ -175,8 +175,8 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                                     char*tmpcharp;
                                     ret = g_chess_game.moveto_point(tptmp->pd.ch_move_step.x2,
                                             tptmp->pd.ch_move_step.y2, &tmpcharp);
-                                    if(*tmpcharp){
-                                        MESS_PRINT("%s", *tmpcharp);
+                                    if(tmpcharp){
+                                        MESS_PRINT("%s", tmpcharp);
                                     }
                                 }
                                 if(ret){
