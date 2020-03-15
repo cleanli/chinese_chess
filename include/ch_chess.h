@@ -230,6 +230,7 @@ class chess_game{
         void review_prev();
         void start();
         void set_timer_pause();
+        void set_timer_pause(bool);
         void set_win(PLAYING_SIDE, WIN_REASON);
         void set_timeout(PLAYING_SIDE, int t);
         void set_idleside_timeout(int t);

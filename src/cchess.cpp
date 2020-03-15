@@ -289,11 +289,16 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                     last_error = 1;
                 }
             }
-            if(last_error == 1 &&
-                    !remote_side->get_error_status()){
-                MESS_PRINT("%s", gp_text_rc->text_message_net_recover);
-                //debug_str_dump(gp_text_rc->text_message_net_recover);
-                last_error = 0;
+            if(remote_side->get_error_status()){
+                g_chess_game.set_timer_pause(true);
+            }
+            else{
+                if(last_error == 1){
+                    MESS_PRINT("%s", gp_text_rc->text_message_net_recover);
+                    //debug_str_dump(gp_text_rc->text_message_net_recover);
+                    last_error = 0;
+                    g_chess_game.set_timer_pause(false);
+                }
             }
         }
         InterlockedDecrement(&timer_guard);

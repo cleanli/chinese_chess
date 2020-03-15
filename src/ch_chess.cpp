@@ -255,6 +255,11 @@ bool chess_game::is_saved()
     return saved;
 }
 
+void chess_game::set_timer_pause(bool s)
+{
+    is_pause = s;
+}
+
 void chess_game::set_timer_pause()
 {
     is_pause = !is_pause;
