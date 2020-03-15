@@ -574,8 +574,9 @@ bool chess_game::choose_point(int x, int y)
         return false;
 }
 
-bool chess_game::moveto_point(int x, int y)
+bool chess_game::moveto_point(int x, int y, char**chinese_step)
 {
+    *chinese_step = NULL;
     if(cpes_board[y][x] != NULL &&
             current_playing_side == cpes_board[y][x]->get_cp_side()){
         choosen_cp = cpes_board[y][x];
@@ -594,6 +595,7 @@ bool chess_game::moveto_point(int x, int y)
             //chinese move record
             {
                 char*ch_steps = chinese_move_steps[running_step];
+                *chinese_step = ch_steps;
                 int vertical_n;
                 int dy=(y>choosen_cp->get_p_y())?y-choosen_cp->get_p_y():choosen_cp->get_p_y()-y;
                 ch_steps[0]=choosen_cp->chinese_name[0];

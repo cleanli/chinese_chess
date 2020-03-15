@@ -34,9 +34,10 @@
 
 #define IDS_MESSAGE 51004
 
-#define MESS_SIZE 120
-static char mpbuf0[256];
-static char mpbuf1[256];
+#define MESS_SIZE 480
+#define MPBUF_SIZE 512
+static char mpbuf0[MPBUF_SIZE];
+static char mpbuf1[MPBUF_SIZE];
 static char* mpbuf[2]={mpbuf0, mpbuf1};
 static int mpbuf_index = 0;
 char debug_buf[1024];
@@ -171,8 +172,12 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                                             tptmp->pd.ch_move_step.y1);
                                 }
                                 if(ret){
+                                    char*tmpcharp;
                                     ret = g_chess_game.moveto_point(tptmp->pd.ch_move_step.x2,
-                                            tptmp->pd.ch_move_step.y2);
+                                            tptmp->pd.ch_move_step.y2, &tmpcharp);
+                                    if(*tmpcharp){
+                                        MESS_PRINT("%s", *tmpcharp);
+                                    }
                                 }
                                 if(ret){
                                     InvalidateRect(hwnd,NULL,TRUE);
@@ -1010,6 +1015,7 @@ LRESULT CALLBACK WindowProc(
                 int x = GET_X_LPARAM(lParam);
                 int y = GET_Y_LPARAM(lParam);
                 df("left mouse %d %d", x, y);
+                MESS_PRINT("left mouse %d %d", x, y);
                 if(PLAYING_STATE == g_chess_game.get_running_state() &&
                         (SCREEN_CLICK_TYPE == chess_playing_handle[g_chess_game.get_current_playing_side()]) &&
                         g_cdtts.is_in_chessboard(x,y))
@@ -1021,7 +1027,8 @@ LRESULT CALLBACK WindowProc(
                         ret = g_chess_game.choose_point(chess_x, chess_y);
                     }
                     else{
-                        ret = g_chess_game.moveto_point(chess_x, chess_y);
+                        char*tmpcharp;
+                        ret = g_chess_game.moveto_point(chess_x, chess_y, &tmpcharp);
                         if(g_chess_game.get_choosen_cp() == NULL){
                             move_step*mstmp=g_chess_game.get_lastmove();
                             trans_package* tp_tmp = remote_side->get_trans_pack_buf();
@@ -1033,6 +1040,9 @@ LRESULT CALLBACK WindowProc(
                             tp_tmp->pd.timeout = g_chess_game.get_timeout(local_player);
                             if(remote_side->is_ready()){
                                 remote_side->send_package(tp_tmp);
+                            }
+                            if(tmpcharp){
+                                MESS_PRINT("%s", tmpcharp);
                             }
                             df("move %d-%d-%d-%d",
                                     tp_tmp->pd.ch_move_step.x1,

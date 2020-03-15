@@ -237,7 +237,7 @@ class chess_game{
         void switch_turn();
         bool request_drawn_side(PLAYING_SIDE);
         bool choose_point(int x, int y);
-        bool moveto_point(int x, int y);
+        bool moveto_point(int x, int y, char**);
         move_step *get_lastmove();
         chess_piece* get_choosen_cp();
         chess_piece* get_cp(int, int);
