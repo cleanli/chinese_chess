@@ -959,21 +959,14 @@ LRESULT CALLBACK WindowProc(
                         {
                             df("button 5 clicked");
                             if(running_mode != TBD){
-                                df("reset connection");
                                 if(running_mode == CLIENT_MODE){
-                                    remote_side->deinit();
                                     MESS_PRINT("Reset client");
-                                    memset(strbuf, 0, 128);
-                                    GetWindowText(editHd, strbuf, 128);
-                                    strcpy(g_cconfig.ip, strbuf);
-                                    df("ip input:%s", strbuf);
-                                    remote_side->init(strbuf,(u_short)PORT_NUM);
                                 }
                                 else if(running_mode == SERVER_MODE){
-                                    remote_side->deinit();
-                                    remote_side->init(NULL,(u_short)PORT_NUM);
                                     MESS_PRINT("Reset server");
                                 }
+                                df("reset connection");
+                                remote_side->reset_connect();
                                 break;
                             }
                             g_chess_game.reset();

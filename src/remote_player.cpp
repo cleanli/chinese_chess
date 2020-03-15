@@ -93,6 +93,7 @@ net_remote_player::net_remote_player()
     pk_pending_last(0),
     handshake_pk_pending_last(0),
     send_package_guard(0),
+    reset_connect_guard(0),
     current_pk_id(1)
 {
     df("net remote start\n\r");
@@ -109,7 +110,15 @@ net_remote_player::~net_remote_player()
 bool net_remote_player::init(const char*ip, u_short port)
 {
     //connec_is_rdy = true;
-    mip = ip;
+    if(ip != NULL){
+        if(store_ip != ip){//avoid self copy
+            strcpy(store_ip, ip);
+            mip = store_ip;
+        }
+    }
+    else{
+        mip = NULL;
+    }
     mport = port;
     df("net_remote_player::init");
     memset(&tpg, 0, sizeof(trans_package));
@@ -275,12 +284,29 @@ DWORD WINAPI net_remote_player::init_thread_func(LPVOID lpThreadParameter)
         //p->connec_is_rdy=false;
         p->init_state=FAILED;
     }
+    InterlockedDecrement(&p->reset_connect_guard);
+    df("%s --", __func__);
     return 0;
 }
 
 void net_remote_player::set_quit()
 {
     connec_is_rdy=false;
+}
+
+void net_remote_player::reset_connect()
+{
+    df("%s +", __func__);
+    InterlockedIncrement(&reset_connect_guard);
+    if(reset_connect_guard > 1){
+        df("net reset is still running, return");
+        InterlockedDecrement(&reset_connect_guard);
+        df("%s -", __func__);
+        return;
+    }
+    mynt.deinit();
+    init(mip, mport);
+    df("%s -", __func__);
 }
 
 void net_remote_player::deinit()

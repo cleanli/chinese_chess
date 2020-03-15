@@ -52,6 +52,7 @@ class remote_player
         virtual bool send_ack(int id)=0;
         virtual void deinit()=0;
         virtual void set_quit(){};
+        virtual void reset_connect(){};
         net_init_state get_init_state()
         {
             return init_state;
@@ -90,9 +91,11 @@ class net_remote_player:public remote_player
         bool send_ack(int id);
         void set_quit();
         void deinit();
+        void reset_connect();
         ~net_remote_player();
     private:
-        const char*mip;
+        char* mip;
+        char store_ip[64];
         u_short mport;
         net_trans mynt;
         int data_left_len;
@@ -107,6 +110,7 @@ class net_remote_player:public remote_player
         int handshake_pk_pending_last;
         static DWORD WINAPI init_thread_func(LPVOID lpThreadParameter);
         LONG volatile send_package_guard;
+        LONG volatile reset_connect_guard;
 
 };
 
