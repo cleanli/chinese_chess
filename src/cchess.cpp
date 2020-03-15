@@ -95,6 +95,7 @@ PLAYING_SIDE local_player = SIDE_BLACK;
 //remote_player* remote_side = new dummy_remote_player();
 remote_player* remote_side = new net_remote_player();
 
+void show_message(char*ms);
 void save_chess_game();
 void mode_init(HWND hwnd);
 void message_print(const char *fmt, ...);
@@ -593,6 +594,11 @@ void timer_init(HWND hwnd)
 
 }
 
+void show_message(char*ms)
+{
+    MESS_PRINT("%s", ms);
+}
+
 void enable_by_id(int id, int enable)
 {
     HWND hdtmp = GetDlgItem(mainHd, id);
@@ -618,6 +624,7 @@ LRESULT CALLBACK WindowProc(
     {
         case WM_CREATE:
             {
+                g_chess_game.set_show_message(show_message);
                 int dpx = RIGHT_CONTROL_X, dpy = RIGHT_CONTROL_Y;
                 //create three button
                 CreateWindow("Button", gp_text_rc->text_start_up, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
@@ -803,6 +810,7 @@ LRESULT CALLBACK WindowProc(
                         if(END_STATE == g_chess_game.get_running_state() ||
                                 REVIEW_STATE == g_chess_game.get_running_state()){
                             g_chess_game.review_reset();
+                            MESS_PRINT("%s", gp_text_rc->text_review);
                             InvalidateRect(hwnd,NULL,TRUE);
                             SetWindowText(Button4Hd, gp_text_rc->text_prev);
                             SetWindowText(Button3Hd, gp_text_rc->text_next);
@@ -1069,7 +1077,7 @@ LRESULT CALLBACK WindowProc(
                                 remote_side->send_package(tp_tmp);
                             }
                             if(tmpcharp){
-                                MESS_PRINT("%s", tmpcharp);
+                                //MESS_PRINT("%s", tmpcharp);
                             }
                             df("move %d-%d-%d-%d",
                                     tp_tmp->pd.ch_move_step.x1,

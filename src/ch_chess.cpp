@@ -271,6 +271,11 @@ char* chess_game::save_hint()
     return starttime;
 }
 
+void chess_game::set_show_message(callback_show_message c)
+{
+    csm = c;
+}
+
 bool chess_game::read_step(const char*input)
 {
     saved=true;
@@ -349,6 +354,7 @@ chess_game::chess_game(int timeout)
     black_saved_timeout(timeout),
     running_state(UNINIT_STATE),
     choosen_cp(NULL),
+    csm(NULL),
     red_request_drawn(false),
     black_request_drawn(false),
     current_playing_side(SIDE_RED)
@@ -725,6 +731,9 @@ bool chess_game::moveto_point(int x, int y, char**chinese_step)
                         ch_steps[7]=GBK_number[choosen_cp->get_cp_side()][8-x][1];
                     }
                 }
+                if(csm){
+                    csm(ch_steps);
+                }
             }
             //chinese move record end
         }
@@ -827,6 +836,9 @@ void chess_game::set_win(PLAYING_SIDE sd, WIN_REASON rs)
                 ch_steps[6] = 0;
                 strcat(ch_steps, tmp);
                 break;
+        }
+        if(csm){
+            csm(ch_steps);
         }
     }
     //dump_steps();

@@ -162,6 +162,8 @@ enum CHESS_PIECES_INDEX
     CP_NUM_MAX//32
 };
 
+typedef void (*callback_show_message)(char*);
+
 struct cp_create_info{
     CHESS_PIECE_TYPE cp_tp;
     PLAYING_SIDE cp_sd;
@@ -249,12 +251,14 @@ class chess_game{
         void timer_click();
         chess_piece* create_cp(const cp_create_info*);
         void set_starttime(char*);
+        void set_show_message(callback_show_message);
         char* save_hint();
         char* get_save_line();
         bool read_step(const char*);
         bool is_saved();
         ~chess_game();
     private:
+        callback_show_message csm;
         bool is_pause;
         chess_piece* dead_link_head;
         chess_piece* choosen_cp;
