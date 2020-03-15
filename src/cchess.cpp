@@ -187,7 +187,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                             }
                             df("remote timeout %d local %d",
                                     tptmp->pd.timeout, g_chess_game.get_timeout(OTHER_SIDE(local_player)));
-                            g_chess_game.set_idleside_timeout(tptmp->pd.timeout);
+                            g_chess_game.set_idleside_timeout(tptmp->pd.timeout+10);
                         }
                         break;
                     case REQUEST_DRAWN:
