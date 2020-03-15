@@ -63,8 +63,6 @@ class remote_player
         int error_status;
         bool connec_is_rdy;
         trans_package tpg;
-        trans_package tpg_bak;
-        trans_package ack_tpg;
         net_init_state init_state;
 };
 class dummy_remote_player:public remote_player
@@ -98,9 +96,15 @@ class net_remote_player:public remote_player
         int data_left_len;
         char* data_left_buf;
         int current_pk_id;
+        trans_package tpg_bak;
+        trans_package ack_tpg;
         int pending_pk_id;
         int pk_pending_last;
+        trans_package handshake_tpg;
+        int handshake_pending_pk_id;
+        int handshake_pk_pending_last;
         static DWORD WINAPI init_thread_func(LPVOID lpThreadParameter);
+        LONG volatile send_package_guard;
 
 };
 

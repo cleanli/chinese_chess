@@ -49,6 +49,7 @@ text_rc* gp_text_rc = &eng_tr;
 #define CONNECT_WAITING 1
 #define CONNECT_DONE 2
 int wait_net_connect = CONNECT_NOT_STARTED;
+int handshake_enable = 1;
 
 #define MESS_PRINT(fmt,arg...) \
     {   \
@@ -268,6 +269,8 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         //MessageBox(hwnd, "Remote side have left", "Notice", MB_ICONQUESTION);
                         MESS_PRINT("%s", gp_text_rc->text_message_leave);
                         break;
+                    case HANDSHAKE:
+                        break;
                     case STRING:
                         MESS_PRINT("remote str:%s", tptmp->pd.str_message);
                         break;
@@ -275,34 +278,38 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         break;
                 }
             }
-        }
-        if(timer_guard == 1){
-            static int count = 0;
-            static int last_error = 0;
-            if(count++>(9+running_mode)){//make server & client not same interval
-                count = 0;
-                //1 second doing things
-                if(remote_side->is_ready()){
-                    df("send hand shake package");
-                    remote_side->send_cmd(HANDSHAKE);
+            if(handshake_enable){
+                static int count = 0;
+                static int last_error = 0;
+                int count_max = 10;
+                if(running_mode==CLIENT_MODE){//make server & client not same interval
+                    count_max = 24;
                 }
-                //check net error status
+                if(count++>count_max){
+                    count = 0;
+                    //1 second doing things
+                    if(remote_side->is_ready()){
+                        df("send hand shake package");
+                        remote_side->send_cmd(HANDSHAKE);
+                    }
+                    //check net error status
+                    if(remote_side->get_error_status()){
+                        MESS_PRINT("%s", gp_text_rc->text_message_net_error);
+                        //debug_str_dump(gp_text_rc->text_message_net_error);
+                        //MessageBox(hwnd, "Connection is ERROR", "Notice", MB_ICONQUESTION);
+                        last_error = 1;
+                    }
+                }
                 if(remote_side->get_error_status()){
-                    MESS_PRINT("%s", gp_text_rc->text_message_net_error);
-                    //debug_str_dump(gp_text_rc->text_message_net_error);
-                    //MessageBox(hwnd, "Connection is ERROR", "Notice", MB_ICONQUESTION);
-                    last_error = 1;
+                    g_chess_game.set_timer_pause(true);
                 }
-            }
-            if(remote_side->get_error_status()){
-                g_chess_game.set_timer_pause(true);
-            }
-            else{
-                if(last_error == 1){
-                    MESS_PRINT("%s", gp_text_rc->text_message_net_recover);
-                    //debug_str_dump(gp_text_rc->text_message_net_recover);
-                    last_error = 0;
-                    g_chess_game.set_timer_pause(false);
+                else{
+                    if(last_error == 1){
+                        MESS_PRINT("%s", gp_text_rc->text_message_net_recover);
+                        //debug_str_dump(gp_text_rc->text_message_net_recover);
+                        last_error = 0;
+                        g_chess_game.set_timer_pause(false);
+                    }
                 }
             }
         }
@@ -1015,7 +1022,7 @@ LRESULT CALLBACK WindowProc(
                 int x = GET_X_LPARAM(lParam);
                 int y = GET_Y_LPARAM(lParam);
                 df("left mouse %d %d", x, y);
-                MESS_PRINT("left mouse %d %d", x, y);
+                //MESS_PRINT("left mouse %d %d", x, y);
                 if(PLAYING_STATE == g_chess_game.get_running_state() &&
                         (SCREEN_CLICK_TYPE == chess_playing_handle[g_chess_game.get_current_playing_side()]) &&
                         g_cdtts.is_in_chessboard(x,y))

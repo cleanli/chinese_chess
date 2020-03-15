@@ -91,6 +91,8 @@ remote_player::remote_player()
 net_remote_player::net_remote_player()
   : data_left_len(0),
     pk_pending_last(0),
+    handshake_pk_pending_last(0),
+    send_package_guard(0),
     current_pk_id(1)
 {
     df("net remote start\n\r");
@@ -111,6 +113,8 @@ bool net_remote_player::init(const char*ip, u_short port)
     mport = port;
     df("net_remote_player::init");
     memset(&tpg, 0, sizeof(trans_package));
+    memset(&ack_tpg, 0, sizeof(trans_package));
+    memset(&handshake_tpg, 0, sizeof(trans_package));
     DWORD dwThreadID;
     HANDLE hHandle = CreateThread(0, 0, init_thread_func, (LPVOID)this, 0, &dwThreadID);
     return true;
@@ -147,10 +151,19 @@ trans_package* net_remote_player::get_recved_ok()
             df("can't re-send last failed package, data lost");
         }
     }
+    if(handshake_pending_pk_id){
+        handshake_pk_pending_last++;
+    }
+    if(handshake_pk_pending_last > MAX_PK_PENDING){
+        bool ret;
+        error_status = 1;
+        df("Error! last handshake package didn't get ack! id %d last %d",
+                handshake_pending_pk_id, handshake_pk_pending_last);
+    }
     if(pk_pending_last > ERROR_PK_PENDING){
         df("connection is error, stop send/recv");
         error_status = 1;
-        connec_is_rdy = false;
+        //connec_is_rdy = false;
     }
     //check pk id ack end
     if(data_left_len == 0){
@@ -176,15 +189,19 @@ trans_package* net_remote_player::get_recved_ok()
             mynt.buf_return();
         }
     }
-    df("%s p_type:%d %s", __func__, tpg.p_type, pk_type_str[tpg.p_type]);
-    df("ack of package id %d, pending pk id %d",
-            tpg.pk_id, pending_pk_id);
+    error_status = 0;
+    df("%s pk_id %d p_type:%d %s", __func__, tpg.pk_id, tpg.p_type, pk_type_str[tpg.p_type]);
     if(tpg.p_type == ACK){
+        df("pending pk id %d", pending_pk_id);
         if(pending_pk_id == tpg.pk_id){
-            df("pending %d clear", pk_pending_last);
+            df("pending last=%d, cleared", pk_pending_last);
             pk_pending_last = 0;
             pending_pk_id = 0;
-            error_status = 0;
+        }
+        if(handshake_pending_pk_id == tpg.pk_id){
+            df("handshake pending last=%d, cleared", handshake_pk_pending_last);
+            handshake_pk_pending_last = 0;
+            handshake_pending_pk_id = 0;
         }
         return NULL;
     }
@@ -194,24 +211,47 @@ trans_package* net_remote_player::get_recved_ok()
 bool net_remote_player::send_package(trans_package*tp)
 {
     bool ret;
+    InterlockedIncrement(&send_package_guard);
+    while(send_package_guard > 1){
+        df("send_package in process, waiting...");
+        Sleep(100);
+        df("send_package in process, waiting done");
+    }
+
     if(tp->p_type == ACK){
         ret = mynt.net_send((const char*)tp, sizeof(trans_package));
         df("send ack of id %d return %d", tp->pk_id, ret);
-        return ret;
     }
-    tp->pk_id = current_pk_id++;
-    df("%s type %d %s id %d", __func__, tp->p_type,
-            pk_type_str[tp->p_type], tp->pk_id);
-    pending_pk_id=tp->pk_id;
-    pk_pending_last = 0;
-    memcpy(&tpg_bak, (const char*)tp, sizeof(trans_package));
-    return mynt.net_send((const char*)tp, sizeof(trans_package));
+    else if(tp->p_type == HANDSHAKE){
+        tp->pk_id = current_pk_id++;
+        handshake_pending_pk_id=tp->pk_id;
+        handshake_pk_pending_last = 0;
+        ret = mynt.net_send((const char*)tp, sizeof(trans_package));
+    }
+    else{
+        tp->pk_id = current_pk_id++;
+        df("%s type %d %s id %d", __func__, tp->p_type,
+                pk_type_str[tp->p_type], tp->pk_id);
+        pending_pk_id=tp->pk_id;
+        pk_pending_last = 0;
+        memset(&tpg_bak, 0, sizeof(trans_package));
+        memcpy(&tpg_bak, (const char*)tp, sizeof(trans_package));
+        ret = mynt.net_send((const char*)tp, sizeof(trans_package));
+    }
+    InterlockedDecrement(&send_package_guard);
+    return ret;
 }
 
 bool net_remote_player::send_cmd(package_type pt)
 {
-    tpg.p_type = pt;
-    send_package(&tpg);
+    if(pt == HANDSHAKE){
+        handshake_tpg.p_type = pt;
+        send_package(&handshake_tpg);
+    }
+    else{
+        tpg.p_type = pt;
+        send_package(&tpg);
+    }
     return true;
 }
 
@@ -232,7 +272,7 @@ DWORD WINAPI net_remote_player::init_thread_func(LPVOID lpThreadParameter)
         p->init_state=READY;
     }
     else{
-        p->connec_is_rdy=false;
+        //p->connec_is_rdy=false;
         p->init_state=FAILED;
     }
     return 0;
