@@ -876,6 +876,7 @@ LRESULT CALLBACK WindowProc(
                                     g_chess_game.start();
                                     EnableWindow(Button2Hd, false);
                                     EnableWindow(Button1Hd, false);
+                                    MESS_PRINT("New game start!");
                                 }
                                 InvalidateRect(hwnd,NULL,TRUE);
                                 if(remote_side->is_ready()){
@@ -1141,7 +1142,7 @@ LRESULT CALLBACK WindowProc(
                             LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x+RTIA),g_cdtts.chess_to_screen_y(y-RTIA));
                             LineTo(ps.hdc, g_cdtts.chess_to_screen_x(x-RTIA),g_cdtts.chess_to_screen_y(y-RTIA));
                         }
-                        else if(g_chess_game.get_lastmove() != NULL){
+                        if(g_chess_game.get_lastmove() != NULL){
                             move_step*mstmp=g_chess_game.get_lastmove();
                             df("paint last move %d %d %d %d", mstmp->x1, mstmp->y1, mstmp->x2, mstmp->y2);
 #define ARROWLEN 0.2f

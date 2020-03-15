@@ -12,14 +12,15 @@
  * 0.98 net,timer init protection, more chinese
  * 0.995 chinese move step output
  * 0.996 chinese move step output
- * 0.997 add connect reset"
+ * 0.997 add connect reset
 #define VERSION "0.998 add timer pause"
 #define VERSION "0.999 add icon"
 #define VERSION "1.0 add hand shake package detect"
 #define VERSION "1.02 output chinese step"
 #define VERSION "1.03 update hand shake"
- * */
 #define VERSION "1.04 add auto recover net func"
+ * */
+#define VERSION "1.05 issue fix"
 #define PORT_NUM 34567
 
 //display control

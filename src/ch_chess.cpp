@@ -536,6 +536,7 @@ void chess_game::review_reset()
         cpes[i]->moveto(cp_create_map[i].cp_x, cp_create_map[i].cp_y);
         cpes_board[cp_create_map[i].cp_y][cp_create_map[i].cp_x] = cpes[i];
     }
+    choosen_cp = NULL;
     dead_link_head = NULL;
     running_step = 0;
     running_state = REVIEW_STATE;
@@ -553,7 +554,6 @@ void chess_game::reset()
     current_playing_side=SIDE_RED;
     red_timeout = red_saved_timeout*10;
     black_timeout = black_saved_timeout*10;
-    choosen_cp = NULL;
     red_request_drawn = false;
     black_request_drawn = false;
     for(int i = 0;i<MAX_MOVES_NUM;i++){
