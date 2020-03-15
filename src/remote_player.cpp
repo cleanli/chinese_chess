@@ -163,7 +163,7 @@ trans_package* net_remote_player::get_recved_ok()
     if(handshake_pending_pk_id){
         handshake_pk_pending_last++;
     }
-    if(handshake_pk_pending_last > MAX_PK_PENDING){
+    if(handshake_pk_pending_last > MAX_HK_PK_PENDING){
         bool ret;
         error_status = 1;
         df("Error! last handshake package didn't get ack! id %d last %d",
@@ -279,10 +279,12 @@ DWORD WINAPI net_remote_player::init_thread_func(LPVOID lpThreadParameter)
     if(p->mynt.try_init(p->mip,p->mport)){
         p->connec_is_rdy=true;
         p->init_state=READY;
+        df("%s OK", __func__);
     }
     else{
         //p->connec_is_rdy=false;
         p->init_state=FAILED;
+        df("%s failed", __func__);
     }
     InterlockedDecrement(&p->reset_connect_guard);
     df("%s --", __func__);

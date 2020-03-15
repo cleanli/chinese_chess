@@ -281,7 +281,9 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
             }
             if(handshake_enable){
                 static int count = 0;
+                static int reset_count = 0;
                 static int last_error = 0;
+                static int net_ok_count = 0;
                 int count_max = 10;
                 if(running_mode==CLIENT_MODE){//make server & client not same interval
                     count_max = 24;
@@ -299,12 +301,35 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         //debug_str_dump(gp_text_rc->text_message_net_error);
                         //MessageBox(hwnd, "Connection is ERROR", "Notice", MB_ICONQUESTION);
                         last_error = 1;
+#if 1
+                        df("reset_count %d", reset_count);
+                        if(reset_count++ == 0){
+                            MESS_PRINT("reset connect");
+                            remote_side->reset_connect();
+                        }
+                        if(running_mode==CLIENT_MODE){
+                            count_max = 3;
+                        }
+                        else{
+                            count_max = 10;
+                        }
+                        if(reset_count > count_max){
+                            reset_count = 0;
+                        }
+#endif
                     }
                 }
                 if(remote_side->get_error_status()){
                     g_chess_game.set_timer_pause(true);
+                    net_ok_count = 0;
                 }
                 else{
+                    if(net_ok_count++>600){
+                        MESS_PRINT("NET is OK for 60 seconds");
+                        df("set reset_count 0");
+                        reset_count = 0;
+                        net_ok_count = 0;
+                    }
                     if(last_error == 1){
                         MESS_PRINT("%s", gp_text_rc->text_message_net_recover);
                         //debug_str_dump(gp_text_rc->text_message_net_recover);

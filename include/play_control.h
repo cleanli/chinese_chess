@@ -17,8 +17,9 @@
 #define VERSION "0.999 add icon"
 #define VERSION "1.0 add hand shake package detect"
 #define VERSION "1.02 output chinese step"
- * */
 #define VERSION "1.03 update hand shake"
+ * */
+#define VERSION "1.04 add auto recover net func"
 #define PORT_NUM 34567
 
 //display control
