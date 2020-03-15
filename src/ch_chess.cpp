@@ -663,7 +663,7 @@ bool chess_game::moveto_point(int x, int y, char**chinese_step)
                         }
                     }
                 }
-                df("before %d after %d", before_choosen, after_choosen);
+                //df("before %d after %d", before_choosen, after_choosen);
                 if(choosen_cp->get_cp_side() == SIDE_BLACK){
                     int t = before_choosen;
                     before_choosen =  after_choosen;

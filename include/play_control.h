@@ -21,7 +21,7 @@
 #define VERSION "1.04 add auto recover net func"
 #define VERSION "1.06 issue fix"
  * */
-#define VERSION "1.07 remove some log"
+#define VERSION "1.08 remove some log"
 #define PORT_NUM 34567
 
 //display control

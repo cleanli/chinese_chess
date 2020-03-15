@@ -1049,7 +1049,7 @@ LRESULT CALLBACK WindowProc(
             {
                 int x = GET_X_LPARAM(lParam);
                 int y = GET_Y_LPARAM(lParam);
-                df("left mouse %d %d", x, y);
+                //df("left mouse %d %d", x, y);
                 //MESS_PRINT("left mouse %d %d", x, y);
                 if(PLAYING_STATE == g_chess_game.get_running_state() &&
                         (SCREEN_CLICK_TYPE == chess_playing_handle[g_chess_game.get_current_playing_side()]) &&
@@ -1079,12 +1079,14 @@ LRESULT CALLBACK WindowProc(
                             if(tmpcharp){
                                 //MESS_PRINT("%s", tmpcharp);
                             }
+                            /*
                             df("move %d-%d-%d-%d",
                                     tp_tmp->pd.ch_move_step.x1,
                                     tp_tmp->pd.ch_move_step.y1,
                                     tp_tmp->pd.ch_move_step.x2,
                                     tp_tmp->pd.ch_move_step.y2
                                     );
+                                    */
                         }
                     }
                     if(ret){
@@ -1152,7 +1154,7 @@ LRESULT CALLBACK WindowProc(
                         }
                         if(g_chess_game.get_lastmove() != NULL){
                             move_step*mstmp=g_chess_game.get_lastmove();
-                            df("paint last move %d %d %d %d", mstmp->x1, mstmp->y1, mstmp->x2, mstmp->y2);
+                            //df("paint last move %d %d %d %d", mstmp->x1, mstmp->y1, mstmp->x2, mstmp->y2);
 #define ARROWLEN 0.2f
 #define V_ARROWLEN 0.1f
                             float dx = mstmp->x2 - mstmp->x1;
