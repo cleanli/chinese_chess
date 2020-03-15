@@ -278,6 +278,11 @@ DWORD WINAPI net_remote_player::init_thread_func(LPVOID lpThreadParameter)
     return 0;
 }
 
+void net_remote_player::set_quit()
+{
+    connec_is_rdy=false;
+}
+
 void net_remote_player::deinit()
 {
     mynt.deinit();

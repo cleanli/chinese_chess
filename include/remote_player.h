@@ -51,6 +51,7 @@ class remote_player
         virtual bool send_cmd(package_type)=0;
         virtual bool send_ack(int id)=0;
         virtual void deinit()=0;
+        virtual void set_quit(){};
         net_init_state get_init_state()
         {
             return init_state;
@@ -87,6 +88,7 @@ class net_remote_player:public remote_player
         bool send_package(trans_package*);
         bool send_cmd(package_type);
         bool send_ack(int id);
+        void set_quit();
         void deinit();
         ~net_remote_player();
     private:

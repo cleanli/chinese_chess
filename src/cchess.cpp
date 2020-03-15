@@ -268,6 +268,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         df("got app quit");
                         //MessageBox(hwnd, "Remote side have left", "Notice", MB_ICONQUESTION);
                         MESS_PRINT("%s", gp_text_rc->text_message_leave);
+                        remote_side->set_quit();
                         break;
                     case HANDSHAKE:
                         break;
