@@ -18,4 +18,25 @@
 #define CHESS_PIECE_BP_13 913
 #define CHESS_PIECE_BP_14 914
 
+#define IDR_CONTEXT  200
+#define IDM_OPT1     201
+#define IDM_OPT2     202
+
+#define IDB_ONE     3301
+#define IDB_TWO     3302
+#define IDB_THREE   3303
+#define IDB_FOUR    3304
+#define IDB_FIVE    3305
+#define ID_DATA     3306
+#define IDB_LOAD    3307
+#define IDB_PAUSE   3308
+
+#define IDC_RADBTN1     50001
+#define IDC_RADBTN2     50002
+#define IDC_RADBTN3     50003
+#define IDC_RADBTNBLUE  51001
+#define IDC_RADBTNRED   51002
+#define IDC_RADBTNGREEN 51003
+#define IDS_MESSAGE     51004
+
 #endif

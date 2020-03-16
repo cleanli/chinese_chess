@@ -11,46 +11,13 @@
 #include "text_rc.h"
 #include "rc.h"
 
-#define IDR_CONTEXT  200
-#define IDM_OPT1     301
-#define IDM_OPT2     302
-
-
-#define IDB_ONE     3301
-#define IDB_TWO     3302
-#define IDB_THREE   3303
-#define IDB_FOUR   3304
-#define IDB_FIVE   3305
-#define ID_DATA     3306
-#define IDB_LOAD   3307
-#define IDB_PAUSE  3308
-
-#define IDC_RADBTN1		50001
-#define IDC_RADBTN2		50002
-#define IDC_RADBTN3		50003
-#define IDC_RADBTNBLUE		51001
-#define IDC_RADBTNRED		51002
-#define IDC_RADBTNGREEN		51003
-
-#define IDS_MESSAGE 51004
-
+//MESS_PRINT
 #define MESS_SIZE 480
 #define MPBUF_SIZE 512
 static char mpbuf0[MPBUF_SIZE];
 static char mpbuf1[MPBUF_SIZE];
 static char* mpbuf[2]={mpbuf0, mpbuf1};
 static int mpbuf_index = 0;
-char debug_buf[1024];
-ch_config g_cconfig;
-int log_to_file = 0;
-int check_load_file = 1;
-text_rc* gp_text_rc = &eng_tr;
-#define CONNECT_NOT_STARTED 0
-#define CONNECT_WAITING 1
-#define CONNECT_DONE 2
-int wait_net_connect = CONNECT_NOT_STARTED;
-int handshake_enable = 1;
-
 #define MESS_PRINT(fmt,arg...) \
     {   \
         int tmplen; \
@@ -62,8 +29,20 @@ int handshake_enable = 1;
         SetWindowText(MessageHd, mpbuf[mpbuf_index]);\
         mpbuf_index = 1 - mpbuf_index; \
     }
+
+//debug
+char debug_buf[1024];
+
+//config
+ch_config g_cconfig;
+int log_to_file = 0;
+
+//global variable
+int check_load_file = 1;
+text_rc* gp_text_rc = &eng_tr;
+int wait_net_connect = CONNECT_NOT_STARTED;
+int handshake_enable = 1;
 HMENU hRoot;
-void CreateMyMenu();//create menu
 int timer_count=0;
 HANDLE hTimer = NULL;
 HANDLE hTimerQueue = NULL;
@@ -94,7 +73,12 @@ c_coordinate_trans g_cdtts(false);
 PLAYING_SIDE local_player = SIDE_BLACK;
 //remote_player* remote_side = new dummy_remote_player();
 remote_player* remote_side = new net_remote_player();
+int movingx = 100;
+int movingy = 100;
+LONG volatile timer_guard = 0;
 
+//function declare
+void CreateMyMenu();//create menu
 void show_message(char*ms);
 void save_chess_game();
 void mode_init(HWND hwnd);
@@ -106,13 +90,11 @@ LRESULT CALLBACK WindowProc(
         WPARAM wParam,
         LPARAM lParam
         );
-
-int movingx = 100;
-int movingy = 100;
-LONG volatile timer_guard = 0;
 void debug_str_dump(const char*s);
+
 VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
 {
+    char tBuf[128];
     static RUN_STATE last_game_state = INIT_STATE;
     HWND hwnd;
     timer_count++;
@@ -120,9 +102,10 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
     if (lpParam != NULL)
     {
         trans_package* tptmp = NULL;
-        HWND hwnd=(HWND)lpParam;
-        char tBuf[1000];
-        memset(tBuf, 0, 1000);
+        hwnd=(HWND)lpParam;
+
+        //player timeout show
+        memset(tBuf, 0, 128);
         sprintf(tBuf, "%04.1f    ", (float)g_chess_game.get_timeout(SIDE_BLACK)/10);
         if(local_player == SIDE_BLACK){
             SetWindowText(tmrLocalHd, tBuf);
@@ -130,7 +113,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
         else{
             SetWindowText(tmrRemoHd, tBuf);
         }
-        memset(tBuf, 0, 1000);
+        memset(tBuf, 0, 128);
         sprintf(tBuf, "%04.1f    ", (float)g_chess_game.get_timeout(SIDE_RED)/10);
         //MESS_PRINT("%d", timer_count);
         //MESS_PRINT("%d", g_chess_game.get_timeout(SIDE_BLACK));
@@ -140,6 +123,8 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
         else{
             SetWindowText(tmrLocalHd, tBuf);
         }
+
+        //'start' button
         RUN_STATE rs_tmp = g_chess_game.get_running_state();
         if(rs_tmp != last_game_state){
             if(rs_tmp == END_STATE){
@@ -148,10 +133,14 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
             InvalidateRect(hwnd,NULL,TRUE);
         }
         last_game_state = rs_tmp;
+
+        //handle connecting state when just start connect
         if(wait_net_connect == CONNECT_WAITING){
             mode_init(hwnd);
         }
         //df("timer ----");
+
+        //handling recv
         InterlockedIncrement(&timer_guard);
         if(remote_side->is_ready() && timer_guard == 1){
             while((tptmp = remote_side->get_recved_ok())!=NULL){
@@ -280,6 +269,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         break;
                 }
             }
+            //net check by handshake package
             if(handshake_enable){
                 static int count = 0;
                 static int reset_count = 0;

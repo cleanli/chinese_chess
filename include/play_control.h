@@ -33,6 +33,11 @@
 #define RIGHT_CONTROL_X 705
 #define RIGHT_CONTROL_Y 5
 //display end
+
+#define CONNECT_NOT_STARTED 0
+#define CONNECT_WAITING 1
+#define CONNECT_DONE 2
+
 enum RUN_MODE
 {
     TBD = 0,
