@@ -191,10 +191,10 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         MESS_PRINT("%s", gp_text_rc->text_message_switch);
                         break;
                     case REQUEST_GIVE:
+                        MESS_PRINT("%s", gp_text_rc->text_message_give);
                         g_chess_game.set_win(local_player, OPPONENT_GIVE);
                         InvalidateRect(hwnd,NULL,TRUE);
                         //MessageBox(hwnd, "Remote request GIVE", "Notice", MB_ICONQUESTION);
-                        MESS_PRINT("%s", gp_text_rc->text_message_give);
                         break;
                     case SET_REMOTE_PLAYER:
                         df("got setremote cmd");
@@ -1055,15 +1055,15 @@ LRESULT CALLBACK WindowProc(
                         char*tmpcharp;
                         ret = g_chess_game.moveto_point(chess_x, chess_y, &tmpcharp);
                         if(g_chess_game.get_choosen_cp() == NULL){
-                            move_step*mstmp=g_chess_game.get_lastmove();
-                            trans_package* tp_tmp = remote_side->get_trans_pack_buf();
-                            tp_tmp->p_type = CHESS_STEP;
-                            tp_tmp->pd.ch_move_step.x1 = mstmp->x1;
-                            tp_tmp->pd.ch_move_step.y1 = mstmp->y1;
-                            tp_tmp->pd.ch_move_step.x2 = mstmp->x2;
-                            tp_tmp->pd.ch_move_step.y2 = mstmp->y2;
-                            tp_tmp->pd.timeout = g_chess_game.get_timeout(local_player);
                             if(remote_side->is_ready()){
+                                move_step*mstmp=g_chess_game.get_lastmove();
+                                trans_package* tp_tmp = remote_side->get_trans_pack_buf();
+                                tp_tmp->p_type = CHESS_STEP;
+                                tp_tmp->pd.ch_move_step.x1 = mstmp->x1;
+                                tp_tmp->pd.ch_move_step.y1 = mstmp->y1;
+                                tp_tmp->pd.ch_move_step.x2 = mstmp->x2;
+                                tp_tmp->pd.ch_move_step.y2 = mstmp->y2;
+                                tp_tmp->pd.timeout = g_chess_game.get_timeout(local_player);
                                 remote_side->send_package(tp_tmp);
                             }
                             if(tmpcharp){
