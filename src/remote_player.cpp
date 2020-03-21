@@ -94,6 +94,7 @@ net_remote_player::net_remote_player()
     handshake_pk_pending_last(0),
     send_package_guard(0),
     reset_connect_guard(0),
+    current_recv_pk_id(1),
     current_pk_id(1)
 {
     df("net remote start\n\r");
@@ -136,7 +137,7 @@ bool net_remote_player::is_ready()
 
 trans_package* net_remote_player::get_trans_pack_buf()
 {
-    return &tpg;
+    return tpgm.get_tpg();
 }
 
 trans_package* net_remote_player::get_recved_ok()
@@ -144,6 +145,7 @@ trans_package* net_remote_player::get_recved_ok()
     int len;
     void *tmpbuf;
     //check pk id ack
+#if 0
     if(pending_pk_id){
         pk_pending_last++;
     }
@@ -158,6 +160,23 @@ trans_package* net_remote_player::get_recved_ok()
         }
         else if(tpg_bak.pk_id != pending_pk_id ){
             df("can't re-send last failed package, data lost");
+        }
+    }
+#endif
+    if(tpgm.check_pending()){
+        trans_package*tmp_tpg_p;
+        while(NULL!=(tmp_tpg_p=tpgm.get_next_pending_tpg())){
+            if(tmp_tpg_p->pk_pending_last > MAX_PK_PENDING){
+                bool ret;
+                error_status = 1;
+                df("Error! id %d didn't get ack! last %d",
+                        tmp_tpg_p->pk_id, tmp_tpg_p->pk_pending_last);
+                if((tmp_tpg_p->pk_pending_last%10) == 0){
+                    ret = mynt.net_send((const char*)tmp_tpg_p, sizeof(trans_package));
+                    df("re-send last failed package id %d return %d",
+                            tmp_tpg_p->pk_id, ret);
+                }
+            }
         }
     }
     if(handshake_pending_pk_id){
@@ -175,6 +194,18 @@ trans_package* net_remote_player::get_recved_ok()
         //connec_is_rdy = false;
     }
     //check pk id ack end
+
+    //recv handle
+    {
+        trans_package*tmp_p;
+        if(NULL != (tmp_p = tpgm_recv.get_pending_tpg(current_recv_pk_id))){
+            df("warning: get pk id %d in cache", current_recv_pk_id);
+            memcpy(&tpg, tmp_p, sizeof(trans_package));
+            tpgm_recv.put_tpg(current_recv_pk_id);
+            current_recv_pk_id++;
+            return &tpg;
+        }
+    }
     if(data_left_len == 0){
         if(NULL==(tmpbuf=mynt.net_recv(&len))){
             return NULL;
@@ -202,18 +233,27 @@ trans_package* net_remote_player::get_recved_ok()
     df("%s pk_id %d p_type:%d %s", __func__, tpg.pk_id, tpg.p_type, pk_type_str[tpg.p_type]);
     if(tpg.p_type == ACK){
         //df("pending pk id %d", pending_pk_id);
-        if(pending_pk_id == tpg.pk_id){
-            //df("pending last=%d, cleared", pk_pending_last);
-            pk_pending_last = 0;
-            pending_pk_id = 0;
-        }
         if(handshake_pending_pk_id == tpg.pk_id){
             //df("handshake pending last=%d, cleared", handshake_pk_pending_last);
             handshake_pk_pending_last = 0;
             handshake_pending_pk_id = 0;
         }
+        else if(tpgm.put_tpg(tpg.pk_id)){
+            df("pending pk_id %d cleared", tpg.pk_id);
+        }
         return NULL;
     }
+    if(tpg.pk_id < current_recv_pk_id){//check pk id
+        df("warning: discard pkid %d", tpg.pk_id);
+        return NULL;
+    }
+    else if(tpg.pk_id > current_recv_pk_id){//check pk id
+        trans_package*tmp_p = tpgm_recv.get_tpg();
+        memcpy(tmp_p, &tpg, sizeof(trans_package));
+        tpgm_recv.set_pending(tmp_p);
+        df("warning: cache recved buf. current pkid should be %d", current_recv_pk_id);
+    }
+    current_recv_pk_id++;
     return &tpg;
 }
 
@@ -241,10 +281,10 @@ bool net_remote_player::send_package(trans_package*tp)
         tp->pk_id = current_pk_id++;
         df("%s type %d %s id %d", __func__, tp->p_type,
                 pk_type_str[tp->p_type], tp->pk_id);
-        pending_pk_id=tp->pk_id;
-        pk_pending_last = 0;
+        tp->pk_pending_last = 0;
         memset(&tpg_bak, 0, sizeof(trans_package));
         memcpy(&tpg_bak, (const char*)tp, sizeof(trans_package));
+        tpgm.set_pending(tp);
         ret = mynt.net_send((const char*)tp, sizeof(trans_package));
     }
     InterlockedDecrement(&send_package_guard);
@@ -258,8 +298,9 @@ bool net_remote_player::send_cmd(package_type pt)
         send_package(&handshake_tpg);
     }
     else{
-        tpg.p_type = pt;
-        send_package(&tpg);
+        trans_package*t = tpgm.get_tpg();
+        t->p_type = pt;
+        send_package(t);
     }
     return true;
 }
@@ -316,3 +357,113 @@ void net_remote_player::deinit()
     mynt.deinit();
 }
 
+//tpg_manager
+
+tpg_manager::~tpg_manager()
+{
+    for(tpg_iter i = pending_tpg_list.begin();
+            i != pending_tpg_list.end(); i++){
+        free(*i);
+        pending_tpg_list.erase(i);
+    }
+    for(tpg_iter i = free_tpg_list.begin();
+            i != free_tpg_list.end(); i++){
+        free(*i);
+        free_tpg_list.erase(i);
+    }
+    DeleteCriticalSection(&g_tpgm_critc_sctn);
+}
+
+tpg_manager::tpg_manager()
+{
+    InitializeCriticalSection(&g_tpgm_critc_sctn);
+}
+
+bool tpg_manager::check_pending()
+{
+    bool ret = false;
+    EnterCriticalSection(&g_tpgm_critc_sctn);
+    g_tpgit = pending_tpg_list.begin();
+    for(tpg_iter i = pending_tpg_list.begin();
+            i != pending_tpg_list.end(); i++){
+        (*i)->pk_pending_last++;
+        if((*i)->pk_pending_last > MAX_PK_PENDING){
+            ret = true;
+        }
+    }
+    LeaveCriticalSection(&g_tpgm_critc_sctn);
+    return ret;
+}
+
+trans_package* tpg_manager::get_pending_tpg(int id)
+{
+    trans_package* ret = NULL;
+    EnterCriticalSection(&g_tpgm_critc_sctn);
+    for(tpg_iter i = pending_tpg_list.begin();
+            i != pending_tpg_list.end(); i++){
+        if((*i)->pk_id == id){
+            ret = (*i);
+            break;
+        }
+    }
+    LeaveCriticalSection(&g_tpgm_critc_sctn);
+    return ret;
+}
+
+trans_package* tpg_manager::get_next_pending_tpg()
+{
+    trans_package* ret = NULL;
+    EnterCriticalSection(&g_tpgm_critc_sctn);
+    if(g_tpgit != pending_tpg_list.end()){
+        ret = *g_tpgit;
+        g_tpgit++;
+    }
+    LeaveCriticalSection(&g_tpgm_critc_sctn);
+    return ret;
+}
+
+bool tpg_manager::put_tpg(int pk_id)
+{
+    bool ret = false;
+    //df("%s: free %d pending %d pkid %d", __func__,
+    //        free_tpg_list.size(), pending_tpg_list.size(), pk_id);
+    EnterCriticalSection(&g_tpgm_critc_sctn);
+    for(tpg_iter i = pending_tpg_list.begin();
+            i != pending_tpg_list.end(); i++){
+        if((*i)->pk_id == pk_id){
+            free_tpg_list.push_back(*i);
+            pending_tpg_list.erase(i);
+            ret = true;
+            break;
+        }
+    }
+    LeaveCriticalSection(&g_tpgm_critc_sctn);
+    //df("%s: free %d pending %d ret %d", __func__,
+    //        free_tpg_list.size(), pending_tpg_list.size(), ret);
+    return ret;
+}
+
+void tpg_manager::set_pending(trans_package*tpp)
+{
+    EnterCriticalSection(&g_tpgm_critc_sctn);
+    pending_tpg_list.push_back(tpp);
+    LeaveCriticalSection(&g_tpgm_critc_sctn);
+}
+
+trans_package* tpg_manager::get_tpg()
+{
+    trans_package*ret;
+    df("tpg_manager free %d pending %d",
+            free_tpg_list.size(), pending_tpg_list.size());
+    EnterCriticalSection(&g_tpgm_critc_sctn);
+    if(!free_tpg_list.empty()){
+        ret = free_tpg_list.front();
+        free_tpg_list.pop_front();
+    }
+    else{
+        ret = (trans_package*)malloc(sizeof(trans_package));
+    }
+    LeaveCriticalSection(&g_tpgm_critc_sctn);
+    memset(ret, 0, sizeof(trans_package));
+    return ret;
+}

@@ -394,6 +394,7 @@ void mode_init(HWND hwnd)
             tp_tmp->p_type = SET_REMOTE_PLAYER;
             tp_tmp->pd.remote_side = OTHER_SIDE(local_player);
             remote_side->send_package(tp_tmp);
+            tp_tmp = remote_side->get_trans_pack_buf();
             tp_tmp->p_type = SET_TIMEOUT;
             tp_tmp->pd.timeout = g_cconfig.timeout;
             remote_side->send_package(tp_tmp);
@@ -823,6 +824,7 @@ LRESULT CALLBACK WindowProc(
                                 tp_tmp->pd.remote_side = OTHER_SIDE(local_player);
                                 df("send_package:set remote player");
                                 remote_side->send_package(tp_tmp);
+                                tp_tmp = remote_side->get_trans_pack_buf();
                                 tp_tmp->p_type = SET_TIMEOUT;
                                 tp_tmp->pd.timeout = g_cconfig.timeout;
                                 remote_side->send_package(tp_tmp);
