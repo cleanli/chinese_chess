@@ -288,8 +288,6 @@ bool net_remote_player::send_package(trans_package*tp)
         df("%s type %d %s id %d", __func__, tp->p_type,
                 pk_type_str[tp->p_type], tp->pk_id);
         tp->pk_pending_last = 0;
-        memset(&tpg_bak, 0, sizeof(trans_package));
-        memcpy(&tpg_bak, (const char*)tp, sizeof(trans_package));
         tpgm.set_pending(tp);
         ret = mynt.net_send((const char*)tp, sizeof(trans_package));
     }

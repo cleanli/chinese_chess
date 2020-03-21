@@ -130,7 +130,6 @@ class net_remote_player:public remote_player
         int current_pk_id;
         int current_handshake_id;
         int current_recv_pk_id;
-        trans_package tpg_bak;
         trans_package ack_tpg;
         int pending_pk_id;
         int pk_pending_last;
