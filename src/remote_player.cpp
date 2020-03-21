@@ -182,6 +182,7 @@ trans_package* net_remote_player::get_recved_ok()
             }
         }
     }
+    //df("handshake pending id %d, last %d", handshake_pending_pk_id, handshake_pk_pending_last);
     if(handshake_pending_pk_id){
         handshake_pk_pending_last++;
     }
@@ -233,6 +234,13 @@ trans_package* net_remote_player::get_recved_ok()
         }
     }
     error_status = 0;
+    handshake_pk_pending_last=0;
+    if(tpgm.check_pending()){
+        trans_package*tmp_tpg_p;
+        while(NULL!=(tmp_tpg_p=tpgm.get_next_pending_tpg())){
+            tmp_tpg_p->pk_pending_last = 0;
+        }
+    }
     df("%s pk_id %d p_type:%d %s", __func__, tpg.pk_id, tpg.p_type, pk_type_str[tpg.p_type]);
     if(tpg.p_type == ACK){
         //df("pending pk id %d", pending_pk_id);

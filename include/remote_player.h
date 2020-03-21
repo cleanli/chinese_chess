@@ -6,7 +6,7 @@
 #include "net_trans.h"
 
 #define MAX_STR_LEN 64
-#define MAX_PK_PENDING 6
+#define MAX_PK_PENDING 8
 #define MAX_HK_PK_PENDING 10
 #define ERROR_PK_PENDING 4000
 enum net_init_state{
