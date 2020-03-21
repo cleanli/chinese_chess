@@ -50,11 +50,13 @@ class tpg_manager{
     bool check_pending();
     trans_package* get_tpg();
     void set_pending(trans_package*);
+    void set_name(const char*name);
     trans_package* get_next_pending_tpg();
     bool put_tpg(int pk_id);
     trans_package* get_pending_tpg(int id);
 
     private:
+    char name[5];
     list<trans_package*> free_tpg_list;
     list<trans_package*> pending_tpg_list;
     typedef list<trans_package*>::iterator tpg_iter;
@@ -126,6 +128,7 @@ class net_remote_player:public remote_player
         int data_left_len;
         char* data_left_buf;
         int current_pk_id;
+        int current_handshake_id;
         int current_recv_pk_id;
         trans_package tpg_bak;
         trans_package ack_tpg;

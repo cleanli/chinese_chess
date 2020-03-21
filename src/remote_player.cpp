@@ -86,6 +86,8 @@ remote_player::remote_player()
     error_status(0),
     init_state(NOT_CALLED)
 {
+    tpgm.set_name("send");
+    tpgm_recv.set_name("recv");
 }
 
 net_remote_player::net_remote_player()
@@ -95,6 +97,7 @@ net_remote_player::net_remote_player()
     send_package_guard(0),
     reset_connect_guard(0),
     current_recv_pk_id(1),
+    current_handshake_id(1000000),
     current_pk_id(1)
 {
     df("net remote start\n\r");
@@ -243,17 +246,20 @@ trans_package* net_remote_player::get_recved_ok()
         }
         return NULL;
     }
-    if(tpg.pk_id < current_recv_pk_id){//check pk id
+    if(tpg.pk_id < current_recv_pk_id){
         df("warning: discard pkid %d", tpg.pk_id);
         return NULL;
     }
-    else if(tpg.pk_id > current_recv_pk_id){//check pk id
+    else if(tpg.pk_id > current_recv_pk_id && tpg.p_type != HANDSHAKE){
         trans_package*tmp_p = tpgm_recv.get_tpg();
         memcpy(tmp_p, &tpg, sizeof(trans_package));
         tpgm_recv.set_pending(tmp_p);
         df("warning: cache recved buf. current pkid should be %d", current_recv_pk_id);
+        return NULL;
     }
-    current_recv_pk_id++;
+    if(tpg.p_type != HANDSHAKE && tpg.p_type != ACK){
+        current_recv_pk_id++;
+    }
     return &tpg;
 }
 
@@ -272,7 +278,7 @@ bool net_remote_player::send_package(trans_package*tp)
         //df("send ack of id %d return %d", tp->pk_id, ret);
     }
     else if(tp->p_type == HANDSHAKE){
-        tp->pk_id = current_pk_id++;
+        tp->pk_id = current_handshake_id++;
         handshake_pending_pk_id=tp->pk_id;
         handshake_pk_pending_last = 0;
         ret = mynt.net_send((const char*)tp, sizeof(trans_package));
@@ -377,6 +383,7 @@ tpg_manager::~tpg_manager()
 tpg_manager::tpg_manager()
 {
     InitializeCriticalSection(&g_tpgm_critc_sctn);
+    strcpy(name, "deft");
 }
 
 bool tpg_manager::check_pending()
@@ -443,6 +450,12 @@ bool tpg_manager::put_tpg(int pk_id)
     return ret;
 }
 
+void tpg_manager::set_name(const char*n)
+{
+    memcpy(name, n, 4);
+    name[4]=0;
+}
+
 void tpg_manager::set_pending(trans_package*tpp)
 {
     EnterCriticalSection(&g_tpgm_critc_sctn);
@@ -453,7 +466,7 @@ void tpg_manager::set_pending(trans_package*tpp)
 trans_package* tpg_manager::get_tpg()
 {
     trans_package*ret;
-    df("tpg_manager free %d pending %d",
+    df("tpg_manager %s: free %d pending %d", name,
             free_tpg_list.size(), pending_tpg_list.size());
     EnterCriticalSection(&g_tpgm_critc_sctn);
     if(!free_tpg_list.empty()){
