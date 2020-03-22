@@ -621,6 +621,9 @@ LRESULT CALLBACK WindowProc(
                 //create three button
                 CreateWindow("Button", gp_text_rc->text_start_up, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         dpx, dpy, 60, 20, hwnd, (HMENU)IDB_FIVE, hg_app, NULL);
+                ButtonAutoCoverHd = CreateWindow("Button", "AutoReset:ON", WS_VISIBLE | WS_CHILD | BS_CHECKBOX,
+                        dpx+68, dpy, 120, 20, hwnd, (HMENU)IDB_AUTOCOVER, hg_app, NULL);
+                SendMessage(ButtonAutoCoverHd, BM_SETCHECK, BST_CHECKED, 0);
                 dpx+=5;
                 dpy+=23;
                 rb3Hd = CreateWindow("Button", gp_text_rc->text_local,
@@ -672,8 +675,6 @@ LRESULT CALLBACK WindowProc(
                         dpx-5, dpy, 60, 20, hwnd, (HMENU)IDB_FOUR, hg_app, NULL);
                 ButtonLoadHd = CreateWindow("Button", gp_text_rc->text_load, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         dpx+59, dpy, 60, 20, hwnd, (HMENU)IDB_LOAD, hg_app, NULL);
-                ButtonAutoCoverHd = CreateWindow("Button", "Auto:on", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-                        dpx+123, dpy, 60, 20, hwnd, (HMENU)IDB_AUTOCOVER, hg_app, NULL);
                 ButtonPauseHd = CreateWindow("Button", gp_text_rc->text_pause, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         7, 220, 40, 20, hwnd, (HMENU)IDB_PAUSE, hg_app, NULL);
                 EnableWindow(Button1Hd, false);
@@ -930,11 +931,13 @@ LRESULT CALLBACK WindowProc(
                     case IDB_AUTOCOVER:
                         if(autorecover_enable){
                             autorecover_enable = false;
-                            SetWindowText(ButtonAutoCoverHd, "Auto:OFF");
+                            SetWindowText(ButtonAutoCoverHd, "AutoReset:OFF");
+                            SendMessage(ButtonAutoCoverHd, BM_SETCHECK, BST_UNCHECKED, 0);
                         }
                         else{
                             autorecover_enable = true;
-                            SetWindowText(ButtonAutoCoverHd, "Auto:ON");
+                            SetWindowText(ButtonAutoCoverHd, "AutoReset:ON");
+                            SendMessage(ButtonAutoCoverHd, BM_SETCHECK, BST_CHECKED, 0);
                         }
                         break;
                     case IDB_LOAD://load
