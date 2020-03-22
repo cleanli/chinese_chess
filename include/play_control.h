@@ -21,8 +21,9 @@
 #define VERSION "1.04 add auto recover net func"
 #define VERSION "1.06 issue fix"
 #define VERSION "1.08 remove some log"
- * */
 #define VERSION "1.11 add tpg_manager"
+ * */
+#define VERSION "1.12 add auto recover switch"
 #define PORT_NUM 34567
 
 //display control

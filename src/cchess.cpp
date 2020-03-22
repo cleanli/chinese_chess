@@ -42,6 +42,7 @@ int check_load_file = 1;
 text_rc* gp_text_rc = &eng_tr;
 int wait_net_connect = CONNECT_NOT_STARTED;
 int handshake_enable = 1;
+bool autorecover_enable = true;
 HMENU hRoot;
 int timer_count=0;
 HANDLE hTimer = NULL;
@@ -63,6 +64,7 @@ HWND Button3Hd;
 HWND Button4Hd;
 HWND ButtonPauseHd;
 HWND ButtonLoadHd;
+HWND ButtonAutoCoverHd;
 HWND MessageHd;
 RUN_MODE running_mode = TBD;
 RUN_STATE running_state = INIT_STATE;
@@ -293,7 +295,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                         last_error = 1;
 #if 1
                         df("reset_count %d", reset_count);
-                        if(reset_count++ == 0){
+                        if(reset_count++ == 0 && autorecover_enable){
                             MESS_PRINT("reset connect");
                             remote_side->reset_connect();
                         }
@@ -670,6 +672,8 @@ LRESULT CALLBACK WindowProc(
                         dpx-5, dpy, 60, 20, hwnd, (HMENU)IDB_FOUR, hg_app, NULL);
                 ButtonLoadHd = CreateWindow("Button", gp_text_rc->text_load, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         dpx+59, dpy, 60, 20, hwnd, (HMENU)IDB_LOAD, hg_app, NULL);
+                ButtonAutoCoverHd = CreateWindow("Button", "Auto:on", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+                        dpx+123, dpy, 60, 20, hwnd, (HMENU)IDB_AUTOCOVER, hg_app, NULL);
                 ButtonPauseHd = CreateWindow("Button", gp_text_rc->text_pause, WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
                         7, 220, 40, 20, hwnd, (HMENU)IDB_PAUSE, hg_app, NULL);
                 EnableWindow(Button1Hd, false);
@@ -735,6 +739,7 @@ LRESULT CALLBACK WindowProc(
                 chess_pieces_bitmap_id++;
             }
             timer_init(hwnd);
+            MESS_PRINT("version:v%s", VERSION);
             break;
         case WM_CONTEXTMENU:
             {
@@ -920,6 +925,16 @@ LRESULT CALLBACK WindowProc(
                                 default:
                                     break;
                             }
+                        }
+                        break;
+                    case IDB_AUTOCOVER:
+                        if(autorecover_enable){
+                            autorecover_enable = false;
+                            SetWindowText(ButtonAutoCoverHd, "Auto:OFF");
+                        }
+                        else{
+                            autorecover_enable = true;
+                            SetWindowText(ButtonAutoCoverHd, "Auto:ON");
                         }
                         break;
                     case IDB_LOAD://load

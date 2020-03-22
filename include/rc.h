@@ -38,5 +38,6 @@
 #define IDC_RADBTNRED   51002
 #define IDC_RADBTNGREEN 51003
 #define IDS_MESSAGE     51004
+#define IDB_AUTOCOVER   51005
 
 #endif
