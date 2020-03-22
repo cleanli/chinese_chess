@@ -217,6 +217,7 @@ get_recv_buf:
             return NULL;
         }
         else{
+            int* magic_int_char = (int*)tmpbuf;
             //net status should be ok for we recv from net
             error_status = 0;
             handshake_pk_pending_last=0;
@@ -228,10 +229,20 @@ get_recv_buf:
             }
             /////-----
 
-            memcpy(&tpg, tmpbuf, sizeof(trans_package));
-            if(len > sizeof(trans_package)){
+            for(int i = 0;i<len/4;i++){
+                if(*magic_int_char==MAGIC_OF_PACK)break;
+                magic_int_char++;
+            }
+            if(*magic_int_char==MAGIC_OF_PACK){
+                memcpy(&tpg, magic_int_char, sizeof(trans_package));
+            }
+            else{
+                df("can't find magic number in the package, discard all");
+                return NULL;
+            }
+            if(len > 2*sizeof(trans_package)){
                 data_left_len=len-sizeof(trans_package);
-                data_left_buf = (char*)tmpbuf+sizeof(trans_package);
+                data_left_buf = (char*)magic_int_char+sizeof(trans_package);
             }
             else{
                 mynt.buf_return();

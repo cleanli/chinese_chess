@@ -24,8 +24,9 @@
 #define VERSION "1.11 add tpg_manager"
 #define VERSION "1.12 add auto recover switch"
 #define VERSION "1.13 issue fix:reach MAXBUFLEN in bad net status"
- * */
 #define VERSION "1.14 package error handle"
+ * */
+#define VERSION "1.15 find the magic in pack"
 #define PORT_NUM 34567
 
 //display control
