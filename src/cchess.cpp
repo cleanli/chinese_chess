@@ -145,7 +145,6 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
         if(remote_side->is_ready() && timer_guard == 1){
             while((tptmp = remote_side->get_recved_ok())!=NULL){
                 df("timer:recv remote message id %d", tptmp->pk_id);
-                remote_side->send_ack(tptmp->pk_id);
                 switch(tptmp->p_type){
                     case CHESS_STEP:
                         {

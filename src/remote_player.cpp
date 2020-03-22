@@ -255,7 +255,8 @@ trans_package* net_remote_player::get_recved_ok()
         return NULL;
     }
     if(tpg.pk_id < current_recv_pk_id){
-        df("warning: discard pkid %d", tpg.pk_id);
+        df("warning: discard pkid %d but send ack back", tpg.pk_id);
+        send_ack(tpg.pk_id);
         return NULL;
     }
     else if(tpg.pk_id > current_recv_pk_id && tpg.p_type != HANDSHAKE){
@@ -268,6 +269,7 @@ trans_package* net_remote_player::get_recved_ok()
     if(tpg.p_type != HANDSHAKE && tpg.p_type != ACK){
         current_recv_pk_id++;
     }
+    send_ack(tpg.pk_id);
     return &tpg;
 }
 
