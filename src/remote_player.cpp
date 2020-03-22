@@ -200,7 +200,7 @@ trans_package* net_remote_player::get_recved_ok()
     //check pk id ack end
 
     //recv handle
-    {
+    {//check cache
         trans_package*tmp_p;
         if(NULL != (tmp_p = tpgm_recv.get_pending_tpg(current_recv_pk_id))){
             df("warning: get pk id %d in cache", current_recv_pk_id);
@@ -210,11 +210,24 @@ trans_package* net_remote_player::get_recved_ok()
             return &tpg;
         }
     }
+    //check left recv buffer
+get_recv_buf:
     if(data_left_len == 0){
         if(NULL==(tmpbuf=mynt.net_recv(&len, sizeof(trans_package)*8))){
             return NULL;
         }
         else{
+            //net status should be ok for we recv from net
+            error_status = 0;
+            handshake_pk_pending_last=0;
+            if(tpgm.check_pending()){
+                trans_package*tmp_tpg_p;
+                while(NULL!=(tmp_tpg_p=tpgm.get_next_pending_tpg())){
+                    tmp_tpg_p->pk_pending_last = 0;
+                }
+            }
+            /////-----
+
             memcpy(&tpg, tmpbuf, sizeof(trans_package));
             if(len > sizeof(trans_package)){
                 data_left_len=len-sizeof(trans_package);
@@ -226,20 +239,18 @@ trans_package* net_remote_player::get_recved_ok()
         }
     }
     else{
+        df("data left len %d", data_left_len);
         memcpy(&tpg, data_left_buf, sizeof(trans_package));
         data_left_len -= sizeof(trans_package);
         data_left_buf += sizeof(trans_package);
-        if(data_left_len==0){
+        if(data_left_len < sizeof(trans_package)){
             mynt.buf_return();
+            data_left_len = 0;
         }
     }
-    error_status = 0;
-    handshake_pk_pending_last=0;
-    if(tpgm.check_pending()){
-        trans_package*tmp_tpg_p;
-        while(NULL!=(tmp_tpg_p=tpgm.get_next_pending_tpg())){
-            tmp_tpg_p->pk_pending_last = 0;
-        }
+    if(tpg.head_of_package != MAGIC_OF_PACK){
+        df("package magic number is not right, discarding");
+        goto get_recv_buf;
     }
     df("%s pk_id %d p_type:%d %s", __func__, tpg.pk_id, tpg.p_type, pk_type_str[tpg.p_type]);
     if(tpg.p_type == ACK){
@@ -266,7 +277,8 @@ trans_package* net_remote_player::get_recved_ok()
         df("warning: cache recved buf. current pkid should be %d", current_recv_pk_id);
         return NULL;
     }
-    if(tpg.p_type != HANDSHAKE && tpg.p_type != ACK){
+    if(tpg.p_type != HANDSHAKE && tpg.p_type != ACK
+            && tpg.pk_id == current_recv_pk_id){
         current_recv_pk_id++;
     }
     send_ack(tpg.pk_id);
@@ -283,6 +295,7 @@ bool net_remote_player::send_package(trans_package*tp)
         df("send_package in process, waiting done");
     }
 
+    tp->head_of_package = MAGIC_OF_PACK;
     if(tp->p_type == ACK){
         ret = mynt.net_send((const char*)tp, sizeof(trans_package));
         //df("send ack of id %d return %d", tp->pk_id, ret);

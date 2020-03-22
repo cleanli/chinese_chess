@@ -9,6 +9,7 @@
 #define MAX_PK_PENDING 8
 #define MAX_HK_PK_PENDING 10
 #define ERROR_PK_PENDING 4000
+#define MAGIC_OF_PACK 0x789abcde
 enum net_init_state{
     NOT_CALLED,
     WAITING,
@@ -31,6 +32,7 @@ enum package_type{
 };
 
 struct trans_package{
+    int head_of_package;
     package_type p_type;
     int pk_id;
     int pk_pending_last;
