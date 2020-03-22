@@ -217,6 +217,7 @@ get_recv_buf:
             return NULL;
         }
         else{
+            int i;
             int* magic_int_char = (int*)tmpbuf;
             //net status should be ok for we recv from net
             error_status = 0;
@@ -229,15 +230,16 @@ get_recv_buf:
             }
             /////-----
 
-            for(int i = 0;i<len/4;i++){
+            for(i = 0;i<len/4;i++){
                 if(*magic_int_char==MAGIC_OF_PACK)break;
                 magic_int_char++;
             }
-            if(*magic_int_char==MAGIC_OF_PACK){
+            if(*magic_int_char==MAGIC_OF_PACK && (len-i*4)>=sizeof(trans_package)){
                 memcpy(&tpg, magic_int_char, sizeof(trans_package));
             }
             else{
-                df("can't find magic number in the package, discard all");
+                df("can't find magic number in the package, discard all(i %d len %d)",
+                        i, len);
                 return NULL;
             }
             if(len > 2*sizeof(trans_package)){
