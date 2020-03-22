@@ -29,7 +29,7 @@ class net_trans
         bool try_init(const char* ip, u_short port);
         bool get_status();
         bool net_send(const char* buf, int len);
-        char* net_recv(int*len);
+        char* net_recv(int*len, int maxlen);
         bool buf_return();
         bool recv_lost();
         bool deinit();

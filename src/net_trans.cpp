@@ -246,7 +246,7 @@ bool net_trans::net_send(const char*buf, int len)
     return ret;
 }
 
-char* net_trans::net_recv(int*len)
+char* net_trans::net_recv(int*len,int maxlen)
 {
     char* ret;
     InterlockedIncrement(&recv_guard);
@@ -255,7 +255,7 @@ char* net_trans::net_recv(int*len)
         Sleep(50);
         df("net_recv in process, waiting done...");
     }
-   int numrcv=recv(usingSocket, buffer_recv, MAXBUFLEN, NO_FLAGS_SET);
+   int numrcv=recv(usingSocket, buffer_recv, maxlen, NO_FLAGS_SET);
    if ((numrcv == 0) || (numrcv == SOCKET_ERROR)){
        ret = NULL;
    }

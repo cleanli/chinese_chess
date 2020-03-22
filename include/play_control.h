@@ -22,8 +22,9 @@
 #define VERSION "1.06 issue fix"
 #define VERSION "1.08 remove some log"
 #define VERSION "1.11 add tpg_manager"
- * */
 #define VERSION "1.12 add auto recover switch"
+ * */
+#define VERSION "1.13 issue fix:reach MAXBUFLEN in bad net status"
 #define PORT_NUM 34567
 
 //display control

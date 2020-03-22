@@ -211,7 +211,7 @@ trans_package* net_remote_player::get_recved_ok()
         }
     }
     if(data_left_len == 0){
-        if(NULL==(tmpbuf=mynt.net_recv(&len))){
+        if(NULL==(tmpbuf=mynt.net_recv(&len, sizeof(trans_package)*8))){
             return NULL;
         }
         else{
