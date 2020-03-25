@@ -26,7 +26,7 @@
 #define VERSION "1.13 issue fix:reach MAXBUFLEN in bad net status"
 #define VERSION "1.14 package error handle"
  * */
-#define VERSION "1.16"
+#define VERSION "1.17"
 #define PORT_NUM 34567
 
 //display control

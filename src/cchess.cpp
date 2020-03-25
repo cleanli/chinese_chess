@@ -278,7 +278,7 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
                 static int net_ok_count = 0;
                 int count_max = 10;
                 if(running_mode==CLIENT_MODE){//make server & client not same interval
-                    count_max = 24;
+                    count_max = 18;
                 }
                 if(count++>count_max){
                     count = 0;

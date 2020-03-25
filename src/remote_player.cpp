@@ -171,7 +171,6 @@ trans_package* net_remote_player::get_recved_ok()
         while(NULL!=(tmp_tpg_p=tpgm.get_next_pending_tpg())){
             if(tmp_tpg_p->pk_pending_last > MAX_PK_PENDING){
                 bool ret;
-                error_status = 1;
                 df("Error! id %d didn't get ack! last %d",
                         tmp_tpg_p->pk_id, tmp_tpg_p->pk_pending_last);
                 if((tmp_tpg_p->pk_pending_last%10) == 0){
@@ -183,6 +182,7 @@ trans_package* net_remote_player::get_recved_ok()
         }
     }
     //df("handshake pending id %d, last %d", handshake_pending_pk_id, handshake_pk_pending_last);
+#if 0
     if(handshake_pending_pk_id){
         handshake_pk_pending_last++;
     }
@@ -197,6 +197,7 @@ trans_package* net_remote_player::get_recved_ok()
         error_status = 1;
         //connec_is_rdy = false;
     }
+#endif
     //check pk id ack end
 
     //recv handle
@@ -221,7 +222,6 @@ get_recv_buf:
             int* magic_int_char = (int*)tmpbuf;
             //net status should be ok for we recv from net
             error_status = 0;
-            handshake_pk_pending_last=0;
             if(tpgm.check_pending()){
                 trans_package*tmp_tpg_p;
                 while(NULL!=(tmp_tpg_p=tpgm.get_next_pending_tpg())){
@@ -270,7 +270,6 @@ get_recv_buf:
         //df("pending pk id %d", pending_pk_id);
         if(handshake_pending_pk_id == tpg.pk_id){
             //df("handshake pending last=%d, cleared", handshake_pk_pending_last);
-            handshake_pk_pending_last = 0;
             handshake_pending_pk_id = 0;
         }
         else if(tpgm.put_tpg(tpg.pk_id)){
@@ -315,8 +314,20 @@ bool net_remote_player::send_package(trans_package*tp)
     }
     else if(tp->p_type == HANDSHAKE){
         tp->pk_id = current_handshake_id++;
+        if(handshake_pending_pk_id!=0){
+            handshake_pk_pending_last++;
+            df("Error! last handshake package didn't get ack! id %d count %d",
+                    handshake_pending_pk_id,handshake_pk_pending_last);
+        }
+        else{
+            handshake_pk_pending_last=0;
+            error_status = 0;
+        }
+        if(handshake_pk_pending_last > MAX_HK_PK_PENDING){
+            error_status = 1;
+            df("Connection Error!");
+        }
         handshake_pending_pk_id=tp->pk_id;
-        handshake_pk_pending_last = 0;
         ret = mynt.net_send((const char*)tp, sizeof(trans_package));
     }
     else{
