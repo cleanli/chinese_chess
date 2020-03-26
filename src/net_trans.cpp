@@ -263,7 +263,7 @@ char* net_trans::net_recv(int*len,int maxlen)
        df("net_recv:%d", numrcv);
        if(bufout_ready){
            memcpy(buffer_out, buffer_recv, numrcv);
-           bufout_ready = false;
+           //bufout_ready = false;
            *len=numrcv;
            ret = buffer_out;
        }
