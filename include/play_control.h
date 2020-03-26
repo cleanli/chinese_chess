@@ -26,7 +26,11 @@
 #define VERSION "1.13 issue fix:reach MAXBUFLEN in bad net status"
 #define VERSION "1.14 package error handle"
  * */
-#define VERSION "1.17"
+#ifndef GIT_SHA1
+#define GIT_SHA1 "unknown"
+#endif
+
+#define VERSION "1.18_" GIT_SHA1
 #define PORT_NUM 34567
 
 //display control

@@ -221,6 +221,7 @@ get_recv_buf:
             int i;
             int* magic_int_char = (int*)tmpbuf;
             //net status should be ok for we recv from net
+            handshake_pk_pending_last=0;
             error_status = 0;
             if(tpgm.check_pending()){
                 trans_package*tmp_tpg_p;
