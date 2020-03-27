@@ -2,3 +2,6 @@
 *.o
 chess_config
 chess_log
+chss_save/
+logs/
+
