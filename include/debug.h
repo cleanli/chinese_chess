@@ -17,7 +17,7 @@ extern int log_to_file;
         printf("%s", debug_buf);\
         fflush(stdout); \
         if(log_to_file){char filenm[256];\
-        sprintf(filenm, "chess_log_%d.txt", thisid);\
+        sprintf(filenm, "logs/chess_log_%d.txt", thisid);\
         FILE* f = fopen(filenm, "a");\
         if(!f){printf("open log fail\n");}\
         else {fprintf(f, "%s", debug_buf);\

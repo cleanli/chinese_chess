@@ -93,6 +93,7 @@ LRESULT CALLBACK WindowProc(
         LPARAM lParam
         );
 void debug_str_dump(const char*s);
+bool CheckFolderExist(const char*strPath);
 
 VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
 {
@@ -428,6 +429,9 @@ int CALLBACK WinMain(
         int nCmdShow
         )
 {
+    if(!CheckFolderExist("logs")){
+        CreateDirectory("logs", NULL);
+    }
     g_cconfig.get_config();
     log_to_file=g_cconfig.log;
     if(g_cconfig.language == 0){//eng
@@ -530,13 +534,18 @@ bool read_chess_file(char*fn)
 
 void save_chess_game()
 {
+    char tmp[64];
     char*fn = g_chess_game.save_hint();
     if(strlen(fn)==0){
         df("no game ran, no save");
         return;
     }
+    sprintf(tmp, "chss_save/%s", fn);
     df("fn %s", fn);
-    FILE* f = fopen(fn, "w");
+    if(!CheckFolderExist("chss_save")){
+        CreateDirectory("chss_save", NULL);
+    }
+    FILE* f = fopen(tmp, "w");
     char*write_line;
     if(!f)
     {
@@ -584,6 +593,19 @@ void timer_init(HWND hwnd)
         return;
     }
 
+}
+
+bool CheckFolderExist(const char*strPath)
+{
+    WIN32_FIND_DATA FindFileData;
+    bool bValue = false;
+    HANDLE hFind = FindFirstFile(strPath,  &FindFileData);
+    if ((hFind != INVALID_HANDLE_VALUE) && (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+    {
+        bValue = TRUE;
+    }
+    FindClose(hFind);
+    return bValue;
 }
 
 void show_message(char*ms)
