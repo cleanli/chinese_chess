@@ -1,4 +1,5 @@
 #include "rc.h"
+#include "version.h"
 
 MAIN_CHESS_ICON ICON "cl_chess.ico"
 QIPAN_BMP BITMAP "res/qipan.bmp"
@@ -16,3 +17,30 @@ CHESS_PIECE_BP_11 BITMAP "res/chesspieces/black_knight.bmp"
 CHESS_PIECE_BP_12 BITMAP "res/chesspieces/black_rook.bmp"
 CHESS_PIECE_BP_13 BITMAP "res/chesspieces/black_cannon.bmp"
 CHESS_PIECE_BP_14 BITMAP "res/chesspieces/black_pawn.bmp"
+
+1 VERSIONINFO
+
+ FILEVERSION   VERSION_DEFINE
+ PRODUCTVERSION VERSION_DEFINE
+ FILEFLAGS      0x0L
+ FILEFLAGSMASK  0x3fL
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "CompanyName", "Clean Li"
+            VALUE "FileDescription", "Chinese Chess"
+            VALUE "FileVersion", VALUE_VERSION_DEFINE
+            VALUE "LegalCopyright", "Copyright (C) 2020 CleanLi"
+            VALUE "InternalName", "ChineseChess"
+            VALUE "OriginalFilename", "cchess"
+            VALUE "ProductName", "ChineseChess"
+            VALUE "ProductVersion", VALUE_VERSION_DEFINE
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END

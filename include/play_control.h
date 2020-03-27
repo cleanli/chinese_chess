@@ -1,6 +1,6 @@
 #ifndef _PLAY_CONTROL
 #define _PLAY_CONTROL
-
+#include "version.h"
 /*
  * 0.1 local mode works
  * 0.2 net mode works
@@ -30,7 +30,7 @@
 #define GIT_SHA1 "unknown"
 #endif
 
-#define VERSION "1.18_" GIT_SHA1
+#define VERSION VALUE_VERSION_DEFINE GIT_SHA1
 #define PORT_NUM 34567
 
 //display control
