@@ -44,3 +44,27 @@ BEGIN
         VALUE "Translation", 0x0, 1200
     END
 END
+
+IDM_MENU MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New",                        IDM_FILE_NEW
+        MENUITEM "&Open",                       IDM_FILE_OPEN
+        MENUITEM "&Save",                        IDM_FILE_SAVE
+    END
+    POPUP "&Control"
+    BEGIN
+        MENUITEM "&Back",                        IDM_CONTROL_BACK
+        MENUITEM "S&tart here",                  IDM_CONTROL_STARTHERE
+        MENUITEM "&Reset",                      IDM_CONTROL_RESET
+    END
+    POPUP "&Help"
+    BEGIN
+        POPUP "&View"
+        BEGIN
+            MENUITEM "Content1",                    IDM_VIEW_CONTEXT1
+            MENUITEM "Context2",                    IDM_VIEW_CONTEXT2
+        END
+    END
+END

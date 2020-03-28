@@ -440,6 +440,7 @@ int CALLBACK WinMain(
     else{
         gp_text_rc = &GBK_tr;
     }
+    hRoot = LoadMenu(hInstance, MAKEINTRESOURCE(IDM_MENU));
     CreateMyMenu();
     // class name
     const char* cls_Name = "My Class";
@@ -452,6 +453,7 @@ int CALLBACK WinMain(
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.hIcon  = LoadIcon (hInstance,(LPCTSTR)(MAIN_CHESS_ICON));
+    //wc.lpszMenuName = MAKEINTRESOURCE(IDM_MENU);
     // register windows class
     RegisterClass(&wc);
 
@@ -767,14 +769,14 @@ LRESULT CALLBACK WindowProc(
         case WM_CONTEXTMENU:
             {
                 //load menu rc
-                //HMENU hroot = LoadMenu((HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), MAKEINTRESOURCE(IDR_CONTEXT));
-                df("running state %d", g_chess_game.get_running_state());
+                //HMENU hroot = LoadMenu((HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE), MAKEINTRESOURCE(IDM_MENU));
+                df("right click:running state %d", g_chess_game.get_running_state());
                 if(INIT_STATE == g_chess_game.get_running_state()&& running_mode != TBD){
                     HMENU hroot = hRoot;
                     if(hroot)
                     {
                         // get first pop menu
-                        HMENU hpop = GetSubMenu(hroot,0);
+                        HMENU hpop = GetSubMenu(hroot,3);
                         // get cordinate of mouse
                         int px = GET_X_LPARAM(lParam);
                         int py = GET_Y_LPARAM(lParam);
@@ -1302,7 +1304,7 @@ LRESULT CALLBACK WindowProc(
 void CreateMyMenu()
 {
     static char menu_char[]= "timeout+50";
-    hRoot = CreateMenu();
+    //hRoot = CreateMenu();
     if(!hRoot)
         return;
     HMENU pop1 = CreatePopupMenu();
